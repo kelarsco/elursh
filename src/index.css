@@ -1,0 +1,404 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Crafto-inspired Design System */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+
+    --primary: 0 0% 8%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 168 45% 35%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 160 50% 60%;
+    --accent-foreground: 0 0% 8%;
+    
+    /* Brand gradient colors */
+    --brand-dark: 168 45% 25%;
+    --brand-light: 160 50% 70%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 8%;
+
+    --radius: 0rem;
+
+    /* Custom colors */
+    --teal: 168 45% 35%;
+    --teal-light: 160 50% 60%;
+    --mint: 160 50% 70%;
+    --dark: 0 0% 8%;
+    --dark-muted: 0 0% 15%;
+    --light-gray: 0 0% 96%;
+    --medium-gray: 0 0% 75%;
+    
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 26%;
+    --sidebar-primary: 0 0% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 91%;
+    --sidebar-ring: 48 100% 50%;
+  }
+
+  .dark {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 8%;
+
+    --secondary: 168 45% 35%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 160 50% 60%;
+    --accent-foreground: 0 0% 8%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 83%;
+    
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 168 45% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 168 45% 35%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70;
+  }
+  
+  .hover-underline {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-current after:transition-all after:duration-300 hover:after:w-full;
+  }
+  
+  .section-padding {
+    @apply py-20 md:py-28 lg:py-36;
+  }
+  
+  .container-custom {
+    @apply max-w-[1400px] mx-auto px-6 md:px-10 lg:px-16;
+  }
+
+  .cta-button {
+    transition: color 0.4s ease 0.2s;
+  }
+
+  .cta-button::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background-color: white;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .cta-button:hover::before {
+    width: 400px;
+    height: 400px;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .cta-button:hover {
+    color: hsl(var(--secondary-foreground));
+    border-color: hsl(var(--secondary));
+  }
+
+  .cta-button-text {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+  }
+
+  .cta-button:hover .cta-button-text {
+    transform: translateY(-4px);
+  }
+
+  /* Modern CTA Discover Button */
+  .cta-discover-button {
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .cta-discover-button:focus {
+    outline: 2px solid rgba(42, 42, 42, 0.3);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
+  .cta-icon-circle {
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .cta-text {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .cta-discover-button {
+      gap: 1rem;
+    }
+    
+    .cta-icon-circle {
+      width: 3rem;
+      height: 3rem;
+    }
+    
+    .cta-icon-circle svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+    
+    .cta-text {
+      font-size: 1rem;
+    }
+  }
+
+  /* Manager dashboard – glassmorphism (brand highlight = teal/mint), Inter + Space Grotesk only */
+  .manager-dashboard {
+    --manager-bg: #e5e5e5;
+    --manager-glass: rgba(255, 255, 255, 0.75);
+    --manager-glass-border: rgba(255, 255, 255, 0.5);
+    --manager-lime: hsl(var(--brand-light));
+    --manager-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    --radius: 0.5rem;
+    font-family: 'Inter', 'Space Grotesk', sans-serif;
+  }
+
+  .manager-dashboard h1,
+  .manager-dashboard h2,
+  .manager-dashboard h3,
+  .manager-dashboard h4,
+  .manager-dashboard h5,
+  .manager-dashboard h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .manager-glass-panel {
+    background: var(--manager-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--manager-glass-border);
+    box-shadow: var(--manager-shadow);
+    border-radius: 12px;
+  }
+
+  .manager-pill-active {
+    background: #0a0a0a !important;
+    color: white !important;
+  }
+
+  .manager-pill {
+    background: var(--manager-glass);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--manager-glass-border);
+    border-radius: 0.5rem;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Notification dropdown scrollbar: brand color, thin (0.3rem), transparent track */
+  .manager-notification-list {
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+    scrollbar-color: hsl(var(--brand-light) / 0.6) transparent;
+  }
+  .manager-notification-list::-webkit-scrollbar {
+    width: 0.3rem;
+  }
+  .manager-notification-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .manager-notification-list::-webkit-scrollbar-thumb {
+    background: hsl(var(--brand-light) / 0.6);
+    border-radius: 999px;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.8s ease-out forwards;
+  }
+  
+  .animate-slide-in-left {
+    animation: slideInLeft 0.8s ease-out forwards;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.8s ease-out forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.6s ease-out forwards;
+  }
+  
+  .animate-blur-fade-scale {
+    animation: blurFadeScale 0.8s ease-out forwards;
+  }
+  
+  .animate-yellow-highlight {
+    animation: yellowHighlightScale 0.8s ease-out forwards;
+  }
+  
+  .yellow-highlight-hidden {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .stats-section .split-char {
+    color: rgba(34, 34, 34, 1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes blurFadeScale {
+  from { 
+    opacity: 0; 
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+}
+
+@keyframes yellowHighlightScale {
+  from { 
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  to { 
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+/* Custom Hamburger Menu Icon */
+.hamburger-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  cursor: pointer;
+  position: relative;
+}
+
+.hamburger-bar {
+  width: 100%;
+  height: 2px;
+  background-color: hsl(var(--foreground));
+  border-radius: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.hamburger-menu.open .hamburger-bar:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger-menu.open .hamburger-bar:nth-child(2) {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.hamburger-menu.open .hamburger-bar:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
