@@ -181,11 +181,11 @@ const HeroSection = () => {
           >
             
             <span 
-              className="font-bold relative inline-block text-[65px] md:text-[90px]" 
+              className="font-bold relative inline-block text-[46px] md:text-[90px]" 
               ref={commerceHighlightRef}
               style={{
                 fontWeight: 900,
-                lineHeight: '80px'
+                lineHeight: '42px'
               }}
             >
               eCommerce
@@ -200,10 +200,10 @@ const HeroSection = () => {
             </span>
             <br />
             <span
-              className="text-[65px] md:text-[90px]"
+              className="text-[46px] md:text-[90px]"
               style={{
                 fontWeight: 900,
-                lineHeight: '74px'
+                lineHeight: '25px'
               }}
             >
               Backbone
