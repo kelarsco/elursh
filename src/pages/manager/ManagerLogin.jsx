@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { managerApiBase } from "@/lib/managerApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +34,7 @@ export default function ManagerLogin() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/manager/auth/totp", {
+      const res = await fetch(`${managerApiBase}/auth/totp`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

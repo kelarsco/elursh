@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Check, ArrowRight, ChevronDown, Search, Loader, User, Star } from "react-feather";
@@ -170,6 +171,14 @@ const Theme = () => {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>Shopify Themes | Beautiful Themes Built for Conversions | Elursh</title>
+        <meta name="description" content="Hand-crafted Shopify themes designed to maximize your store's potential. Browse premium themes built for conversions and sales growth." />
+        <link rel="canonical" href="https://elursh.com/theme" />
+        <meta property="og:url" content="https://elursh.com/theme" />
+        <meta property="og:title" content="Shopify Themes | Elursh" />
+        <meta property="og:description" content="Hand-crafted Shopify themes designed to maximize your store's potential." />
+      </Helmet>
       <Header />
 
       <section className="pt-32 pb-20 bg-background">

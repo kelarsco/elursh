@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
@@ -27,6 +28,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>Elursh | eCommerce Solutions – Build, Scale & Grow Your ecommerce Brand</title>
+        <meta name="description" content="Elursh delivers eCommerce solutions that drive real results. From store audits and design to strategy and analytics – partner with us to build and scale your brand." />
+        <link rel="canonical" href="https://elursh.com/" />
+      </Helmet>
       <Header />
       <HeroSection />
       <AboutSection />

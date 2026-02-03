@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -118,6 +119,14 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-background font-inter [&_h1]:font-sans [&_h2]:font-sans [&_h3]:font-sans [&_button]:font-sans">
+      <Helmet>
+        <title>Contact Us | Partner with Elursh | Elursh</title>
+        <meta name="description" content="Every client matters to us. Get in touch with Elursh to discuss your eCommerce goals and partner with us for real results." />
+        <link rel="canonical" href="https://elursh.com/contact" />
+        <meta property="og:url" content="https://elursh.com/contact" />
+        <meta property="og:title" content="Contact Us | Elursh" />
+        <meta property="og:description" content="Get in touch with Elursh for eCommerce solutions." />
+      </Helmet>
       <Header />
 
       {/* Hero header - matches About us style */}

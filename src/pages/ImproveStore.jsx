@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useSearchParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -298,6 +299,14 @@ export default function ImproveStore() {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>Improve Store | eCommerce Growth Services | Elursh</title>
+        <meta name="description" content="Done-for-you eCommerce services to increase sales and improve your store. SEO, CRO, design, and growth strategies from trusted experts." />
+        <link rel="canonical" href="https://elursh.com/improve-store" />
+        <meta property="og:url" content="https://elursh.com/improve-store" />
+        <meta property="og:title" content="Improve Store | Elursh" />
+        <meta property="og:description" content="Done-for-you eCommerce services to increase sales and improve your store." />
+      </Helmet>
       <Header />
 
       {/* Hero */}
