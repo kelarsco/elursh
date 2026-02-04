@@ -93,7 +93,7 @@ After adding variables, **Redeploy** the service.
 
 ## Step 5: Test the API
 
-From browser or Postman:
+From browser or c:
 
 - **POST** `https://YOUR_RAILWAY_URL/api/send-verification-code`  
   With body: `{ "email": "test@example.com" }`  
@@ -149,6 +149,21 @@ If you want `https://www.elursh.com/api/send-verification-code` to work **withou
 ## Step 7: CORS (already handled)
 
 The backend uses **`FRONTEND_ORIGIN`** or **`FRONTEND_ORIGINS`** from config for CORS. As long as you set one of these on Railway to `https://elursh.com` (and optionally `https://www.elursh.com`), the browser will allow requests from your site. No extra code needed.
+
+---
+
+## Manager dashboard: 401 on `/api/manager/auth/me`
+
+If you enter the TOTP code and are sent back to the login page with a **401 (Unauthorized)** on `GET .../api/manager/auth/me`, the session cookie is not being set or sent. The backend is set up for cross-origin cookies (frontend on Vercel, API on Railway):
+
+1. **Trust proxy** – In production the server sets `trust proxy` so `req.secure` is correct behind Railway’s proxy and the **Secure** session cookie is set.
+2. **SameSite=None** – When `FRONTEND_ORIGINS` (or `FRONTEND_ORIGIN`) is set, the session cookie uses `SameSite=None` so the browser sends it on cross-origin requests from your frontend to Railway.
+3. **Required on Railway:**  
+   - `NODE_ENV=production`  
+   - `SESSION_SECRET` = a long random string  
+   - `FRONTEND_ORIGINS=https://elursh.com,https://www.elursh.com` (or your real frontend URL(s))
+
+Redeploy the backend after changing env vars. If 401 persists, try in an incognito window and ensure you’re using the same frontend origin (e.g. always `https://www.elursh.com`) that you listed in `FRONTEND_ORIGINS`.
 
 ---
 

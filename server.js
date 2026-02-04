@@ -201,6 +201,10 @@ async function ensureThemesSeeded() {
   }
 }
 
+// Required behind Railway/reverse proxy so req.secure is true and Secure cookies are set
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
 app.use(
   cors({
     origin: config.cors.origin,
@@ -213,15 +217,19 @@ app.use(express.json());
 app.use("/api/v1", v1Router);
 
 const sessionSecret = process.env.SESSION_SECRET || "elursh-manager-secret-change-in-production";
+const isProduction = process.env.NODE_ENV === "production";
+// When frontend is on a different origin (e.g. Vercel), cookie must be SameSite=None so it's sent on cross-origin fetch()
+const cookieSameSite = isProduction && config.cors.origin && config.cors.origin !== true ? "none" : "lax";
 app.use(
   session({
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
+      sameSite: cookieSameSite,
     },
   })
 );
