@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { MessageCircle, Instagram, Linkedin, Share2 } from "lucide-react";
 import hero1Bg from "@/assets/hero2.png";
+import { apiBase } from "@/lib/apiBase";
 
 const PRIMARY_GOALS = [
   { value: "improve_store", label: "Improve store" },
@@ -90,7 +91,6 @@ export default function Contact() {
     e.preventDefault();
     setSubmitting(true);
     setErrors({});
-    const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
     try {
       const res = await fetch(`${apiBase}/api/contacts`, {
         method: "POST",

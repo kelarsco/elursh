@@ -16,6 +16,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { apiBase } from "@/lib/apiBase";
 
 const HEADLINE_OPTIONS = ["Increase Sales", "improve store"];
 const CATEGORIES = [
@@ -73,8 +74,7 @@ export default function ImproveStore() {
     const reference = searchParams.get("reference");
     if (!reference) return;
 
-    const base = import.meta.env.VITE_API_URL || "";
-    fetch(`${base}/api/paystack-verify?reference=${encodeURIComponent(reference)}`)
+    fetch(`${apiBase}/api/paystack-verify?reference=${encodeURIComponent(reference)}`)
       .then((res) => res.json().catch(() => ({ success: false })))
       .then((data) => {
         if (data.success === true) {
@@ -91,8 +91,7 @@ export default function ImproveStore() {
   }, [searchParams]);
 
   useEffect(() => {
-    const base = import.meta.env.VITE_API_URL || "";
-    fetch(`${base}/api/services`)
+    fetch(`${apiBase}/api/services`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((rows) => {
         const list = Array.isArray(rows) ? rows : [];
@@ -192,8 +191,7 @@ export default function ImproveStore() {
     setOrderError("");
     setOrderLoading(true);
     try {
-      const base = import.meta.env.VITE_API_URL || "";
-      const res = await fetch(`${base}/api/send-verification-code`, {
+      const res = await fetch(`${apiBase}/api/send-verification-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: orderEmail.trim() }),
@@ -222,7 +220,6 @@ export default function ImproveStore() {
     setOrderError("");
     setOrderLoading(true);
     try {
-      const base = import.meta.env.VITE_API_URL || "";
       const storeLink = orderStoreUrl.trim().replace(/^https?:\/\//i, "").trim();
       const fullStoreLink = storeLink ? `https://${storeLink}` : null;
       const orderPayload = {
@@ -235,7 +232,7 @@ export default function ImproveStore() {
         package_name: selectedPackage?.name ?? null,
         package_price_usd: selectedPackage?.price ?? null,
       };
-      const orderRes = await fetch(`${base}/api/orders`, {
+      const orderRes = await fetch(`${apiBase}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),
@@ -259,7 +256,7 @@ export default function ImproveStore() {
       }
 
       const callbackUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/improve-store`;
-      const paystackRes = await fetch(`${base}/api/paystack-initialize`, {
+      const paystackRes = await fetch(`${apiBase}/api/paystack-initialize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

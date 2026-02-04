@@ -38,6 +38,7 @@ import {
   Star,
   Globe,
 } from "react-feather";
+import { apiBase } from "@/lib/apiBase";
 
 // Contact – replace with your WhatsApp number (country code, no +)
 const WHATSAPP_NUMBER = "13439462565";
@@ -124,7 +125,7 @@ const AnalyzeStore = () => {
     const urlParam = searchParams.get("url");
     if (!reference) return;
 
-    const base = import.meta.env.VITE_API_URL || "";
+    const base = apiBase;
     fetch(`${base}/api/paystack-verify?reference=${encodeURIComponent(reference)}`)
       .then((res) => res.text().then((t) => ({ ok: res.ok, text: t })))
       .then(({ ok, text }) => {
@@ -149,7 +150,7 @@ const AnalyzeStore = () => {
       return;
     }
 
-    const base = import.meta.env.VITE_API_URL || "";
+    const base = apiBase;
     const normalizedUrl = storeUrl.trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "").toLowerCase() || storeUrl;
 
     const performAudit = async () => {
@@ -201,7 +202,7 @@ const AnalyzeStore = () => {
   useEffect(() => {
     if (!auditData || !storeUrl) return;
     const normalizedUrl = storeUrl.trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "").toLowerCase() || storeUrl;
-    const base = import.meta.env.VITE_API_URL || "";
+    const base = apiBase;
     fetch(`${base}/api/manual-purchase-status?storeUrl=${encodeURIComponent(normalizedUrl)}`)
       .then((res) => res.json())
       .then((data) => {
@@ -228,7 +229,7 @@ const AnalyzeStore = () => {
     const normalizedUrl = storeUrl?.trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "").toLowerCase() || storeUrl || "";
     let dataForPdf = auditData;
     try {
-      const base = import.meta.env.VITE_API_URL || "";
+      const base = apiBase;
       const res = await fetch(`${base}/api/store-audit-result?storeUrl=${encodeURIComponent(normalizedUrl)}`);
       if (res.ok) {
         const customReport = await res.json();
@@ -251,7 +252,7 @@ const AnalyzeStore = () => {
     const normalizedUrl = storeUrl?.trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "").toLowerCase() || storeUrl || "";
     let dataForPdf = auditData;
     try {
-      const base = import.meta.env.VITE_API_URL || "";
+      const base = apiBase;
       const res = await fetch(`${base}/api/store-audit-result?storeUrl=${encodeURIComponent(normalizedUrl)}`);
       if (res.ok) {
         const customReport = await res.json();
@@ -279,7 +280,7 @@ const AnalyzeStore = () => {
     const metadata = { store_url: normalizedStoreUrl, product: "fix_it_manual", amount_usd: FIX_IT_MANUAL_USD };
     setPaystackLoading(true);
     try {
-      const base = import.meta.env.VITE_API_URL || "";
+      const base = apiBase;
       const res = await fetch(`${base}/api/paystack-initialize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

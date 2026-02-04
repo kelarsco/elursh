@@ -1,9 +1,10 @@
 /**
  * Manager API client (credentials included for session cookie).
- * When frontend is on Vercel and backend elsewhere, set VITE_API_URL so requests go to the backend.
+ * Uses apiBase for proxy (same-origin) or direct Railway URL.
  */
-const apiOrigin = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
-const base = apiOrigin ? `${apiOrigin}/api/manager` : "/api/manager";
+import { apiBase } from "@/lib/apiBase";
+
+const base = apiBase ? `${apiBase}/api/manager` : "/api/manager";
 
 /** Base URL for manager API (for auth/totp etc when not using managerFetch). */
 export const managerApiBase = base;

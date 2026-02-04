@@ -106,43 +106,27 @@ If this works, the backend is live.
 
 ## Step 6: Point the frontend at the backend
 
-The frontend already uses `VITE_API_URL` when set. So:
+**Option A – Proxy mode (recommended, fixes manager dashboard 401)**
+
+`vercel.json` already rewrites `/api/*` to Railway, so API requests are same-origin (no third‑party cookie issues).
 
 1. In **Vercel** → Project → **Settings** → **Environment variables**:
-   - Add `VITE_API_URL` = your Railway URL (e.g. `https://elursh-production-xxxx.up.railway.app`), **no trailing slash**.
-2. **Redeploy** the frontend on Vercel so the build picks up `VITE_API_URL`.
+   - Add `VITE_USE_API_PROXY` = `true`
+   - You can remove `VITE_API_URL` (or leave it unset)
+2. In **Railway** → Your service → **Variables**:
+   - Add `COOKIE_DOMAIN` = `.elursh.com` (so the session cookie works when proxied)
+3. **Redeploy** both Vercel and Railway.
 
-All frontend API calls (including `/api/send-verification-code`) will then go to Railway. No frontend code changes needed.
+With this setup, all API calls go to `www.elursh.com/api/...` (proxied to Railway) and the manager dashboard login works.
 
----
+**Option B – Direct mode (if you prefer direct Railway URLs)**
 
-## Optional: Clean URLs with Vercel proxy (same-origin /api)
+1. In **Vercel** → Project → **Settings** → **Environment variables**:
+   - Add `VITE_API_URL` = your Railway URL (e.g. `https://elursh-production-xxxx.up.railway.app`), **no trailing slash**
+   - Do **not** set `VITE_USE_API_PROXY`
+2. **Redeploy** the frontend on Vercel.
 
-If you want `https://www.elursh.com/api/send-verification-code` to work **without** setting `VITE_API_URL` (i.e. frontend always uses relative `/api/...` and Vercel proxies to Railway):
-
-1. In your **frontend** repo root, edit **`vercel.json`**.
-2. Add a rewrite **before** the SPA fallback so `/api` is proxied to Railway. Example (replace `YOUR_RAILWAY_URL` with your real Railway URL):
-
-```json
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://YOUR_RAILWAY_URL/api/:path*"
-    },
-    {
-      "source": "/:path((?!api/).*)",
-      "destination": "/index.html"
-    }
-  ]
-}
-```
-
-3. Replace `YOUR_RAILWAY_URL` with e.g. `elursh-production-xxxx.up.railway.app` (no `https://` in the destination is fine; Vercel will add it).
-4. If you use this proxy, you can leave `VITE_API_URL` unset so the frontend uses relative URLs.
+API calls go directly to Railway. Manager login may fail with 401 in some browsers due to third‑party cookie blocking; use Option A if that happens.
 
 ---
 
@@ -154,11 +138,10 @@ The backend uses **`FRONTEND_ORIGIN`** or **`FRONTEND_ORIGINS`** from config for
 
 ## Manager dashboard: 401 on `/api/manager/auth/me`
 
-If you enter the TOTP code and are sent back to the login page with a **401 (Unauthorized)** on `GET .../api/manager/auth/me`, the session cookie is not being set or sent. The backend is set up for cross-origin cookies (frontend on Vercel, API on Railway):
+If you get 401 on `/api/manager/auth/me` after TOTP login:
 
-1. **Trust proxy** – In production the server sets `trust proxy` so `req.secure` is correct behind Railway’s proxy and the **Secure** session cookie is set.
-2. **SameSite=None** – When `FRONTEND_ORIGINS` (or `FRONTEND_ORIGIN`) is set, the session cookie uses `SameSite=None` so the browser sends it on cross-origin requests from your frontend to Railway.
-3. **Required on Railway:**  
+1. Use **proxy mode** (Step 6 Option A): `VITE_USE_API_PROXY=true` on Vercel, `COOKIE_DOMAIN=.elursh.com` on Railway. Redeploy both. Railway’s proxy and the **Secure** session cookie is set.
+2. Also ensure on Railway: NODE_ENV, SESSION_SECRET, FRONTEND_ORIGINS.  
    - `NODE_ENV=production`  
    - `SESSION_SECRET` = a long random string  
    - `FRONTEND_ORIGINS=https://elursh.com,https://www.elursh.com` (or your real frontend URL(s))

@@ -47,8 +47,7 @@ const Theme = () => {
   const [purchaseError, setPurchaseError] = useState("");
 
   useEffect(() => {
-    const base = import.meta.env.VITE_API_URL || "";
-    fetch(`${base}/api/themes`)
+    fetch(`${apiBase}/api/themes`)
       .then((res) => res.ok ? res.json() : [])
       .then((arr) => {
         if (Array.isArray(arr) && arr.length > 0) {
@@ -130,7 +129,6 @@ const Theme = () => {
     }
     setPurchaseError("");
     setPurchaseLoading(true);
-    const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
     try {
       const callbackUrl = `${window.location.origin}/theme/thank-you`;
       const res = await fetch(`${apiBase}/api/paystack-initialize`, {

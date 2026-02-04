@@ -218,8 +218,10 @@ app.use("/api/v1", v1Router);
 
 const sessionSecret = process.env.SESSION_SECRET || "elursh-manager-secret-change-in-production";
 const isProduction = process.env.NODE_ENV === "production";
-// When frontend is on a different origin (e.g. Vercel), cookie must be SameSite=None so it's sent on cross-origin fetch()
-const cookieSameSite = isProduction && config.cors.origin && config.cors.origin !== true ? "none" : "lax";
+// When frontend proxies /api through Vercel (same-origin), use Lax. When direct cross-origin, use None.
+const useProxy = !!process.env.COOKIE_DOMAIN;
+const cookieSameSite = useProxy ? "lax" : (isProduction && config.cors.origin && config.cors.origin !== true ? "none" : "lax");
+const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
 app.use(
   session({
     secret: sessionSecret,
@@ -230,6 +232,7 @@ app.use(
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
       sameSite: cookieSameSite,
+      ...(cookieDomain && { domain: cookieDomain }),
     },
   })
 );
