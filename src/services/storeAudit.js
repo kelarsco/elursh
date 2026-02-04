@@ -35,6 +35,13 @@ const fetchStoreHTML = async (url) => {
         urlObj.hostname.startsWith('172.')) {
       throw new Error('Local URLs are not supported. Please provide a publicly accessible store URL.');
     }
+
+    // Only allow root URLs (e.g. example.com, www.example.com, store.example.com, example.co.uk)
+    // Reject deep paths like /products/shoes, /collections/xyz, /pages/about
+    const pathSegments = urlObj.pathname.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+    if (pathSegments.length > 0) {
+      throw new Error('Please enter your store root URL only (e.g. yourstore.com or www.yourstore.com). Do not include product pages, collections, or other paths.');
+    }
   } catch (e) {
     if (e.message.includes('Local URLs')) {
       throw e;
@@ -174,6 +181,18 @@ const fetchStoreHTML = async (url) => {
       // Validate HTML content
       if (!htmlContent || htmlContent.trim().length === 0) {
         throw new Error('Empty response from proxy');
+      }
+
+      // Reject Shopify "store unavailable" / inactive store page
+      const contentLower = htmlContent.toLowerCase();
+      const isShopifyUnavailable = (
+        contentLower.includes('sorry, this store is currently unavailable') ||
+        contentLower.includes('store is currently unavailable') ||
+        (contentLower.includes('explore other stores') && contentLower.includes('shopify')) ||
+        (contentLower.includes('this store is currently unavailable') && contentLower.includes('shopify'))
+      );
+      if (isShopifyUnavailable) {
+        throw new Error('This store is currently unavailable. The store may be inactive, suspended, or the URL may be incorrect.');
       }
       
       // Create a temporary DOM parser
@@ -414,36 +433,30 @@ const validateIsStore = (doc, url) => {
                      bodyText.match(/€[\d,]+\.?\d*/) !== null ||
                      bodyText.match(/£[\d,]+\.?\d*/) !== null;
   
-  // Must have at least 1 strong indicator to be considered a store
-  // Made more lenient to avoid false rejections
+  // Must have noticeable ecommerce features to be considered a store
   const indicators = [
     hasPlatform,
     hasEcommerceElements,
     hasProductKeywords,
     hasPricing,
-    // Also check if URL suggests it's a store
     url.includes('.myshopify.com') || url.includes('shop') || url.includes('store')
   ];
-  
   const strongIndicators = indicators.filter(Boolean).length;
-  
-  // Require at least 1 indicator (more lenient)
-  if (strongIndicators < 1) {
-    // Double-check with more lenient criteria
-    const hasAnyEcommerceSign = (
-      hasPlatform ||
-      hasEcommerceElements ||
-      hasProductKeywords ||
-      hasPricing ||
-      bodyText.includes('shop') ||
-      bodyText.includes('buy') ||
-      bodyText.includes('cart') ||
-      doc.querySelectorAll('a[href*="product"], a[href*="shop"], a[href*="cart"]').length > 0
-    );
-    
-    if (!hasAnyEcommerceSign) {
-      throw new Error('This domain does not appear to be an ecommerce store. Please provide a valid store URL (Shopify, WooCommerce, BigCommerce, or other ecommerce platform).');
-    }
+
+  // Require at least 2 indicators for a valid store (platform + products/cart/pricing)
+  const hasAnyEcommerceSign = (
+    hasPlatform ||
+    hasEcommerceElements ||
+    hasProductKeywords ||
+    hasPricing ||
+    bodyText.includes('shop') ||
+    bodyText.includes('buy') ||
+    bodyText.includes('cart') ||
+    doc.querySelectorAll('a[href*="product"], a[href*="shop"], a[href*="cart"]').length > 0
+  );
+
+  if (strongIndicators < 1 || !hasAnyEcommerceSign) {
+    throw new Error('This domain does not appear to be an ecommerce store. Please provide a valid store URL (Shopify, WooCommerce, BigCommerce, or other ecommerce platform) with a noticeable storefront.');
   }
   
   return true;
