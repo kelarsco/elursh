@@ -14,6 +14,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { apiBase } from "@/lib/apiBase";
 
 const THEMES_PER_PAGE = 24;
 
