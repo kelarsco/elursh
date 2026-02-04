@@ -31,10 +31,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Store, ChevronRight, MoreVertical, Trash2, Download, FileText } from "lucide-react";
+import { Search, Store, ChevronRight, MoreVertical, Trash2, Download, FileText, Plus, Trash } from "lucide-react";
 import { generateAuditReportPdf, generateFixItManualPdf } from "@/lib/auditPdf";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+
+// Default category structure (matches audit: Trust, UX and Accessibility, Products, SEO, Email, Ads)
+const DEFAULT_CATEGORY_IDS = ["trust", "ux", "products", "seo", "email", "ads"];
+const DEFAULT_CATEGORY_TITLES = {
+  trust: "Trust Signals & Credibility",
+  ux: "UX and Accessibility",
+  products: "Product Pages",
+  seo: "SEO Audit",
+  email: "Email Marketing & Automation",
+  ads: "Ads Readiness & Funnel",
+};
 
 // Normalize report/result JSON so modal always has storeInfo, revenueLoss, categories, actionPlan (matches public audit page shape)
 function normalizeReportData(data, storeUrl) {
@@ -56,7 +67,7 @@ function normalizeReportData(data, storeUrl) {
           : [],
       }
     : { min: 0, max: 0, breakdown: [] };
-  const categories = Array.isArray(data.categories)
+  const rawCategories = Array.isArray(data.categories)
     ? data.categories.map((c) => ({
         id: c?.id ?? crypto.randomUUID?.() ?? Math.random().toString(36),
         icon: c?.icon ?? "Package",
@@ -70,6 +81,28 @@ function normalizeReportData(data, storeUrl) {
           : [],
       }))
     : [];
+  // Ensure all default categories exist (merge missing ones for admin editing)
+  const usedIds = new Set();
+  const categories = DEFAULT_CATEGORY_IDS.map((id) => {
+    const defTitle = DEFAULT_CATEGORY_TITLES[id];
+    const existing = rawCategories.find((c) => c.id === id || c.title === defTitle || (c.title || "").toLowerCase().includes(id));
+    if (existing && !usedIds.has(existing.id)) {
+      usedIds.add(existing.id);
+      return existing;
+    }
+    return {
+      id,
+      icon: "Package",
+      title: defTitle,
+      score: 50,
+      status: "Average",
+      impact: "",
+      recommendation: "",
+      checks: [],
+    };
+  });
+  // Append any extra categories from the report (e.g. custom)
+  rawCategories.filter((c) => !usedIds.has(c.id)).forEach((c) => categories.push(c));
   const actionPlan = Array.isArray(data.actionPlan)
     ? data.actionPlan.map((a) => ({
         icon: a?.icon ?? "TrendingUp",
@@ -241,6 +274,61 @@ export default function AnalysedStores() {
     setReportData((prev) => {
       if (!prev?.actionPlan) return prev;
       const actionPlan = prev.actionPlan.map((a, i) => (i !== index ? a : { ...a, [key]: value }));
+      return { ...prev, actionPlan };
+    });
+  };
+  const addCategory = () => {
+    setReportData((prev) => {
+      if (!prev) return prev;
+      const categories = [...(prev.categories ?? []), {
+        id: crypto.randomUUID?.() ?? `cat-${Date.now()}`,
+        icon: "Package",
+        title: "New category",
+        score: 50,
+        status: "Average",
+        impact: "",
+        recommendation: "",
+        checks: [],
+      }];
+      return { ...prev, categories };
+    });
+  };
+  const addCheck = (catIndex) => {
+    setReportData((prev) => {
+      if (!prev?.categories?.[catIndex]) return prev;
+      const categories = prev.categories.map((c, i) =>
+        i !== catIndex ? c : { ...c, checks: [...(c.checks ?? []), { item: "", details: "", status: "warning" }] }
+      );
+      return { ...prev, categories };
+    });
+  };
+  const removeCategory = (catIndex) => {
+    setReportData((prev) => {
+      if (!prev?.categories) return prev;
+      const categories = prev.categories.filter((_, i) => i !== catIndex);
+      return { ...prev, categories };
+    });
+  };
+  const removeCheck = (catIndex, checkIndex) => {
+    setReportData((prev) => {
+      if (!prev?.categories?.[catIndex]?.checks) return prev;
+      const categories = prev.categories.map((c, i) =>
+        i !== catIndex ? c : { ...c, checks: c.checks.filter((_, j) => j !== checkIndex) }
+      );
+      return { ...prev, categories };
+    });
+  };
+  const addAction = () => {
+    setReportData((prev) => {
+      if (!prev) return prev;
+      const actionPlan = [...(prev.actionPlan ?? []), { icon: "TrendingUp", action: "", timeEstimate: "", revenueImpact: "", priority: "Medium" }];
+      return { ...prev, actionPlan };
+    });
+  };
+  const removeAction = (index) => {
+    setReportData((prev) => {
+      if (!prev?.actionPlan) return prev;
+      const actionPlan = prev.actionPlan.filter((_, i) => i !== index);
       return { ...prev, actionPlan };
     });
   };
@@ -574,11 +662,18 @@ export default function AnalysedStores() {
 
                 {/* Detailed audit results – categories */}
                 <section className="rounded-xl border-2 border-gray-200 bg-gray-50 p-4 space-y-4 font-inter">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide font-space">Detailed audit results (categories)</h3>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide font-space">Detailed audit results (categories)</h3>
+                    <Button type="button" variant="outline" size="sm" onClick={addCategory} className="gap-1.5 font-inter">
+                      <Plus className="w-4 h-4" />
+                      Add category
+                    </Button>
+                  </div>
                   <div className="space-y-6">
                     {(reportData.categories ?? []).map((category, catIndex) => (
                       <div key={category.id ?? catIndex} className="rounded-lg border-2 border-gray-200 bg-white p-4 space-y-4 font-inter">
-                        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                        <div className="flex items-start justify-between gap-2">
+                        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4 flex-1">
                           <div>
                             <Label className="text-gray-700 font-inter">Category title</Label>
                             <Input
@@ -609,6 +704,11 @@ export default function AnalysedStores() {
                             />
                           </div>
                         </div>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => removeCategory(catIndex)} className="shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50">
+                          <Trash className="w-4 h-4" />
+                          <span className="sr-only">Remove category</span>
+                        </Button>
+                        </div>
                         <div>
                           <Label className="text-gray-700 font-inter">Impact</Label>
                           <Textarea
@@ -628,10 +728,16 @@ export default function AnalysedStores() {
                           />
                         </div>
                         <div>
-                          <Label className="text-gray-700 font-inter">Issues (checks)</Label>
-                          <div className="mt-2 space-y-2">
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <Label className="text-gray-700 font-inter">Issues (checks)</Label>
+                            <Button type="button" variant="outline" size="sm" onClick={() => addCheck(catIndex)} className="gap-1 font-inter">
+                              <Plus className="w-3.5 h-3.5" />
+                              Add check
+                            </Button>
+                          </div>
+                          <div className="space-y-2">
                             {(category.checks ?? []).map((check, checkIndex) => (
-                              <div key={checkIndex} className="flex flex-wrap gap-2 rounded border border-gray-100 bg-gray-50 p-2 font-inter">
+                              <div key={checkIndex} className="flex flex-wrap gap-2 rounded border border-gray-100 bg-gray-50 p-2 font-inter items-start">
                                 <Input
                                   value={check.item}
                                   onChange={(e) => updateCheck(catIndex, checkIndex, "item", e.target.value)}
@@ -651,6 +757,10 @@ export default function AnalysedStores() {
                                   rows={1}
                                   className="flex-1 min-w-[180px] border-gray-300 bg-white text-gray-900 font-inter"
                                 />
+                                <Button type="button" variant="ghost" size="icon" onClick={() => removeCheck(catIndex, checkIndex)} className="shrink-0 h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50">
+                                  <Trash className="w-4 h-4" />
+                                  <span className="sr-only">Remove</span>
+                                </Button>
                               </div>
                             ))}
                           </div>
@@ -662,10 +772,16 @@ export default function AnalysedStores() {
 
                 {/* Recommended actions */}
                 <section className="rounded-xl border-2 border-gray-200 bg-gray-50 p-4 space-y-4 font-inter">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide font-space">Recommended actions (prioritized)</h3>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide font-space">Recommended actions (prioritized)</h3>
+                    <Button type="button" variant="outline" size="sm" onClick={addAction} className="gap-1.5 font-inter">
+                      <Plus className="w-4 h-4" />
+                      Add action
+                    </Button>
+                  </div>
                   <div className="space-y-3">
                     {(reportData.actionPlan ?? []).map((action, index) => (
-                      <div key={index} className="rounded-lg border-2 border-gray-200 bg-white p-4 flex flex-wrap gap-3 font-inter">
+                      <div key={index} className="rounded-lg border-2 border-gray-200 bg-white p-4 flex flex-wrap gap-3 font-inter items-end">
                         <div className="flex-1 min-w-[200px]">
                           <Label className="text-gray-700 font-inter">Action</Label>
                           <Input
@@ -702,6 +818,10 @@ export default function AnalysedStores() {
                             placeholder="e.g. +5–10%"
                           />
                         </div>
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeAction(index)} className="shrink-0 h-9 w-9 text-red-500 hover:text-red-700 hover:bg-red-50">
+                          <Trash className="w-4 h-4" />
+                          <span className="sr-only">Remove</span>
+                        </Button>
                       </div>
                     ))}
                   </div>

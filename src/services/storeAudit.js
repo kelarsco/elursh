@@ -821,9 +821,9 @@ const auditUX = (doc, url) => {
   } else if (hasGenericNames && !hasMeaningfulNames && collectionLinks.length === 0) {
     navQuality = 'critical';
     navDetails = `Navigation uses generic names (${navTexts.join(', ')}) without proper collection links. Navigation should have clear category names that link to collections (e.g., "Women's Clothing", "Men's Shoes" instead of just "Shop" or "Products").`;
-  } else if (collectionLinks.length < 2) {
+  } else if (collectionLinks.length < 3) {
     navQuality = 'warning';
-    navDetails = `Only ${collectionLinks.length} collection link(s) found. Navigation should have multiple collection/category links for better product discovery.`;
+    navDetails = `Only ${collectionLinks.length} collection link(s) found — below the minimum of 3. Poor navigation; add more collection/category links for better product discovery.`;
   } else {
     navQuality = 'good';
     navDetails = `Solid navigation with ${collectionLinks.length} collection links. Consider adding more category depth for better product discovery.`;
@@ -953,6 +953,31 @@ const auditUX = (doc, url) => {
     status: blankWithoutRel.length === 0 ? 'good' : 'warning',
     details: blankWithoutRel.length === 0 ? 'External links use rel="noopener" where needed.' : `${blankWithoutRel.length} link(s) use target="_blank" without rel="noopener". Add rel="noopener noreferrer" for security.`
   });
+
+  // Section structure (content sections apart from header/footer)
+  const mainEl = doc.querySelector('main, [role="main"], #MainContent, #main, .main-content');
+  const headerEl = doc.querySelector('header, [role="banner"]');
+  const footerEl = doc.querySelector('footer, [role="contentinfo"]');
+  let countFromMain = 0;
+  if (mainEl) {
+    const mainSections = mainEl.querySelectorAll(':scope > section, :scope > div[class*="section"], :scope > div[class*="block"], :scope > div[class*="module"]');
+    countFromMain = mainSections.length;
+  }
+  const allSections = doc.querySelectorAll('section');
+  const outsideHeaderFooter = Array.from(allSections).filter(s => {
+    if (headerEl?.contains(s)) return false;
+    if (footerEl?.contains(s)) return false;
+    return true;
+  });
+  const sectionCount = Math.max(countFromMain, outsideHeaderFooter.length);
+  const minSections = 4;
+  checks.push({
+    item: 'Content section structure',
+    status: sectionCount >= minSections ? 'good' : sectionCount >= 3 ? 'warning' : 'critical',
+    details: sectionCount >= minSections
+      ? `${sectionCount} content section(s) found. Good page structure.`
+      : `Only ${sectionCount} content section(s) — below ${minSections}. Section structure is poor; add more sections (hero, features, products, testimonials, CTA) for better engagement.`
+  });
   
   // Ensure at least 4 checks have negative feedback (not green)
   const goodCount = checks.filter((c) => c.status === 'good').length;
@@ -972,7 +997,7 @@ const auditUX = (doc, url) => {
   const score = Math.min(90, Math.round(rawScore * 0.9));
   
   // Adjust impact message based on navigation quality and free theme
-  const hasPoorNavigation = collectionLinks.length === 0 || (hasGenericNames && !hasMeaningfulNames);
+  const hasPoorNavigation = collectionLinks.length < 3 || (hasGenericNames && !hasMeaningfulNames);
   
   let impact = 'UX improvements could significantly increase conversions. Poor navigation, missing mobile optimization, and lack of accessibility features prevent customers from easily finding and purchasing products.';
   
@@ -1540,13 +1565,13 @@ const auditAdsReadiness = (doc) => {
     details: `${retargetingPixels} retargeting pixel(s) detected. Retargeting is essential for converting visitors who didn't purchase initially.`
   });
   
-  // Check for server-side tracking (more reliable)
+  // Check for server-side tracking (always report as average)
   const serverSideTracking = html.includes('server-side') || 
                              html.includes('s2s') ||
                              html.includes('server_side');
   checks.push({
     item: 'Server-side tracking implementation',
-    status: serverSideTracking ? 'good' : 'warning',
+    status: 'warning',
     details: serverSideTracking ? 'Server-side tracking detected' : 'No server-side tracking. Browser-based tracking is less reliable due to privacy restrictions.'
   });
   
@@ -1569,19 +1594,19 @@ const auditAdsReadiness = (doc) => {
     details: hasUTMHandling ? 'UTM tracking detected' : 'UTM parameter tracking not detected. UTM parameters help track which ads drive traffic and conversions.'
   });
   
-  // Check for ad-specific landing pages or campaign pages
+  // Check for ad-specific landing pages or campaign pages (always report as average)
   const campaignPages = doc.querySelectorAll('a[href*="campaign"], a[href*="promo"], a[href*="sale"]');
   checks.push({
     item: 'Campaign-specific landing pages',
-    status: campaignPages.length > 0 ? 'good' : 'warning',
+    status: 'warning',
     details: campaignPages.length > 0 ? `${campaignPages.length} campaign page(s) found` : 'No campaign-specific landing pages. Dedicated landing pages improve ad conversion rates.'
   });
   
-  // Check for proper checkout flow tracking
+  // Check for proper checkout flow tracking (always report as average)
   const checkoutFlow = html.includes('checkout') && (html.includes('step') || html.includes('stage'));
   checks.push({
     item: 'Checkout flow tracking',
-    status: checkoutFlow ? 'good' : 'warning',
+    status: 'warning',
     details: checkoutFlow ? 'Checkout flow tracking detected' : 'Checkout flow tracking not detected. Tracking checkout steps helps identify drop-off points.'
   });
   
