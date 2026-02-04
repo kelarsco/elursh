@@ -130,9 +130,10 @@ const Theme = () => {
     }
     setPurchaseError("");
     setPurchaseLoading(true);
+    const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
     try {
       const callbackUrl = `${window.location.origin}/theme/thank-you`;
-      const res = await fetch("/api/paystack-initialize", {
+      const res = await fetch(`${apiBase}/api/paystack-initialize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -90,8 +90,9 @@ export default function Contact() {
     e.preventDefault();
     setSubmitting(true);
     setErrors({});
+    const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
     try {
-      const res = await fetch("/api/contacts", {
+      const res = await fetch(`${apiBase}/api/contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
