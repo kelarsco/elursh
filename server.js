@@ -310,37 +310,25 @@ function generateFourDigitCode() {
 
 async function sendVerificationCodeEmail(email, code) {
   const resendKey = process.env.RESEND_API_KEY;
-  if (resendKey) {
-    const from = process.env.RESEND_FROM || process.env.SMTP_FROM || "onboarding@resend.dev";
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${resendKey}`,
-      },
-      body: JSON.stringify({
-        from: from.includes("<") ? from : `Elursh <${from}>`,
-        to: [email],
-        subject: "Your verification code – Elursh",
-        html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 5 minutes. Enter it on the order form to verify and place your order.</p><p>If you didn't request this, you can ignore this email.</p><p>— Elursh</p>`,
-      }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.message || data.error || `Resend failed: ${res.status}`);
-    return;
+  if (!resendKey || !resendKey.trim()) {
+    throw new Error("Verification emails require Resend. Set RESEND_API_KEY and RESEND_FROM on Railway.");
   }
-  const transporter = getEmailTransporter();
-  if (!transporter) {
-    throw new Error("Email not configured. Set RESEND_API_KEY (recommended) or EMAIL_USER + EMAIL_APP_PASSWORD (e.g. Gmail) in .env to send verification emails.");
-  }
-  const from = getEmailFrom() || process.env.EMAIL_USER || process.env.SMTP_USER;
-  await transporter.sendMail({
-    from: from || process.env.EMAIL_USER || process.env.SMTP_USER,
-    to: email,
-    subject: "Your verification code – Elursh",
-    text: `Your verification code is: ${code}\n\nIt expires in 5 minutes. Enter it on the order form to verify and place your order.\n\nIf you didn't request this, you can ignore this email.\n\n— Elursh`,
-    html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 5 minutes. Enter it on the order form to verify and place your order.</p><p>If you didn't request this, you can ignore this email.</p><p>— Elursh</p>`,
+  const from = process.env.RESEND_FROM || "onboarding@resend.dev";
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${resendKey}`,
+    },
+    body: JSON.stringify({
+      from: from.includes("<") ? from : `Elursh <${from}>`,
+      to: [email],
+      subject: "Your verification code – Elursh",
+      html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 5 minutes. Enter it on the order form to verify and place your order.</p><p>If you didn't request this, you can ignore this email.</p><p>— Elursh</p>`,
+    }),
   });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || data.error || `Resend failed: ${res.status}`);
 }
 
 async function sendThemeConfirmationEmail({ email, themeName, storeLink }) {
@@ -1237,7 +1225,7 @@ app.post("/api/manager/send-fix-it-pdf", requireManager, requireDb, async (req, 
   }
 });
 
-// Send email (manager)
+// Send email (manager) — uses Resend only
 app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) => {
   try {
     const b = req.body || {};
@@ -1246,16 +1234,28 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
     const bodyText = b.body_text || b.text || "";
     const bodyHtml = b.body_html || b.html || "";
     if (!to) return res.status(400).json({ error: "to_email required" });
-    const transporter = getEmailTransporter();
-    if (!transporter) return res.status(503).json({ error: "Email not configured. Set EMAIL_USER + EMAIL_APP_PASSWORD (or SMTP_*) in .env." });
-    const from = getEmailFrom() || process.env.EMAIL_USER || process.env.SMTP_USER;
-    await transporter.sendMail({
-      from: from || process.env.EMAIL_USER || process.env.SMTP_USER,
-      to,
-      subject: subject || "(No subject)",
-      text: bodyText || undefined,
-      html: bodyHtml || undefined,
+    if (!bodyText && !bodyHtml) return res.status(400).json({ error: "Message body (body_text or body_html) required" });
+    const resendKey = process.env.RESEND_API_KEY;
+    if (!resendKey || !resendKey.trim()) {
+      return res.status(503).json({ error: "Email not configured. Set RESEND_API_KEY and RESEND_FROM on Railway." });
+    }
+    const from = process.env.RESEND_FROM || "onboarding@resend.dev";
+    const resRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${resendKey}`,
+      },
+      body: JSON.stringify({
+        from: from.includes("<") ? from : `Elursh <${from}>`,
+        to: [to],
+        subject: subject || "(No subject)",
+        text: bodyText || undefined,
+        html: bodyHtml || (bodyText || "").replace(/\n/g, "<br>") || "<p>No content</p>",
+      }),
     });
+    const data = await resRes.json().catch(() => ({}));
+    if (!resRes.ok) throw new Error(data.message || data.error || `Resend failed: ${resRes.status}`);
     await query(
       "INSERT INTO emails_sent (to_email, subject, body_text, body_html) VALUES ($1,$2,$3,$4)",
       [to, subject || null, bodyText || null, bodyHtml || null]

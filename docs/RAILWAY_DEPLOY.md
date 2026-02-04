@@ -60,19 +60,10 @@ In **Railway → Project → Your service → Variables**, add:
 **Database (Neon)**  
 - `DATABASE_URL` = your Neon Postgres URL (you already have this).
 
-**Email (Gmail)** – use either set:
+**Email (Resend)** – required for verification codes and manager send-email:
 
-- **Option A (recommended):**  
-  `EMAIL_SERVICE=gmail`  
-  `EMAIL_USER=info@elursh.com`  
-  `EMAIL_APP_PASSWORD=your_google_app_password`
-
-- **Option B (prompt-style names):**  
-  `SENDER_EMAIL=info@elursh.com`  
-  `SMTP_HOST=smtp.gmail.com`  
-  `SMTP_PORT=587`  
-  `SMTP_USER=info@elursh.com`  
-  `SMTP_PASS=your_google_app_password`
+- `RESEND_API_KEY` = your Resend API key  
+- `RESEND_FROM` = verified sender (e.g. `notifications@elursh.com` or `onboarding@resend.dev` for testing)
 
 **CORS (required)**  
 - `FRONTEND_ORIGIN=https://elursh.com`  
