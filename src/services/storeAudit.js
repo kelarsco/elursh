@@ -58,7 +58,7 @@ const fetchStoreHTML = async (url) => {
     const proxyUrl = proxyServices[i];
     const controller = new AbortController();
     // Increase timeout for each subsequent attempt
-    const timeout = 20000 + (i * 5000); // 20s, 25s, 30s
+    const timeout = 8000 + (i * 3000); // 8s, 11s, 14s — faster fail for better UX
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
     try {
@@ -759,7 +759,7 @@ const detectShopifyFreeTheme = (doc, url) => {
   };
 };
 
-// UX & Navigation Audit
+// UX and Accessibility Audit (comprehensive store structure review)
 const auditUX = (doc, url) => {
   const checks = [];
   
@@ -826,37 +826,33 @@ const auditUX = (doc, url) => {
     navDetails = `Only ${collectionLinks.length} collection link(s) found. Navigation should have multiple collection/category links for better product discovery.`;
   } else {
     navQuality = 'good';
-    navDetails = `Good navigation structure with ${collectionLinks.length} collection links found. Navigation properly connects to product collections. Good, but should be improved.`;
+    navDetails = `Solid navigation with ${collectionLinks.length} collection links. Consider adding more category depth for better product discovery.`;
   }
-  // Always report as needs improvement (warning) per product requirement
   checks.push({
     item: 'Navigation structure & collection links',
-    status: 'warning',
+    status: navQuality === 'good' ? 'good' : navQuality === 'critical' ? 'critical' : 'warning',
     details: navDetails
   });
   
-  // Check mobile viewport — good but should be improved
   const viewport = checkElement(doc, 'meta[name="viewport"]');
   checks.push({
     item: 'Mobile responsive',
-    status: 'warning',
-    details: viewport.exists ? 'Viewport meta tag present. Good, but should be improved.' : 'Missing viewport meta tag'
+    status: viewport.exists ? 'good' : 'critical',
+    details: viewport.exists ? 'Viewport meta present. Ensure breakpoints are tested across devices.' : 'Missing viewport meta tag — mobile layout may break.'
   });
   
-  // Check for CTAs — good but should be improved when present
   const ctas = checkElements(doc, 'button, [class*="cta"], [class*="button"], a[class*="btn"]');
   checks.push({
     item: 'CTA buttons present',
-    status: 'warning',
-    details: ctas.count >= 1 ? `${ctas.count} CTA elements found. Good, but should be improved.` : `${ctas.count} CTA elements found`
+    status: ctas.count >= 3 ? 'good' : ctas.count >= 1 ? 'warning' : 'critical',
+    details: ctas.count >= 3 ? `${ctas.count} CTAs found. Prioritize above-the-fold CTAs for conversion.` : ctas.count >= 1 ? `${ctas.count} CTA(s) found. Add more prominent buy/add-to-cart CTAs.` : 'No clear CTAs detected. Add-to-cart and checkout buttons are critical for conversion.'
   });
   
-  // Check page structure — good but should be improved
   const mainContent = checkElement(doc, 'main, [role="main"], [class*="main"], [id*="main"]');
   checks.push({
     item: 'Page structure semantic',
-    status: 'warning',
-    details: mainContent.exists ? 'Semantic HTML structure. Good, but should be improved.' : 'Could improve semantic structure'
+    status: mainContent.exists ? 'good' : 'warning',
+    details: mainContent.exists ? 'Semantic structure (main/role) present. Improves accessibility and SEO.' : 'Missing main content landmark. Use <main> or role="main" for screen readers.'
   });
   
   // Check for search functionality
@@ -883,43 +879,35 @@ const auditUX = (doc, url) => {
     details: `${footerLinks.length} footer links found. Footer should include important links like policies, contact, and site navigation.`
   });
   
-  // Check for mobile menu/hamburger menu — good but should be improved
   const mobileMenu = checkElement(doc, '[class*="mobile"], [class*="hamburger"], [class*="menu-toggle"], button[aria-label*="menu"]');
   checks.push({
     item: 'Mobile menu implementation',
-    status: 'warning',
-    details: mobileMenu.exists ? 'Mobile menu detected. Good, but should be improved.' : 'Mobile menu not clearly detected. Mobile users need easy navigation access.'
+    status: mobileMenu.exists ? 'good' : 'warning',
+    details: mobileMenu.exists ? 'Mobile menu detected. Verify it opens and closes reliably on small screens.' : 'Mobile menu not clearly detected. Add a hamburger or menu toggle for small screens.'
   });
   
-  // Check for loading states/performance indicators — good but should be improved
   const html = doc.documentElement.innerHTML.toLowerCase();
   const hasLazyLoading = html.includes('loading="lazy"') || 
                          html.includes('data-lazy') ||
                          doc.querySelectorAll('img[loading="lazy"]').length > 0;
   checks.push({
     item: 'Image lazy loading',
-    status: 'warning',
-    details: hasLazyLoading ? 'Lazy loading detected. Good, but should be improved.' : 'No lazy loading detected. Lazy loading improves page speed and user experience.'
+    status: hasLazyLoading ? 'good' : 'warning',
+    details: hasLazyLoading ? 'Lazy loading detected. Reduces initial load time for image-heavy pages.' : 'No lazy loading on images. Add loading="lazy" to below-fold images to improve speed.'
   });
   
-  // Check for accessibility features — good but should be improved
   const hasAriaLabels = doc.querySelectorAll('[aria-label], [aria-labelledby]').length > 0;
-  const hasAltText = doc.querySelectorAll('img[alt]').length > 0;
-  const accessibilityPresent = hasAriaLabels && hasAltText;
+  const imgCount = doc.querySelectorAll('img').length;
+  const altCount = doc.querySelectorAll('img[alt]').length;
+  const accessibilityPresent = hasAriaLabels && (imgCount === 0 || altCount >= Math.max(1, imgCount * 0.5));
   checks.push({
     item: 'Accessibility features',
-    status: 'warning',
+    status: accessibilityPresent ? 'good' : hasAriaLabels || altCount > 0 ? 'warning' : 'critical',
     details: accessibilityPresent
-      ? 'Accessibility features present. Good, but should be improved.'
-      : 'Limited accessibility features. Proper ARIA labels and alt text improve usability for all users.'
-  });
-  
-  // Check for sticky header/navigation
-  const stickyNav = checkElement(doc, '[class*="sticky"], [class*="fixed"], nav[class*="sticky"], header[class*="sticky"]');
-  checks.push({
-    item: 'Sticky navigation header',
-    status: stickyNav.exists ? 'good' : 'warning',
-    details: stickyNav.exists ? 'Sticky navigation detected' : 'No sticky navigation. Sticky headers improve navigation accessibility as users scroll.'
+      ? `ARIA labels and alt text present (${altCount}/${imgCount} images with alt). Good for screen readers.`
+      : !hasAriaLabels && altCount === 0
+        ? 'Limited accessibility. Add ARIA labels and image alt text for screen readers and SEO.'
+        : `Partial coverage: ${altCount}/${imgCount} images have alt. Add alt to all product images.`
   });
   
   // Check for clear visual hierarchy (headings structure)
@@ -930,12 +918,58 @@ const auditUX = (doc, url) => {
     status: headingCount >= 5 ? 'good' : headingCount >= 3 ? 'warning' : 'critical',
     details: `${headingCount} heading(s) found. Proper heading structure improves readability and SEO.`
   });
+
+  // ——— Store structure review (comprehensive) ———
+  const inputs = doc.querySelectorAll('input:not([type="hidden"]), select, textarea');
+  const inputsWithLabels = doc.querySelectorAll('input[id]:not([type="hidden"]), select[id], textarea[id]');
+  const labelForCount = doc.querySelectorAll('label[for]').length;
+  const formLabelsOk = inputs.length === 0 || (labelForCount >= inputs.length * 0.5);
+  checks.push({
+    item: 'Form labels & input association',
+    status: formLabelsOk ? 'good' : 'warning',
+    details: formLabelsOk ? `${inputs.length} form field(s) with adequate label association.` : `${inputs.length} form field(s) but only ${labelForCount} with label[for]. Associate labels with inputs for accessibility.`
+  });
+
+  const skipLink = doc.querySelector('a[href="#main"], a[href="#content"], a[class*="skip"], [class*="skip-to"]');
+  checks.push({
+    item: 'Skip-to-content link',
+    status: skipLink ? 'good' : 'warning',
+    details: skipLink ? 'Skip link present. Helps keyboard users bypass navigation.' : 'No skip-to-content link. Add one for keyboard and screen reader users.'
+  });
+
+  const hasHeader = !!doc.querySelector('header, [role="banner"], [class*="header"]');
+  const hasFooter = !!doc.querySelector('footer, [role="contentinfo"], [class*="footer"]');
+  const landmarkCount = (hasHeader ? 1 : 0) + (hasFooter ? 1 : 0) + (mainContent.exists ? 1 : 0) + (navExists ? 1 : 0);
+  checks.push({
+    item: 'Landmark structure (header, nav, main, footer)',
+    status: landmarkCount >= 4 ? 'good' : landmarkCount >= 3 ? 'warning' : 'critical',
+    details: `${landmarkCount}/4 core landmarks found. Use header, nav, main, footer for clear page structure.`
+  });
+
+  const blankLinks = doc.querySelectorAll('a[target="_blank"]');
+  const blankWithoutRel = Array.from(blankLinks).filter(a => !a.getAttribute('rel')?.includes('noopener'));
+  checks.push({
+    item: 'External link security (rel="noopener")',
+    status: blankWithoutRel.length === 0 ? 'good' : 'warning',
+    details: blankWithoutRel.length === 0 ? 'External links use rel="noopener" where needed.' : `${blankWithoutRel.length} link(s) use target="_blank" without rel="noopener". Add rel="noopener noreferrer" for security.`
+  });
   
+  // Ensure at least 4 checks have negative feedback (not green)
+  const goodCount = checks.filter((c) => c.status === 'good').length;
+  const minNonGreen = 4;
+  if (goodCount > checks.length - minNonGreen) {
+    let toDemote = goodCount - (checks.length - minNonGreen);
+    for (let i = checks.length - 1; i >= 0 && toDemote > 0; i--) {
+      if (checks[i].status === 'good') {
+        checks[i].status = 'warning';
+        checks[i].details = (checks[i].details || '').replace(/\.$/, '') + ' Room for improvement.';
+        toDemote--;
+      }
+    }
+  }
   const rawScore = calculateScore(checks);
-  
-  // Always cap UX score at 50% maximum to create urgency
-  // This ensures UX always shows as needing significant improvement
-  const score = Math.min(50, rawScore);
+  // Real result minus 10% for balanced scoring
+  const score = Math.min(90, Math.round(rawScore * 0.9));
   
   // Adjust impact message based on navigation quality and free theme
   const hasPoorNavigation = collectionLinks.length === 0 || (hasGenericNames && !hasMeaningfulNames);
@@ -1787,7 +1821,7 @@ export const auditStore = async (url) => {
         {
           id: 'ux',
           icon: 'Navigation',
-          title: 'UX & Navigation',
+          title: 'UX and Accessibility',
           score: adjustedUXScore,
           status: getStatus(adjustedUXScore),
           checks: uxAudit.checks,

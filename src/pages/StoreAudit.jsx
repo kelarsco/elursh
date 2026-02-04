@@ -59,6 +59,13 @@ const StoreAudit = () => {
             <p className="text-xl text-muted-foreground">
               Get a comprehensive analysis of your ecommerce store with actionable insights to boost conversions and revenue.
             </p>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 font-semibold hover:bg-primary/90 transition-colors mt-8"
+            >
+              audit my store
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
@@ -69,16 +76,6 @@ const StoreAudit = () => {
                 <p className="text-muted-foreground text-sm">{feature.description}</p>
               </div>
             ))}
-          </div>
-
-          <div className="text-center">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 font-semibold hover:bg-primary/90 transition-colors"
-            >
-              audit my store
-              <ArrowRight className="w-4 h-4" />
-            </button>
           </div>
 
           {/* Store Analysis Modal */}
