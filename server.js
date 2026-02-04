@@ -308,12 +308,22 @@ function generateFourDigitCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
+/** Logo URL for emails. Set LOGO_URL or SITE_LOGO_URL (e.g. https://www.elursh.com/logo.png) to show logo in verification email. */
+function getEmailLogoUrl() {
+  return (process.env.LOGO_URL || process.env.SITE_LOGO_URL || "").trim() || null;
+}
+
 async function sendVerificationCodeEmail(email, code) {
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey || !resendKey.trim()) {
     throw new Error("Verification emails require Resend. Set RESEND_API_KEY and RESEND_FROM on Railway.");
   }
   const from = process.env.RESEND_FROM || "onboarding@resend.dev";
+  const logoUrl = getEmailLogoUrl();
+  const logoBlock = logoUrl
+    ? `<div style="margin-bottom:20px;"><img src="${logoUrl}" alt="Elursh" style="max-width:180px;height:auto;" /></div>`
+    : "";
+  const html = `${logoBlock}<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 5 minutes. Enter it on the order form to verify and place your order.</p><p>If you didn't request this, you can ignore this email.</p><p>— Elursh</p>`;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -324,7 +334,7 @@ async function sendVerificationCodeEmail(email, code) {
       from: from.includes("<") ? from : `Elursh <${from}>`,
       to: [email],
       subject: "Your verification code – Elursh",
-      html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 5 minutes. Enter it on the order form to verify and place your order.</p><p>If you didn't request this, you can ignore this email.</p><p>— Elursh</p>`,
+      html,
     }),
   });
   const data = await res.json().catch(() => ({}));
