@@ -77,7 +77,10 @@ export const config = {
   },
 
   cors: {
-    origin: process.env.FRONTEND_ORIGIN || (isProd ? false : true),
+    // Railway/Vercel: set FRONTEND_ORIGIN or FRONTEND_ORIGINS (comma-separated, e.g. https://elursh.com,https://www.elursh.com)
+    origin: process.env.FRONTEND_ORIGINS
+      ? process.env.FRONTEND_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean)
+      : process.env.FRONTEND_ORIGIN || (isProd ? false : true),
     credentials: true,
   },
 

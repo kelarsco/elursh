@@ -10,7 +10,7 @@ This guide lists every configuration needed so **all features work** when the fr
 - **Backend** (Railway, Render, Fly.io, etc.) runs `node server.js` and handles all `/api/*` routes.
 - The frontend calls the backend using `VITE_API_URL` (set at build time on Vercel).
 
-**You must deploy the backend** and set `VITE_API_URL` on Vercel so the site can reach the API.
+**You must deploy the backend** and set `VITE_API_URL` on Vercel so the site can reach the API. Optional: use a [Vercel rewrite](https://vercel.com/docs/edge-network/rewrites) to proxy `elursh.com/api/*` to your Railway URL so the frontend can keep using relative `/api/...` URLs (see [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md)).
 
 ---
 
@@ -40,7 +40,8 @@ Set these on the **backend** platform (Railway, Render, etc.). The backend needs
 | `SESSION_SECRET` | Yes | Long random string (sessions for manager dashboard). |
 | `JWT_SECRET` | Yes | Long random string (v1 API auth). |
 | `API_PORT` or `PORT` | No | Platform often sets `PORT`; backend uses it. |
-| `FRONTEND_ORIGIN` | Yes | `https://elursh.com` or `https://www.elursh.com` (the URL users actually use). Used for CORS and redirects. |
+| `FRONTEND_ORIGIN` | Yes | `https://elursh.com` or `https://www.elursh.com`. Used for CORS and redirects. |
+| `FRONTEND_ORIGINS` | No | Comma-separated list if you use both, e.g. `https://elursh.com,https://www.elursh.com`. Overrides `FRONTEND_ORIGIN` when set. |
 
 ### 3.2 Google OAuth (Manager dashboard – “Sign in with Google”)
 

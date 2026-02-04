@@ -260,10 +260,10 @@ function requireManager(req, res, next) {
 
 function getEmailTransporter() {
   const service = (process.env.EMAIL_SERVICE || process.env.SMTP_HOST || "").toLowerCase();
-  const isGmail = service === "gmail";
-  const host = isGmail ? "smtp.gmail.com" : (process.env.SMTP_HOST || "");
+  const host = process.env.SMTP_HOST || (service === "gmail" ? "smtp.gmail.com" : "");
+  const isGmail = service === "gmail" || (host && host.toLowerCase().includes("gmail"));
   const port = process.env.SMTP_PORT || process.env.EMAIL_PORT || (isGmail ? "587" : "587");
-  const user = process.env.EMAIL_USER || process.env.SMTP_USER || "";
+  const user = process.env.EMAIL_USER || process.env.SMTP_USER || process.env.SENDER_EMAIL || "";
   const pass = process.env.EMAIL_APP_PASSWORD || process.env.EMAIL_PASSWORD || process.env.SMTP_PASS || "";
   if (!host || !user || !pass) return null;
   const portNum = port ? Number(port) : 587;
@@ -277,7 +277,13 @@ function getEmailTransporter() {
 }
 
 function getEmailFrom() {
-  const from = process.env.EMAIL_FROM || process.env.SMTP_FROM || process.env.EMAIL_USER || process.env.SMTP_USER || "";
+  const from =
+    process.env.EMAIL_FROM ||
+    process.env.SENDER_EMAIL ||
+    process.env.SMTP_FROM ||
+    process.env.EMAIL_USER ||
+    process.env.SMTP_USER ||
+    "";
   const name = process.env.EMAIL_FROM_NAME || "Elursh";
   if (!from) return null;
   return name ? `"${name}" <${from}>` : from;
