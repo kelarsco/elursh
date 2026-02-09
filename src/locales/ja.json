@@ -1,0 +1,93 @@
+{
+  "header": {
+    "home": "ホーム",
+    "agency": "代理店",
+    "expertise": "専門性",
+    "products": "製品",
+    "storeAudit": "ストア監査",
+    "purchaseTheme": "テーマ購入",
+    "improveStore": "ストア改善",
+    "contact": "お問い合わせ",
+    "sendMessage": "メッセージを送る"
+  },
+  "footer": {
+    "services": "サービス",
+    "company": "会社",
+    "storeAudit": "ストア監査",
+    "buyTheme": "テーマ購入",
+    "improveStore": "ストア改善",
+    "aboutUs": "会社概要",
+    "careers": "採用",
+    "contact": "お問い合わせ",
+    "copyright": "© Elursh 2026"
+  },
+  "hero": {
+    "ecommerce": "eコマース",
+    "backbone": "基盤",
+    "tagline": "スタートアップと確立されたeコマースブランドを7桁以上にスケール。",
+    "freeStoreAudit": "無料ストア監査",
+    "awardWinning": "受賞代理店"
+  },
+  "services": {
+    "title": "私たちのサービス",
+    "subtitle": "真の成果を生むeコマースソリューションを提供します。",
+    "auditTitle": "監査・戦略",
+    "auditDesc": "ブランド、ストアデザイン、UX、パフォーマンス、コンバージョンギャップをカバーする徹底的なeコマース監査。オンラインストアとカスタマージャーニーを分析し、明確で実行可能なインサイトを提供します。",
+    "designTitle": "デザイン・リデザイン",
+    "designDesc": "ユーザビリティ、スピード、スケーラビリティに焦点を当てた高コンバージョンのモバイルファーストShopify・eコマースデザイン。訪問者を顧客に変えるクリーンでコンバージョン重視のレイアウトを構築します。",
+    "marketingTitle": "売上マーケティング",
+    "marketingDesc": "トラフィック、顧客獲得、収益成長に焦点を当てたデータ駆動のeコマースマーケティング。広告、ファネル、リテンションシステムで安定した売上を推進します。",
+    "analyticsTitle": "アナリティクス・CRO",
+    "analyticsDesc": "パフォーマンス向上のための高度なeコマースアナリティクスとコンバージョン率最適化。行動を追跡し、改善をテストし、ストアを高コンバージョン向けに最適化します。",
+    "brandingTitle": "ブランディング・ビジュアルシステム",
+    "brandingDesc": "信頼と一貫性を築くeコマースブランディングとビジュアルデザイン。ストアとマーケティング全体で連携した強力なブランドアイデンティティとUIシステムを創ります。",
+    "popular": "人気",
+    "learnMore": "詳しく見る",
+    "ctaTitle": "フリーランサーを探したり混乱を管理する代わりに、すぐに使える",
+    "ctaTitleItalic": "eコマースシステムとチームが得られます。",
+    "ctaReady": "新しいストアを始めるか、既存の売上を伸ばす準備はできましたか？",
+    "contactUs": "お問い合わせ"
+  },
+  "storeAudit": {
+    "title": "ストアの",
+    "potential": "真のポテンシャルを引き出す",
+    "subtitle": "コンバージョンと収益を高める実行可能なインサイトとともに、eコマースストアの包括的な分析を取得。",
+    "auditMyStore": "ストアを監査",
+    "comprehensiveAnalysis": "包括的分析",
+    "comprehensiveDesc": "ストアのパフォーマンス、UX、コンバージョンファネルを深く分析。",
+    "growthOpportunities": "成長機会",
+    "growthDesc": "未開拓の収益ポテンシャルと最適化戦略を特定。",
+    "issueDetection": "問題検出",
+    "issueDesc": "技術的問題、リンク切れ、パフォーマンスのボトルネックを発見。",
+    "actionPlan": "アクションプラン",
+    "actionDesc": "具体的な実装ステップを含む優先順位付きロードマップを取得。",
+    "modalTitle": "ストアを分析",
+    "modalDesc": "ストアのURLを入力して包括的な分析を開始。",
+    "storeUrl": "ストアURL",
+    "placeholder": "https://あなたのストア.com",
+    "cancel": "キャンセル",
+    "analyze": "分析"
+  },
+  "contact": {
+    "title": "お問い合わせ",
+    "subtitle": "お客様一人ひとりを大切に。eコマースの目標についてご相談ください。",
+    "name": "お名前",
+    "email": "メール",
+    "message": "メッセージ",
+    "send": "送信"
+  },
+  "theme": {
+    "title": "Shopifyテーマ",
+    "subtitle": "コンバージョン向けに設計されたハンドメイドテーマ。",
+    "purchase": "購入"
+  },
+  "improveStore": {
+    "title": "ストア改善",
+    "subtitle": "売上を伸ばすeコマースサービス。"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "language": "言語"
+  }
+}

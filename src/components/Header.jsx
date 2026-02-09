@@ -1,9 +1,30 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { X, ChevronDown, Mail, FileText, ShoppingBag, Zap } from "react-feather";
+import { useTranslation } from "react-i18next";
+import { X, ChevronDown, Mail, FileText, ShoppingBag, Zap, Globe } from "react-feather";
 import logo from "@/assets/logo.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+
+const LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+  { code: "fr", label: "Français" },
+  { code: "de", label: "Deutsch" },
+  { code: "pt", label: "Português" },
+  { code: "it", label: "Italiano" },
+  { code: "zh", label: "中文" },
+  { code: "ja", label: "日本語" },
+  { code: "ar", label: "العربية" },
+];
 
 const Header = () => {
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const isHome = location.pathname === "/";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,20 +35,20 @@ const Header = () => {
   const lastScrollY = useRef(0);
 
   const menuItems = [
-    { name: "Home", href: "/", isRoute: true },
-    { name: "agency", href: "/we-are", isRoute: true },
-    { name: "Expertise", href: "#services", isRoute: true, isHash: true },
+    { name: t("header.home"), href: "/", isRoute: true },
+    { name: t("header.agency"), href: "/we-are", isRoute: true },
+    { name: t("header.expertise"), href: "#services", isRoute: true, isHash: true },
     {
-      name: "Products",
+      name: t("header.products"),
       href: "#products",
       isRoute: false,
       dropdown: [
-        { name: "Store Audit", href: "/store-audit", icon: FileText },
-        { name: "purchase theme", href: "/theme", icon: ShoppingBag },
-        { name: "Improve Store", href: "/improve-store", icon: Zap },
+        { name: t("header.storeAudit"), href: "/store-audit", icon: FileText },
+        { name: t("header.purchaseTheme"), href: "/theme", icon: ShoppingBag },
+        { name: t("header.improveStore"), href: "/improve-store", icon: Zap },
       ],
     },
-    { name: "Contact", href: "/contact", isRoute: true },
+    { name: t("header.contact"), href: "/contact", isRoute: true },
   ];
 
   useEffect(() => {
@@ -178,29 +199,35 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* CTA Button - always dark border/text so visible on light header and hero */}
-          <div className="hidden lg:flex items-center gap-6">
-            {isHome ? (
-              <Link
-                to="/contact"
-                className="cta-button relative overflow-hidden bg-transparent px-6 py-3 text-sm font-semibold flex items-center gap-2 group transition-colors border border-foreground text-foreground hover:bg-foreground hover:text-background"
-              >
-                <span className="cta-button-text relative z-10 flex items-center gap-2">
-                  <Mail className="w-4 h-4 transition-colors group-hover:text-background" />
-                  send a message
-                </span>
-              </Link>
-            ) : (
-              <Link
-                to="/contact"
-                className="cta-button relative overflow-hidden bg-transparent px-6 py-3 text-sm font-semibold flex items-center gap-2 group transition-colors border border-foreground text-foreground hover:bg-foreground hover:text-background"
-              >
-                <span className="cta-button-text relative z-10 flex items-center gap-2">
-                  <Mail className="w-4 h-4 transition-colors group-hover:text-background" />
-                  send a message
-                </span>
-              </Link>
-            )}
+          {/* CTA Button + Language switcher */}
+          <div className="hidden lg:flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9" aria-label={t("common.language")}>
+                  <Globe className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {LANGUAGES.map((lang) => (
+                  <DropdownMenuItem
+                    key={lang.code}
+                    onClick={() => i18n.changeLanguage(lang.code)}
+                    className={i18n.language === lang.code ? "bg-muted" : ""}
+                  >
+                    {lang.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Link
+              to="/contact"
+              className="cta-button relative overflow-hidden bg-transparent px-6 py-3 text-sm font-semibold flex items-center gap-2 group transition-colors border border-foreground text-foreground hover:bg-foreground hover:text-background"
+            >
+              <span className="cta-button-text relative z-10 flex items-center gap-2">
+                <Mail className="w-4 h-4 transition-colors group-hover:text-background" />
+                {t("header.sendMessage")}
+              </span>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}

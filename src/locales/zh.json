@@ -1,0 +1,93 @@
+{
+  "header": {
+    "home": "首页",
+    "agency": "代理",
+    "expertise": "专长",
+    "products": "产品",
+    "storeAudit": "店铺审计",
+    "purchaseTheme": "购买主题",
+    "improveStore": "优化店铺",
+    "contact": "联系",
+    "sendMessage": "发送消息"
+  },
+  "footer": {
+    "services": "服务",
+    "company": "公司",
+    "storeAudit": "店铺审计",
+    "buyTheme": "购买主题",
+    "improveStore": "优化店铺",
+    "aboutUs": "关于我们",
+    "careers": "招聘",
+    "contact": "联系",
+    "copyright": "© Elursh 2026"
+  },
+  "hero": {
+    "ecommerce": "电子商务",
+    "backbone": "支柱",
+    "tagline": "助力初创和成熟电商品牌突破七位数营收。",
+    "freeStoreAudit": "免费店铺审计",
+    "awardWinning": "获奖机构"
+  },
+  "services": {
+    "title": "我们的服务",
+    "subtitle": "我们提供真正有效的电商解决方案。",
+    "auditTitle": "审计与策略",
+    "auditDesc": "全面的电商审计，涵盖品牌、店铺设计、用户体验、表现和转化差距。我们分析您的在线店铺和客户旅程，提供清晰可行的洞察。",
+    "designTitle": "设计与改版",
+    "designDesc": "高转化、移动优先的 Shopify 和电商设计，注重易用性、速度和可扩展性。我们打造简洁、以转化为导向的布局，将访客转化为客户。",
+    "marketingTitle": "销售营销",
+    "marketingDesc": "数据驱动的电商营销，专注流量、客户获取和收入增长。我们运用广告、漏斗和留存系统推动稳定销售。",
+    "analyticsTitle": "分析与 CRO",
+    "analyticsDesc": "高级电商分析和转化率优化，提升表现。我们追踪行为、测试改进、优化店铺以提高转化。",
+    "brandingTitle": "品牌与视觉系统",
+    "brandingDesc": "建立信任与一致性的电商品牌和视觉设计。我们创建强大的品牌形象和跨店铺与营销的 UI 系统。",
+    "popular": "热门",
+    "learnMore": "了解更多",
+    "ctaTitle": "无需四处寻找自由职业者和管理混乱，您将获得一个现成的",
+    "ctaTitleItalic": "电商系统和团队。",
+    "ctaReady": "准备开设新店铺或提升现有销售？",
+    "contactUs": "联系我们"
+  },
+  "storeAudit": {
+    "title": "释放您店铺的",
+    "potential": "全部潜力",
+    "subtitle": "获取您电商店铺的全面分析，获得可操作的洞察以提升转化和收入。",
+    "auditMyStore": "审计我的店铺",
+    "comprehensiveAnalysis": "全面分析",
+    "comprehensiveDesc": "深入分析您店铺的表现、用户体验和转化漏斗。",
+    "growthOpportunities": "增长机会",
+    "growthDesc": "发现未开发收入潜力和优化策略。",
+    "issueDetection": "问题检测",
+    "issueDesc": "发现技术问题、失效链接和性能瓶颈。",
+    "actionPlan": "行动计划",
+    "actionDesc": "获得带具体实施步骤的优先路线图。",
+    "modalTitle": "分析您的店铺",
+    "modalDesc": "输入店铺 URL 开始全面分析。",
+    "storeUrl": "店铺 URL",
+    "placeholder": "https://您的店铺.com",
+    "cancel": "取消",
+    "analyze": "分析"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "每位客户都很重要。与我们讨论您的电商目标。",
+    "name": "姓名",
+    "email": "邮箱",
+    "message": "留言",
+    "send": "发送消息"
+  },
+  "theme": {
+    "title": "Shopify 主题",
+    "subtitle": "专为转化设计的精制主题。",
+    "purchase": "购买"
+  },
+  "improveStore": {
+    "title": "优化店铺",
+    "subtitle": "提升销售的电商服务。"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出错了",
+    "language": "语言"
+  }
+}

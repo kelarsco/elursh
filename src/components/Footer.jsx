@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Linkedin, Instagram } from "react-feather";
 import { useEffect } from "react";
 import AOS from "aos";
@@ -6,6 +7,8 @@ import "aos/dist/aos.css";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   // Initialize AOS
   useEffect(() => {
     AOS.init({
@@ -18,14 +21,14 @@ const Footer = () => {
   }, []);
   const footerLinks = {
     services: [
-      { name: "Store Audit", href: "/store-audit", isRoute: true },
-      { name: "Buy Theme", href: "/theme", isRoute: true },
-      { name: "Improve Store", href: "/improve-store", isRoute: true },
+      { name: t("footer.storeAudit"), href: "/store-audit", isRoute: true },
+      { name: t("footer.buyTheme"), href: "/theme", isRoute: true },
+      { name: t("footer.improveStore"), href: "/improve-store", isRoute: true },
     ],
     company: [
-      { name: "About us", href: "#about", isRoute: false },
-      { name: "Careers", href: "#", isRoute: false },
-      { name: "Contact", href: "/contact", isRoute: true },
+      { name: t("footer.aboutUs"), href: "#about", isRoute: false },
+      { name: t("footer.careers"), href: "#", isRoute: false },
+      { name: t("footer.contact"), href: "/contact", isRoute: true },
     ],
   };
 
@@ -58,7 +61,7 @@ const Footer = () => {
 
           {/* Services */}
           <div className="lg:col-span-1">
-            <h4 className="font-semibold mb-6 text-white font-sans">Services</h4>
+            <h4 className="font-semibold mb-6 text-white font-sans">{t("footer.services")}</h4>
             <ul className="space-y-4">
               {footerLinks.services.map((link) => (
                 <li key={link.name}>
@@ -84,7 +87,7 @@ const Footer = () => {
 
           {/* Company */}
           <div className="lg:col-span-1">
-            <h4 className="font-semibold mb-6 text-white font-sans">Company</h4>
+            <h4 className="font-semibold mb-6 text-white font-sans">{t("footer.company")}</h4>
             <ul className="space-y-4">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
@@ -153,7 +156,7 @@ const Footer = () => {
 
         {/* Copyright - bottom right */}
         <div className="mt-16 pt-8 border-t border-white/20 flex justify-end">
-          <p className="text-sm text-white/80">© Elursh 2026</p>
+          <p className="text-sm text-white/80">{t("footer.copyright")}</p>
         </div>
       </div>
     </footer>

@@ -1,0 +1,93 @@
+{
+  "header": {
+    "home": "Início",
+    "agency": "agência",
+    "expertise": "Expertise",
+    "products": "Produtos",
+    "storeAudit": "Auditoria de loja",
+    "purchaseTheme": "comprar tema",
+    "improveStore": "Melhorar loja",
+    "contact": "Contato",
+    "sendMessage": "enviar mensagem"
+  },
+  "footer": {
+    "services": "Serviços",
+    "company": "Empresa",
+    "storeAudit": "Auditoria de loja",
+    "buyTheme": "Comprar tema",
+    "improveStore": "Melhorar loja",
+    "aboutUs": "Sobre nós",
+    "careers": "Carreiras",
+    "contact": "Contato",
+    "copyright": "© Elursh 2026"
+  },
+  "hero": {
+    "ecommerce": "eCommerce",
+    "backbone": "Coluna vertebral",
+    "tagline": "Escalando startups e marcas de eCommerce estabelecidas para 7 dígitos e além.",
+    "freeStoreAudit": "Auditoria gratuita de loja",
+    "awardWinning": "AGÊNCIA PREMIADA"
+  },
+  "services": {
+    "title": "O que fazemos",
+    "subtitle": "Oferecemos soluções de eCommerce que geram resultados reais.",
+    "auditTitle": "Auditoria e estratégia",
+    "auditDesc": "Auditoria profunda de eCommerce cobrindo marca, design de loja, UX, performance e gaps de conversão. Analisamos sua loja online e a jornada do cliente para entregar insights claros e acionáveis.",
+    "designTitle": "Design e redesign",
+    "designDesc": "Design Shopify e eCommerce de alta conversão e mobile-first, focado em usabilidade, velocidade e escalabilidade. Construímos layouts limpos e orientados à conversão que transformam visitantes em clientes.",
+    "marketingTitle": "Marketing para vendas",
+    "marketingDesc": "Marketing de eCommerce baseado em dados focado em tráfego, aquisição de clientes e crescimento de receita. Usamos anúncios, funis e sistemas de retenção para impulsionar vendas consistentes.",
+    "analyticsTitle": "Analytics e CRO",
+    "analyticsDesc": "Analytics avançado de eCommerce e otimização de taxa de conversão para melhorar performance. Rastreamos comportamento, testamos melhorias e otimizamos sua loja para maiores conversões.",
+    "brandingTitle": "Branding e sistemas visuais",
+    "brandingDesc": "Branding e design visual de eCommerce que gera confiança e consistência. Criamos identidade de marca forte e sistemas de UI alinhados em sua loja e marketing.",
+    "popular": "Popular",
+    "learnMore": "Saiba mais",
+    "ctaTitle": "Em vez de procurar freelancers e gerenciar o caos, você obtém um",
+    "ctaTitleItalic": "sistema e equipe de eCommerce prontos.",
+    "ctaReady": "Pronto para começar uma nova loja ou impulsionar suas vendas?",
+    "contactUs": "Entre em contato"
+  },
+  "storeAudit": {
+    "title": "Desbloqueie todo o",
+    "potential": "potencial da sua loja",
+    "subtitle": "Obtenha uma análise completa da sua loja de ecommerce com insights acionáveis para impulsionar conversões e receita.",
+    "auditMyStore": "auditar minha loja",
+    "comprehensiveAnalysis": "Análise abrangente",
+    "comprehensiveDesc": "Mergulhe profundo na performance, UX e funis de conversão da sua loja.",
+    "growthOpportunities": "Oportunidades de crescimento",
+    "growthDesc": "Identifique potencial de receita inexplorado e estratégias de otimização.",
+    "issueDetection": "Detecção de problemas",
+    "issueDesc": "Encontre problemas técnicos, links quebrados e gargalos de performance.",
+    "actionPlan": "Plano de ação",
+    "actionDesc": "Obtenha uma roadmap priorizada com passos de implementação específicos.",
+    "modalTitle": "Analise sua loja",
+    "modalDesc": "Digite a URL da sua loja para começar uma análise completa.",
+    "storeUrl": "URL da loja",
+    "placeholder": "https://sualoja.com",
+    "cancel": "Cancelar",
+    "analyze": "Analisar"
+  },
+  "contact": {
+    "title": "Entre em contato",
+    "subtitle": "Cada cliente importa. Fale conosco sobre seus objetivos de eCommerce.",
+    "name": "Nome",
+    "email": "E-mail",
+    "message": "Mensagem",
+    "send": "Enviar mensagem"
+  },
+  "theme": {
+    "title": "Temas Shopify",
+    "subtitle": "Temas artesanais projetados para conversões.",
+    "purchase": "Comprar"
+  },
+  "improveStore": {
+    "title": "Melhorar loja",
+    "subtitle": "Serviços de eCommerce para aumentar suas vendas."
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Algo deu errado",
+    "language": "Idioma"
+  }
+}

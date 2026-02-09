@@ -1,0 +1,93 @@
+{
+  "header": {
+    "home": "Inicio",
+    "agency": "agencia",
+    "expertise": "Experiencia",
+    "products": "Productos",
+    "storeAudit": "Auditoría de tienda",
+    "purchaseTheme": "comprar tema",
+    "improveStore": "Mejorar tienda",
+    "contact": "Contacto",
+    "sendMessage": "enviar mensaje"
+  },
+  "footer": {
+    "services": "Servicios",
+    "company": "Empresa",
+    "storeAudit": "Auditoría de tienda",
+    "buyTheme": "Comprar tema",
+    "improveStore": "Mejorar tienda",
+    "aboutUs": "Sobre nosotros",
+    "careers": "Carreras",
+    "contact": "Contacto",
+    "copyright": "© Elursh 2026"
+  },
+  "hero": {
+    "ecommerce": "eCommerce",
+    "backbone": "Columna vertebral",
+    "tagline": "Escalando startups y marcas de eCommerce consolidadas hasta 7 cifras y más.",
+    "freeStoreAudit": "Auditoría gratuita de tienda",
+    "awardWinning": "AGENCIA PREMIADA"
+  },
+  "services": {
+    "title": "Qué hacemos",
+    "subtitle": "Ofrecemos soluciones de eCommerce que generan resultados reales.",
+    "auditTitle": "Auditoría y estrategia",
+    "auditDesc": "Auditoría profunda de eCommerce que cubre marca, diseño de tienda, UX, rendimiento y brechas de conversión. Analizamos tu tienda online y el recorrido del cliente para entregar insights claros y accionables.",
+    "designTitle": "Diseño y rediseño",
+    "designDesc": "Diseño de Shopify y eCommerce de alta conversión y móvil primero, centrado en usabilidad, velocidad y escalabilidad. Creamos layouts limpios y orientados a la conversión que convierten visitantes en clientes.",
+    "marketingTitle": "Marketing para ventas",
+    "marketingDesc": "Marketing de eCommerce basado en datos enfocado en tráfico, adquisición de clientes y crecimiento de ingresos. Usamos anuncios, embudos y sistemas de retención para impulsar ventas constantes.",
+    "analyticsTitle": "Analytics y CRO",
+    "analyticsDesc": "Analytics avanzado de eCommerce y optimización de tasa de conversión para mejorar el rendimiento. Rastreamos el comportamiento, probamos mejoras y optimizamos tu tienda para mayores conversiones.",
+    "brandingTitle": "Branding y sistemas visuales",
+    "brandingDesc": "Branding y diseño visual de eCommerce que genera confianza y consistencia. Creamos identidad de marca sólida y sistemas UI alineados en tu tienda y marketing.",
+    "popular": "Popular",
+    "learnMore": "Saber más",
+    "ctaTitle": "En lugar de buscar freelancers y gestionar el caos, obtienes un",
+    "ctaTitleItalic": "sistema y equipo de eCommerce listos.",
+    "ctaReady": "¿Listo para empezar una nueva tienda o impulsar tus ventas?",
+    "contactUs": "Contáctanos"
+  },
+  "storeAudit": {
+    "title": "Descubre todo el",
+    "potential": "potencial de tu tienda",
+    "subtitle": "Obtén un análisis completo de tu tienda de ecommerce con insights accionables para impulsar conversiones e ingresos.",
+    "auditMyStore": "auditar mi tienda",
+    "comprehensiveAnalysis": "Análisis integral",
+    "comprehensiveDesc": "Análisis profundo del rendimiento, UX y embudos de conversión de tu tienda.",
+    "growthOpportunities": "Oportunidades de crecimiento",
+    "growthDesc": "Identifica potencial de ingresos sin explotar y estrategias de optimización.",
+    "issueDetection": "Detección de problemas",
+    "issueDesc": "Encuentra problemas técnicos, enlaces rotos y cuellos de botella de rendimiento.",
+    "actionPlan": "Plan de acción",
+    "actionDesc": "Obtén una hoja de ruta priorizada con pasos de implementación específicos.",
+    "modalTitle": "Analiza tu tienda",
+    "modalDesc": "Introduce la URL de tu tienda para comenzar con un análisis completo.",
+    "storeUrl": "URL de la tienda",
+    "placeholder": "https://tutienda.com",
+    "cancel": "Cancelar",
+    "analyze": "Analizar"
+  },
+  "contact": {
+    "title": "Contáctanos",
+    "subtitle": "Cada cliente nos importa. Escríbenos para hablar de tus objetivos de eCommerce.",
+    "name": "Nombre",
+    "email": "Email",
+    "message": "Mensaje",
+    "send": "Enviar mensaje"
+  },
+  "theme": {
+    "title": "Temas Shopify",
+    "subtitle": "Temas artesanales diseñados para conversiones.",
+    "purchase": "Comprar"
+  },
+  "improveStore": {
+    "title": "Mejorar tienda",
+    "subtitle": "Servicios de eCommerce para aumentar tus ventas."
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "language": "Idioma"
+  }
+}

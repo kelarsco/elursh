@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Play, ArrowRight, ArrowUpRight } from "react-feather";
 import heroPortrait from "@/assets/hero-portrait.jpg";
 import hero1Bg from "@/assets/hero2.png";
@@ -6,6 +7,7 @@ import BlurText from "./BlurText";
 import { useEffect, useRef, useState } from "react";
 
 const HeroSection = () => {
+  const { t } = useTranslation();
   const highlightRef = useRef(null);
   const commerceHighlightRef = useRef(null);
   const buttonRef = useRef(null);
@@ -188,7 +190,7 @@ const HeroSection = () => {
                 lineHeight: '42px'
               }}
             >
-              eCommerce
+              {t("hero.ecommerce")}
               <span 
                 className={`absolute bottom-1 left-0 h-3 bg-yellow-300 -z-10 ${isCommerceHighlightVisible ? 'animate-yellow-highlight' : 'yellow-highlight-hidden'}`} 
                 style={{ 
@@ -206,7 +208,7 @@ const HeroSection = () => {
                 lineHeight: '25px'
               }}
             >
-              Backbone
+              {t("hero.backbone")}
             </span>
           </h1>
           <p 
@@ -214,7 +216,8 @@ const HeroSection = () => {
             style={{ color: 'rgba(12, 9, 9, 1)', paddingLeft: '5px', paddingRight: '5px' }}
           >
 
-Scaling startups and established eCommerce brands to 7 figures and beyond.          </p>
+{t("hero.tagline")}
+          </p>
           <div className="flex items-center gap-6">
             <Link 
               ref={buttonRef}
@@ -230,7 +233,7 @@ Scaling startups and established eCommerce brands to 7 figures and beyond.      
                 <ArrowRight className="w-5 h-5 text-white" strokeWidth={2.5} />
               </span>
               <span className="cta-text text-lg font-medium text-[rgba(36,30,30,1)] transition-all duration-300 group-hover:translate-x-1">
-                Free store audit
+                {t("hero.freeStoreAudit")}
               </span>
             </Link>
           </div>
@@ -254,7 +257,7 @@ Scaling startups and established eCommerce brands to 7 figures and beyond.      
               }}
             >
               <BlurText
-                text="AWARD WINNING AGENCY"
+                text={t("hero.awardWinning")}
                 delay={150}
                 animateBy="words"
                 direction="top"

@@ -1,0 +1,93 @@
+{
+  "header": {
+    "home": "Accueil",
+    "agency": "agence",
+    "expertise": "Expertise",
+    "products": "Produits",
+    "storeAudit": "Audit boutique",
+    "purchaseTheme": "acheter un thème",
+    "improveStore": "Améliorer la boutique",
+    "contact": "Contact",
+    "sendMessage": "envoyer un message"
+  },
+  "footer": {
+    "services": "Services",
+    "company": "Entreprise",
+    "storeAudit": "Audit boutique",
+    "buyTheme": "Acheter un thème",
+    "improveStore": "Améliorer la boutique",
+    "aboutUs": "À propos",
+    "careers": "Carrières",
+    "contact": "Contact",
+    "copyright": "© Elursh 2026"
+  },
+  "hero": {
+    "ecommerce": "eCommerce",
+    "backbone": "Pilier",
+    "tagline": "Faire grandir startups et marques eCommerce établies vers 7 chiffres et au-delà.",
+    "freeStoreAudit": "Audit gratuit de boutique",
+    "awardWinning": "AGENCE PRIMÉE"
+  },
+  "services": {
+    "title": "Ce que nous faisons",
+    "subtitle": "Nous proposons des solutions eCommerce qui génèrent des résultats concrets.",
+    "auditTitle": "Audit et stratégie",
+    "auditDesc": "Audit eCommerce approfondi couvrant la marque, le design de boutique, l'UX, les performances et les lacunes de conversion. Nous analysons votre boutique en ligne et le parcours client pour livrer des insights clairs et actionnables.",
+    "designTitle": "Design et refonte",
+    "designDesc": "Design Shopify et eCommerce haute conversion, mobile-first, axé sur l'ergonomie, la vitesse et l'évolutivité. Nous créons des mises en page propres et orientées conversion qui transforment les visiteurs en clients.",
+    "marketingTitle": "Marketing pour les ventes",
+    "marketingDesc": "Marketing eCommerce basé sur les données, axé sur le trafic, l'acquisition clients et la croissance du chiffre d'affaires. Nous utilisons la pub, les funnels et les systèmes de rétention pour générer des ventes régulières.",
+    "analyticsTitle": "Analytics et CRO",
+    "analyticsDesc": "Analytics eCommerce avancé et optimisation du taux de conversion pour améliorer les performances. Nous suivons le comportement, testons les améliorations et optimisons votre boutique pour de meilleures conversions.",
+    "brandingTitle": "Branding et systèmes visuels",
+    "brandingDesc": "Branding et design visuel eCommerce qui inspirent confiance et cohérence. Nous créons une identité de marque forte et des systèmes UI alignés sur votre boutique et votre marketing.",
+    "popular": "Populaire",
+    "learnMore": "En savoir plus",
+    "ctaTitle": "Au lieu de chercher des freelances et gérer le chaos, vous obtenez un",
+    "ctaTitleItalic": "système et équipe eCommerce prêts à l'emploi.",
+    "ctaReady": "Prêt à lancer une nouvelle boutique ou booster vos ventes ?",
+    "contactUs": "Contactez-nous"
+  },
+  "storeAudit": {
+    "title": "Réveillez tout le",
+    "potential": "potentiel de votre boutique",
+    "subtitle": "Obtenez une analyse complète de votre boutique ecommerce avec des insights actionnables pour booster conversions et chiffre d'affaires.",
+    "auditMyStore": "auditer ma boutique",
+    "comprehensiveAnalysis": "Analyse complète",
+    "comprehensiveDesc": "Plongée approfondie dans les performances, l'UX et les tunnels de conversion de votre boutique.",
+    "growthOpportunities": "Opportunités de croissance",
+    "growthDesc": "Identifiez le potentiel de revenus inexploité et les stratégies d'optimisation.",
+    "issueDetection": "Détection des problèmes",
+    "issueDesc": "Détectez les problèmes techniques, liens cassés et goulots d'étranglement de performance.",
+    "actionPlan": "Plan d'action",
+    "actionDesc": "Obtenez une feuille de route priorisée avec des étapes d'implémentation concrètes.",
+    "modalTitle": "Analysez votre boutique",
+    "modalDesc": "Entrez l'URL de votre boutique pour démarrer une analyse complète.",
+    "storeUrl": "URL de la boutique",
+    "placeholder": "https://votreboutique.com",
+    "cancel": "Annuler",
+    "analyze": "Analyser"
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Chaque client compte pour nous. Parlez-nous de vos objectifs eCommerce.",
+    "name": "Nom",
+    "email": "Email",
+    "message": "Message",
+    "send": "Envoyer le message"
+  },
+  "theme": {
+    "title": "Thèmes Shopify",
+    "subtitle": "Thèmes artisanaux conçus pour les conversions.",
+    "purchase": "Acheter"
+  },
+  "improveStore": {
+    "title": "Améliorer la boutique",
+    "subtitle": "Services eCommerce pour augmenter vos ventes."
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "language": "Langue"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "header": {
+    "home": "Home",
+    "agency": "agency",
+    "expertise": "Expertise",
+    "products": "Products",
+    "storeAudit": "Store Audit",
+    "purchaseTheme": "purchase theme",
+    "improveStore": "Improve Store",
+    "contact": "Contact",
+    "sendMessage": "send a message"
+  },
+  "footer": {
+    "services": "Services",
+    "company": "Company",
+    "storeAudit": "Store Audit",
+    "buyTheme": "Buy Theme",
+    "improveStore": "Improve Store",
+    "aboutUs": "About us",
+    "careers": "Careers",
+    "contact": "Contact",
+    "copyright": "© Elursh 2026"
+  },
+  "hero": {
+    "ecommerce": "eCommerce",
+    "backbone": "Backbone",
+    "tagline": "Scaling startups and established eCommerce brands to 7 figures and beyond.",
+    "freeStoreAudit": "Free store audit",
+    "awardWinning": "AWARD WINNING AGENCY"
+  },
+  "services": {
+    "title": "What we do",
+    "subtitle": "We deliver eCommerce solutions that drive real results.",
+    "auditTitle": "Audit & Strategy",
+    "auditDesc": "In-depth eCommerce audit covering branding, store design, UX, performance, and conversion gaps. We analyze your online store and customer journey, then deliver clear, actionable insights.",
+    "designTitle": "Design & Redesign",
+    "designDesc": "High-converting, mobile-first Shopify and eCommerce design focused on usability, speed, and scalability. We build clean, conversion-driven layouts that turn visitors into customers.",
+    "marketingTitle": "Marketing for Sales",
+    "marketingDesc": "Data-driven eCommerce marketing focused on traffic, customer acquisition, and revenue growth. We use ads, funnels, and retention systems to drive consistent sales.",
+    "analyticsTitle": "Analytics & CRO",
+    "analyticsDesc": "Advanced eCommerce analytics and conversion rate optimization to improve performance. We track behavior, test improvements, and optimize your store for higher conversions.",
+    "brandingTitle": "Branding & Visual Systems",
+    "brandingDesc": "eCommerce branding and visual design that builds trust and consistency. We create strong brand identity and UI systems aligned across your store and marketing.",
+    "popular": "Popular",
+    "learnMore": "Learn more",
+    "ctaTitle": "Instead of searching for freelancers and managing chaos, you get a ready-built",
+    "ctaTitleItalic": "eCommerce system and team.",
+    "ctaReady": "Ready to start a new store or boost your existing sales?",
+    "contactUs": "Contact us"
+  },
+  "storeAudit": {
+    "title": "Unlock your store's full",
+    "potential": "potential",
+    "subtitle": "Get a comprehensive analysis of your ecommerce store with actionable insights to boost conversions and revenue.",
+    "auditMyStore": "audit my store",
+    "comprehensiveAnalysis": "Comprehensive Analysis",
+    "comprehensiveDesc": "Deep dive into your store's performance, UX, and conversion funnels.",
+    "growthOpportunities": "Growth Opportunities",
+    "growthDesc": "Identify untapped revenue potential and optimization strategies.",
+    "issueDetection": "Issue Detection",
+    "issueDesc": "Find technical issues, broken links, and performance bottlenecks.",
+    "actionPlan": "Action Plan",
+    "actionDesc": "Get a prioritized roadmap with specific implementation steps.",
+    "modalTitle": "Analyze Your Store",
+    "modalDesc": "Enter your store URL below to get started with a comprehensive analysis.",
+    "storeUrl": "Store URL",
+    "placeholder": "https://yourstore.com",
+    "cancel": "Cancel",
+    "analyze": "Analyze"
+  },
+  "contact": {
+    "title": "Get in touch",
+    "subtitle": "Every client matters to us. Reach out to discuss your eCommerce goals.",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send message"
+  },
+  "theme": {
+    "title": "Shopify Themes",
+    "subtitle": "Hand-crafted themes designed for conversions.",
+    "purchase": "Purchase"
+  },
+  "improveStore": {
+    "title": "Improve Store",
+    "subtitle": "Done-for-you eCommerce services to increase sales."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "language": "Language"
+  }
+}

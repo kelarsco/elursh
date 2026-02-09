@@ -1,0 +1,93 @@
+{
+  "header": {
+    "home": "Startseite",
+    "agency": "Agentur",
+    "expertise": "Expertise",
+    "products": "Produkte",
+    "storeAudit": "Shop-Audit",
+    "purchaseTheme": "Theme kaufen",
+    "improveStore": "Shop verbessern",
+    "contact": "Kontakt",
+    "sendMessage": "Nachricht senden"
+  },
+  "footer": {
+    "services": "Services",
+    "company": "Unternehmen",
+    "storeAudit": "Shop-Audit",
+    "buyTheme": "Theme kaufen",
+    "improveStore": "Shop verbessern",
+    "aboutUs": "Über uns",
+    "careers": "Karriere",
+    "contact": "Kontakt",
+    "copyright": "© Elursh 2026"
+  },
+  "hero": {
+    "ecommerce": "eCommerce",
+    "backbone": "Rückgrat",
+    "tagline": "Skalierung von Startups und etablierten eCommerce-Marken auf 7 Stellen und darüber hinaus.",
+    "freeStoreAudit": "Kostenloser Shop-Audit",
+    "awardWinning": "PREISGEKRÖNTE AGENTUR"
+  },
+  "services": {
+    "title": "Was wir tun",
+    "subtitle": "Wir bieten eCommerce-Lösungen, die echte Ergebnisse liefern.",
+    "auditTitle": "Audit & Strategie",
+    "auditDesc": "Tiefgehendes eCommerce-Audit zu Marke, Shop-Design, UX, Performance und Conversion-Lücken. Wir analysieren Ihren Online-Shop und die Customer Journey und liefern klare, umsetzbare Erkenntnisse.",
+    "designTitle": "Design & Redesign",
+    "designDesc": "Hohe Conversion, mobile-first Shopify- und eCommerce-Design mit Fokus auf Usability, Geschwindigkeit und Skalierbarkeit. Wir bauen klare, conversion-orientierte Layouts, die Besucher in Kunden verwandeln.",
+    "marketingTitle": "Marketing für Verkäufe",
+    "marketingDesc": "Datengestütztes eCommerce-Marketing mit Fokus auf Traffic, Kundengewinnung und Umsatzwachstum. Wir nutzen Ads, Funnels und Retention-Systeme für konstante Verkäufe.",
+    "analyticsTitle": "Analytics & CRO",
+    "analyticsDesc": "Fortgeschrittene eCommerce-Analytics und Conversion-Rate-Optimierung zur Performance-Steigerung. Wir tracken Verhalten, testen Verbesserungen und optimieren Ihren Shop für höhere Conversions.",
+    "brandingTitle": "Branding & visuelle Systeme",
+    "brandingDesc": "eCommerce-Branding und visuelles Design für Vertrauen und Konsistenz. Wir schaffen starke Markenidentität und UI-Systeme, die Shop und Marketing verbinden.",
+    "popular": "Beliebt",
+    "learnMore": "Mehr erfahren",
+    "ctaTitle": "Statt Freelancer zu suchen und Chaos zu verwalten, erhalten Sie ein fertiges",
+    "ctaTitleItalic": "eCommerce-System und -Team.",
+    "ctaReady": "Bereit, einen neuen Shop zu starten oder Ihre Verkäufe zu steigern?",
+    "contactUs": "Kontaktieren Sie uns"
+  },
+  "storeAudit": {
+    "title": "Entfalten Sie das volle",
+    "potential": "Potenzial Ihres Shops",
+    "subtitle": "Erhalten Sie eine umfassende Analyse Ihres ecommerce-Shops mit umsetzbaren Erkenntnissen für mehr Conversions und Umsatz.",
+    "auditMyStore": "Shop auditieren",
+    "comprehensiveAnalysis": "Umfassende Analyse",
+    "comprehensiveDesc": "Tiefe Einblicke in Performance, UX und Conversion-Funnels Ihres Shops.",
+    "growthOpportunities": "Wachstumschancen",
+    "growthDesc": "Identifizieren Sie ungenutztes Umsatzpotenzial und Optimierungsstrategien.",
+    "issueDetection": "Fehlererkennung",
+    "issueDesc": "Finden Sie technische Probleme, tote Links und Performance-Engpässe.",
+    "actionPlan": "Aktionsplan",
+    "actionDesc": "Erhalten Sie eine priorisierte Roadmap mit konkreten Umsetzungsschritten.",
+    "modalTitle": "Analysieren Sie Ihren Shop",
+    "modalDesc": "Geben Sie Ihre Shop-URL ein, um mit der Analyse zu beginnen.",
+    "storeUrl": "Shop-URL",
+    "placeholder": "https://ihrshop.de",
+    "cancel": "Abbrechen",
+    "analyze": "Analysieren"
+  },
+  "contact": {
+    "title": "Kontakt",
+    "subtitle": "Jeder Kunde zählt. Sprechen Sie mit uns über Ihre eCommerce-Ziele.",
+    "name": "Name",
+    "email": "E-Mail",
+    "message": "Nachricht",
+    "send": "Nachricht senden"
+  },
+  "theme": {
+    "title": "Shopify Themes",
+    "subtitle": "Handgefertigte Themes für Conversions.",
+    "purchase": "Kaufen"
+  },
+  "improveStore": {
+    "title": "Shop verbessern",
+    "subtitle": "eCommerce-Services zur Steigerung Ihrer Verkäufe."
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Etwas ist schiefgelaufen",
+    "language": "Sprache"
+  }
+}

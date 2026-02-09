@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BarChart2, TrendingUp, AlertCircle, CheckCircle, ArrowRight } from "react-feather";
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const StoreAudit = () => {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [storeUrl, setStoreUrl] = useState("");
 
@@ -25,23 +27,23 @@ const StoreAudit = () => {
   const auditFeatures = [
     {
       icon: BarChart2,
-      title: "Comprehensive Analysis",
-      description: "Deep dive into your store's performance, UX, and conversion funnels.",
+      title: t("storeAudit.comprehensiveAnalysis"),
+      description: t("storeAudit.comprehensiveDesc"),
     },
     {
       icon: TrendingUp,
-      title: "Growth Opportunities",
-      description: "Identify untapped revenue potential and optimization strategies.",
+      title: t("storeAudit.growthOpportunities"),
+      description: t("storeAudit.growthDesc"),
     },
     {
       icon: AlertCircle,
-      title: "Issue Detection",
-      description: "Find technical issues, broken links, and performance bottlenecks.",
+      title: t("storeAudit.issueDetection"),
+      description: t("storeAudit.issueDesc"),
     },
     {
       icon: CheckCircle,
-      title: "Action Plan",
-      description: "Get a prioritized roadmap with specific implementation steps.",
+      title: t("storeAudit.actionPlan"),
+      description: t("storeAudit.actionDesc"),
     },
   ];
 
@@ -53,17 +55,17 @@ const StoreAudit = () => {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-sans font-semibold mb-6" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-              Unlock your store's full{" "}
-              <span className="italic">potential</span>
+              {t("storeAudit.title")}{" "}
+              <span className="italic">{t("storeAudit.potential")}</span>
             </h1>
             <p className="text-xl text-muted-foreground">
-              Get a comprehensive analysis of your ecommerce store with actionable insights to boost conversions and revenue.
+              {t("storeAudit.subtitle")}
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 font-semibold hover:bg-primary/90 transition-colors mt-8"
             >
-              audit my store
+              {t("storeAudit.auditMyStore")}
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -83,21 +85,21 @@ const StoreAudit = () => {
             <DialogContent className="sm:max-w-[500px] bg-background border-border rounded-lg p-8">
               <DialogHeader className="text-left">
                 <DialogTitle className="text-2xl md:text-3xl font-semibold text-[#222222] mb-2" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-                  Analyze Your Store
+                  {t("storeAudit.modalTitle")}
                 </DialogTitle>
                 <DialogDescription className="text-base text-muted-foreground" style={{ fontFamily: 'Space Grotesk' }}>
-                  Enter your store URL below to get started with a comprehensive analysis.
+                  {t("storeAudit.modalDesc")}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-6 py-4">
                 <div className="space-y-2">
                   <label htmlFor="store-url" className="text-sm font-medium text-[#222222]" style={{ fontFamily: 'Space Grotesk' }}>
-                    Store URL
+                    {t("storeAudit.storeUrl")}
                   </label>
                   <Input
                     id="store-url"
                     type="url"
-                    placeholder="https://yourstore.com"
+                    placeholder={t("storeAudit.placeholder")}
                     value={storeUrl}
                     onChange={(e) => setStoreUrl(e.target.value)}
                     onKeyDown={(e) => {
@@ -115,7 +117,7 @@ const StoreAudit = () => {
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-semibold rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                   style={{ fontFamily: 'Space Grotesk' }}
                 >
-                  Start Analyzing
+                  {t("storeAudit.analyze")}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>

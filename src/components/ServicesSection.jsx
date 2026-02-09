@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Search, Layout, Volume2, BarChart2, Layers, MessageCircle, X, Instagram } from "react-feather";
 import SplitText from "./SplitText";
 
 const ServicesSection = () => {
+  const { t } = useTranslation();
   const [showWhatsAppPrompt, setShowWhatsAppPrompt] = useState(false);
   const [isWhatsAppDismissed, setIsWhatsAppDismissed] = useState(false);
 
@@ -11,37 +13,37 @@ const ServicesSection = () => {
     {
       number: "01",
       icon: Search,
-      title: "Audit & Strategy",
-      badge: null,
-      description: "In-depth eCommerce audit covering branding, store design, UX, performance, and conversion gaps. We analyze your online store and customer journey, then deliver clear, actionable insights.",
+      titleKey: "services.auditTitle",
+      badgeKey: null,
+      descKey: "services.auditDesc",
     },
     {
       number: "02",
       icon: Layout,
-      title: "Design & Redesign",
-      badge: "Popular",
-      description: "High-converting, mobile-first Shopify and eCommerce design focused on usability, speed, and scalability. We build clean, conversion-driven layouts that turn visitors into customers.",
+      titleKey: "services.designTitle",
+      badgeKey: "services.popular",
+      descKey: "services.designDesc",
     },
     {
       number: "03",
       icon: Volume2,
-      title: "Marketing for Sales",
-      badge: null,
-      description: "Data-driven eCommerce marketing focused on traffic, customer acquisition, and revenue growth. We use ads, funnels, and retention systems to drive consistent sales.",
+      titleKey: "services.marketingTitle",
+      badgeKey: null,
+      descKey: "services.marketingDesc",
     },
     {
       number: "04",
       icon: BarChart2,
-      title: "Analytics & CRO",
-      badge: null,
-      description: "Advanced eCommerce analytics and conversion rate optimization to improve performance. We track behavior, test improvements, and optimize your store for higher conversions.",
+      titleKey: "services.analyticsTitle",
+      badgeKey: null,
+      descKey: "services.analyticsDesc",
     },
     {
       number: "05",
       icon: Layers,
-      title: "Branding & Visual Systems",
-      badge: null,
-      description: "eCommerce branding and visual design that builds trust and consistency. We create strong brand identity and UI systems aligned across your store and marketing.",
+      titleKey: "services.brandingTitle",
+      badgeKey: null,
+      descKey: "services.brandingDesc",
     },
   ];
 
@@ -88,8 +90,8 @@ const ServicesSection = () => {
             threshold={0.1}
             rootMargin="-100px"
           >
-            Instead of searching for freelancers and managing chaos, you get a ready-built{" "}
-            <span className="italic">eCommerce system and team.</span>
+            {t("services.ctaTitle")}{" "}
+            <span className="italic">{t("services.ctaTitleItalic")}</span>
           </SplitText>
         </div>
 
@@ -116,10 +118,10 @@ const ServicesSection = () => {
                 <div className="flex items-center gap-3 md:gap-4 flex-shrink-0 md:min-w-[450px] md:ml-[101px] md:-mr-[87px]">
                   <service.icon className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0" style={{ color: 'rgba(255, 255, 255, 1)', ...(service.icon === Layout ? { width: '33px', height: '33px' } : { width: '28px', height: '28px' }) }} />
                   <h3 className="text-xl md:text-2xl lg:text-3xl font-medium flex items-center gap-2 md:gap-3 flex-wrap" style={{ color: '#ffffff', fontFamily: 'Space Grotesk' }}>
-                    {service.title}
-                    {service.badge && (
+                    {t(service.titleKey)}
+                    {service.badgeKey && (
                       <span className="bg-yellow-300 text-[#222222] text-xs px-2 md:px-3 py-1 font-sans font-medium rounded-[50px]">
-                        {service.badge}
+                        {t(service.badgeKey)}
                       </span>
                     )}
                   </h3>
@@ -127,7 +129,7 @@ const ServicesSection = () => {
                 
                 {/* Description */}
                 <p className="text-sm flex-1 md:ml-[132px] md:mr-5 leading-[25px]" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  {service.description}
+                  {t(service.descKey)}
                 </p>
               </div>
             </div>
@@ -137,9 +139,9 @@ const ServicesSection = () => {
         {/* CTA */}
         <div className="mt-12 text-center">
           <p style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-          Ready to start a new store or boost your existing sales?{" "}
+            {t("services.ctaReady")}{" "}
             <Link to="/contact" className="underline transition-colors" style={{ color: '#ffffff' }}>
-              Contact us
+              {t("services.contactUs")}
             </Link>
           </p>
         </div>

@@ -1,0 +1,93 @@
+{
+  "header": {
+    "home": "Home",
+    "agency": "agenzia",
+    "expertise": "Competenza",
+    "products": "Prodotti",
+    "storeAudit": "Audit negozio",
+    "purchaseTheme": "acquista tema",
+    "improveStore": "Migliora negozio",
+    "contact": "Contatto",
+    "sendMessage": "invia messaggio"
+  },
+  "footer": {
+    "services": "Servizi",
+    "company": "Azienda",
+    "storeAudit": "Audit negozio",
+    "buyTheme": "Acquista tema",
+    "improveStore": "Migliora negozio",
+    "aboutUs": "Chi siamo",
+    "careers": "Lavora con noi",
+    "contact": "Contatto",
+    "copyright": "© Elursh 2026"
+  },
+  "hero": {
+    "ecommerce": "eCommerce",
+    "backbone": "Colonna vertebrale",
+    "tagline": "Facciamo crescere startup e marchi eCommerce affermati verso 7 cifre e oltre.",
+    "freeStoreAudit": "Audit gratuito del negozio",
+    "awardWinning": "AGENZIA PREMIATA"
+  },
+  "services": {
+    "title": "Cosa facciamo",
+    "subtitle": "Offriamo soluzioni eCommerce che generano risultati concreti.",
+    "auditTitle": "Audit e strategia",
+    "auditDesc": "Audit eCommerce approfondito su brand, design del negozio, UX, performance e gap di conversione. Analizziamo il tuo negozio online e il percorso cliente per offrire insight chiari e attuabili.",
+    "designTitle": "Design e redesign",
+    "designDesc": "Design Shopify e eCommerce ad alta conversione, mobile-first, focalizzato su usabilità, velocità e scalabilità. Creiamo layout puliti e orientati alla conversione che trasformano i visitatori in clienti.",
+    "marketingTitle": "Marketing per le vendite",
+    "marketingDesc": "Marketing eCommerce basato sui dati, focalizzato su traffico, acquisizione clienti e crescita dei ricavi. Usiamo ads, funnel e sistemi di retention per generare vendite costanti.",
+    "analyticsTitle": "Analytics e CRO",
+    "analyticsDesc": "Analytics eCommerce avanzato e ottimizzazione del tasso di conversione per migliorare le performance. Monitoriamo il comportamento, testiamo i miglioramenti e ottimizziamo il tuo negozio per conversioni più elevate.",
+    "brandingTitle": "Branding e sistemi visivi",
+    "brandingDesc": "Branding e design visivo eCommerce che genera fiducia e coerenza. Creiamo identità di marca solida e sistemi UI allineati tra negozio e marketing.",
+    "popular": "Popolare",
+    "learnMore": "Scopri di più",
+    "ctaTitle": "Invece di cercare freelance e gestire il caos, ottieni un",
+    "ctaTitleItalic": "sistema e team eCommerce pronti all'uso.",
+    "ctaReady": "Pronto ad avviare un nuovo negozio o aumentare le tue vendite?",
+    "contactUs": "Contattaci"
+  },
+  "storeAudit": {
+    "title": "Sblocca tutto il",
+    "potential": "potenziale del tuo negozio",
+    "subtitle": "Ottieni un'analisi completa del tuo negozio ecommerce con insight attuabili per aumentare conversioni e ricavi.",
+    "auditMyStore": "audita il mio negozio",
+    "comprehensiveAnalysis": "Analisi completa",
+    "comprehensiveDesc": "Approfondisci performance, UX e funnel di conversione del tuo negozio.",
+    "growthOpportunities": "Opportunità di crescita",
+    "growthDesc": "Identifica potenziale di ricavi inesplorato e strategie di ottimizzazione.",
+    "issueDetection": "Rilevamento problemi",
+    "issueDesc": "Trova problemi tecnici, link rotti e colli di bottiglia delle performance.",
+    "actionPlan": "Piano d'azione",
+    "actionDesc": "Ottieni una roadmap priorizzata con passi di implementazione specifici.",
+    "modalTitle": "Analizza il tuo negozio",
+    "modalDesc": "Inserisci l'URL del tuo negozio per avviare un'analisi completa.",
+    "storeUrl": "URL del negozio",
+    "placeholder": "https://iltuonegozio.it",
+    "cancel": "Annulla",
+    "analyze": "Analizza"
+  },
+  "contact": {
+    "title": "Contattaci",
+    "subtitle": "Ogni cliente conta. Parlaci dei tuoi obiettivi eCommerce.",
+    "name": "Nome",
+    "email": "Email",
+    "message": "Messaggio",
+    "send": "Invia messaggio"
+  },
+  "theme": {
+    "title": "Temi Shopify",
+    "subtitle": "Temi artigianali progettati per le conversioni.",
+    "purchase": "Acquista"
+  },
+  "improveStore": {
+    "title": "Migliora negozio",
+    "subtitle": "Servizi eCommerce per aumentare le vendite."
+  },
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Qualcosa è andato storto",
+    "language": "Lingua"
+  }
+}
