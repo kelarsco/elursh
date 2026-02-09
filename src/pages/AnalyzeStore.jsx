@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Progress } from "@/components/ui/progress";
@@ -100,6 +101,7 @@ function normalizeAuditData(data, storeUrl) {
 }
 
 const AnalyzeStore = () => {
+  const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const storeUrl = searchParams.get("url");
   const [auditData, setAuditData] = useState(null);
@@ -145,10 +147,11 @@ const AnalyzeStore = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!storeUrl) {
-      setError("No store URL provided");
-      return;
-    }
+    if (!storeUrl) setError(t("auditReport.noStoreUrl"));
+  }, [storeUrl, i18n.language, t]);
+
+  useEffect(() => {
+    if (!storeUrl) return;
 
     const base = apiBase;
     const normalizedUrl = storeUrl.trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "").toLowerCase() || storeUrl;
@@ -189,7 +192,7 @@ const AnalyzeStore = () => {
         }
       } catch (err) {
         console.error("Audit error:", err);
-        setError(err.message || "Failed to analyze store. Please check the URL and try again.");
+        setError(err.message || t("common.error"));
       } finally {
         setLoading(false);
       }
@@ -323,10 +326,10 @@ const AnalyzeStore = () => {
           <div className="text-center">
             <Loader className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
             <h2 className="text-2xl font-semibold text-[#222222] mb-2" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-              Analyzing Your Store...
+              {t("auditReport.analyzing")}
             </h2>
             <p className="text-muted-foreground">
-              This may take a few moments
+              {t("auditReport.analyzingDesc")}
             </p>
           </div>
         </div>
@@ -344,14 +347,14 @@ const AnalyzeStore = () => {
           <div className="text-center max-w-md">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-semibold text-[#222222] mb-2" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-              Analysis Failed
+              {t("auditReport.analysisFailed")}
             </h2>
             <p className="text-muted-foreground mb-6">{error}</p>
             <a
               href="/store-audit"
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition-colors rounded-md"
             >
-              Try Again
+              {t("auditReport.tryAgain")}
             </a>
           </div>
         </div>
@@ -368,13 +371,13 @@ const AnalyzeStore = () => {
         <div className="pt-32 pb-20 flex items-center justify-center">
           <div className="text-center">
             <p className="text-xl text-muted-foreground mb-4">
-              No store URL provided
+              {t("auditReport.noStoreUrl")}
             </p>
             <a
               href="/store-audit"
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition-colors rounded-md"
             >
-              Go to Store Audit
+              {t("auditReport.goToStoreAudit")}
             </a>
           </div>
         </div>
@@ -481,7 +484,7 @@ const AnalyzeStore = () => {
         <Header />
         <div className="pt-32 pb-20 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-xl text-muted-foreground">Loading audit results...</p>
+            <p className="text-xl text-muted-foreground">{t("auditReport.loadingResults")}</p>
           </div>
         </div>
         <Footer />
@@ -507,7 +510,7 @@ const AnalyzeStore = () => {
                     {auditData?.storeInfo?.url ?? storeUrl ?? ""}
                   </h1>
                   <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                    <span>Platform: {auditData?.storeInfo?.platform ?? "Unknown"}</span>
+                    <span>{t("auditReport.platform")}: {auditData?.storeInfo?.platform ?? t("auditReport.unknown")}</span>
                     {(auditData?.storeInfo?.industry ?? "Unknown") !== "Unknown" && (
                       <>
                         <span>•</span>
@@ -521,17 +524,17 @@ const AnalyzeStore = () => {
                       </>
                     )}
                     <span>•</span>
-                    <span>Audited: {auditData?.storeInfo?.auditDate ?? ""}</span>
+                    <span>{t("auditReport.audited")}: {auditData?.storeInfo?.auditDate ?? ""}</span>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col items-center md:items-end gap-3">
                 <CircularScore score={auditData.overallScore} />
                 <Badge className={`${getStatusBadgeColor(auditData.status)} border font-semibold`}>
-                  {auditData.status}
+                  {t(`auditReport.status.${auditData.status}`) || auditData.status}
                 </Badge>
                 <p className="text-xs text-muted-foreground text-center md:text-right max-w-[200px]">
-                  Based on UX, CRO, SEO, trust, and marketing setup
+                  {t("auditReport.scoreBasedOn")}
                 </p>
               </div>
             </div>
@@ -544,13 +547,13 @@ const AnalyzeStore = () => {
         <div className="container-custom">
           <div className="bg-red-50 border-2 border-red-200 rounded-lg p-8">
             <h2 className="text-2xl font-semibold text-[#222222] mb-2" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-              Estimated Monthly Revenue Loss
+              {t("auditReport.revenueLoss")}
             </h2>
             <div className="flex items-baseline gap-2 mb-6">
               <span className="text-4xl md:text-5xl font-bold text-red-600" style={{ fontFamily: 'Space Grotesk' }}>
                 ${(auditData.revenueLoss?.min ?? 0).toLocaleString()} – ${(auditData.revenueLoss?.max ?? 0).toLocaleString()}
               </span>
-              <span className="text-muted-foreground">/ month</span>
+              <span className="text-muted-foreground">{t("auditReport.perMonth")}</span>
             </div>
             <div className="space-y-4 mb-4 max-h-[600px] overflow-y-auto pr-2">
               {(auditData.revenueLoss?.breakdown ?? []).map((item, index) => (
@@ -576,7 +579,7 @@ const AnalyzeStore = () => {
             </div>
             <div className="bg-white/70 rounded-lg p-4 mt-4">
               <p className="text-sm text-[#222222] leading-relaxed" style={{ fontFamily: 'Space Grotesk' }}>
-                <strong>What this means:</strong> These percentages show how much of your monthly revenue loss comes from each issue. We compared your store to similar successful stores in your industry to calculate these numbers. The higher the percentage, the more money you're losing from that specific problem.
+                <strong>{t("auditReport.revenueWhatMeans")}</strong> {t("auditReport.revenueWhatMeansDesc")}
               </p>
             </div>
           </div>
@@ -595,29 +598,29 @@ const AnalyzeStore = () => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-semibold text-[#222222] mb-1" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-                      Domain Name Audit
+                      {t("auditReport.domainAudit")}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Your store is using a Shopify subdomain
+                      {t("auditReport.domainSubdomain")}
                     </p>
                   </div>
                 </div>
                 <Badge className="bg-amber-200 text-amber-900 border-amber-300 font-semibold w-fit">
-                  Recommendation
+                  {t("auditReport.recommendation")}
                 </Badge>
               </div>
               <div className="space-y-4">
                 <p className="text-sm text-[#222222] leading-relaxed" style={{ fontFamily: 'Space Grotesk' }}>
-                  Your store URL (<strong>{auditData?.storeInfo?.url ?? storeUrl ?? ""}</strong>) is a <strong>Shopify subdomain</strong> (*.myshopify.com). This can hurt trust, SEO, and branding compared to a custom domain (e.g. www.yourbrand.com).
+                  {t("auditReport.domainSubdomainDesc", { url: auditData?.storeInfo?.url ?? storeUrl ?? "" })}
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-sm text-[#222222] leading-relaxed" style={{ fontFamily: 'Space Grotesk' }}>
-                  <li>Customers may perceive myshopify.com URLs as less professional or less trustworthy.</li>
-                  <li>Search engines and backlinks benefit more from a consistent branded domain.</li>
-                  <li>Email and ads look more credible when they point to your own domain.</li>
+                  <li>{t("auditReport.domainSubdomainList1")}</li>
+                  <li>{t("auditReport.domainSubdomainList2")}</li>
+                  <li>{t("auditReport.domainSubdomainList3")}</li>
                 </ul>
                 <div className="bg-white/70 rounded-lg p-4 mt-4">
                   <p className="text-sm text-[#222222] leading-relaxed" style={{ fontFamily: 'Space Grotesk' }}>
-                    <strong>Recommendation:</strong> Connect a custom (branded) domain in Shopify: <strong>Settings → Domains</strong>. Add your domain, then point your DNS to Shopify. Once connected, set it as the primary domain so your store uses your branded URL instead of the .myshopify.com subdomain.
+                    <strong>{t("auditReport.recommendation")}:</strong> {t("auditReport.domainRecommendation")}
                   </p>
                 </div>
               </div>
@@ -630,7 +633,7 @@ const AnalyzeStore = () => {
       <section ref={detailedAuditRef} className="py-12 bg-muted/30">
         <div className="container-custom">
           <h2 className="text-3xl font-semibold text-[#222222] mb-8 text-center" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-            Detailed Audit Results
+            {t("auditReport.detailedResults")}
           </h2>
           <div className="space-y-6">
             {(auditData.categories ?? []).map((category) => {
@@ -643,7 +646,7 @@ const AnalyzeStore = () => {
                         <IconComponent className="w-6 h-6 text-[#222222]" />
                       </div>
                       <h3 className="text-xl font-semibold text-[#222222]" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-                        {category.title}
+                        {(category.id && t(`auditReport.category.${category.id}`)) || category.title}
                       </h3>
                     </div>
                     <div className="flex items-center gap-4">
@@ -654,7 +657,7 @@ const AnalyzeStore = () => {
                         <div className="text-xs text-muted-foreground">/100</div>
                       </div>
                       <Badge className={`${getStatusBadgeColor(category.status)} border font-semibold`}>
-                        {category.status}
+                        {t(`auditReport.status.${category.status}`) || category.status}
                       </Badge>
                     </div>
                   </div>
@@ -662,7 +665,7 @@ const AnalyzeStore = () => {
                   <div className="grid md:grid-cols-3 gap-6">
                     <div>
                       <h4 className="text-sm font-semibold text-[#222222] mb-3" style={{ fontFamily: 'Space Grotesk' }}>
-                        Issues Found
+                        {t("auditReport.issuesFound")}
                       </h4>
                       <div className="space-y-2">
                         {category.checks?.map((check, idx) => (
@@ -682,13 +685,13 @@ const AnalyzeStore = () => {
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold text-[#222222] mb-3" style={{ fontFamily: 'Space Grotesk' }}>
-                        Impact
+                        {t("auditReport.impact")}
                       </h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">{category.impact}</p>
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold text-[#222222] mb-3" style={{ fontFamily: 'Space Grotesk' }}>
-                        Recommendation
+                        {t("auditReport.recommendationLabel")}
                       </h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">{category.recommendation}</p>
                     </div>
@@ -703,10 +706,10 @@ const AnalyzeStore = () => {
               onClick={downloadReportAsPdf}
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
               style={{ fontFamily: 'Space Grotesk' }}
-              aria-label="Download audit report as PDF"
+              aria-label={t("auditReport.downloadReport")}
             >
               <Download className="w-5 h-5" />
-              Download Report (PDF)
+              {t("auditReport.downloadReport")}
             </button>
           </div>
         </div>
@@ -724,7 +727,7 @@ const AnalyzeStore = () => {
               type="button"
               onClick={() => setDownloadDismissed(true)}
               className="absolute -top-2 -right-2 z-10 flex items-center justify-center w-7 h-7 rounded-full bg-muted border border-border text-muted-foreground hover:bg-background hover:text-foreground shadow-sm transition-colors"
-              aria-label="Dismiss download"
+              aria-label={t("auditReport.dismissDownload")}
             >
               <X className="w-4 h-4" />
             </button>
@@ -733,10 +736,10 @@ const AnalyzeStore = () => {
               onClick={downloadReportAsPdf}
               className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-3 rounded-lg shadow-lg hover:bg-primary/90 transition-colors font-semibold"
               style={{ fontFamily: 'Space Grotesk' }}
-              aria-label="Download audit report as PDF"
+              aria-label={t("auditReport.downloadReport")}
             >
               <Download className="w-5 h-5" />
-              Download Report (PDF)
+              {t("auditReport.downloadReport")}
             </button>
           </div>
         </div>
@@ -746,7 +749,7 @@ const AnalyzeStore = () => {
       <section className="py-12 bg-background">
         <div className="container-custom">
           <h2 className="text-3xl font-semibold text-[#222222] mb-8 text-center" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-            Recommended Actions (Prioritized)
+            {t("auditReport.recommendedActions")}
           </h2>
           <div className="space-y-4">
             {(auditData.actionPlan ?? []).map((action, index) => {
@@ -775,7 +778,7 @@ const AnalyzeStore = () => {
                       </div>
                     </div>
                     <Badge className={`${getStatusBadgeColor(action.priority)} border font-semibold`}>
-                      {action.priority}
+                      {t(`auditReport.status.${action.priority}`) || action.priority}
                     </Badge>
                   </div>
                 </div>
@@ -790,10 +793,10 @@ const AnalyzeStore = () => {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-semibold mb-4" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-              Want us to fix these issues and recover lost revenue?
+              {t("auditReport.ctaTitle")}
             </h2>
             <p className="text-lg mb-6 opacity-90">
-              Limited audit fixes available per month
+              {t("auditReport.ctaSubtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Link
@@ -801,7 +804,7 @@ const AnalyzeStore = () => {
                 className="inline-flex items-center justify-center gap-2 bg-white text-primary px-8 py-4 font-semibold hover:bg-white/90 transition-colors rounded-md"
                 style={{ fontFamily: 'Space Grotesk' }}
               >
-                Get Full Store Optimization
+                {t("auditReport.getOptimization")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Dialog>
@@ -811,7 +814,7 @@ const AnalyzeStore = () => {
                     className="inline-flex items-center justify-center gap-2 bg-background text-foreground px-8 py-4 font-semibold hover:bg-background/90 transition-colors rounded-md border border-white/20"
                     style={{ fontFamily: 'Space Grotesk' }}
                   >
-                    Fix-It Checklist
+                    {t("auditReport.fixItChecklist")}
                     <Star className="w-4 h-4 text-[#FBBF24]" />
                   </button>
                 </DialogTrigger>
@@ -821,14 +824,13 @@ const AnalyzeStore = () => {
                       className="text-2xl font-semibold text-[#222222]"
                       style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}
                     >
-                      Fix-It Manual (Premium Checklist)
+                      {t("auditReport.fixItManual")}
                     </DialogTitle>
                     <DialogDescription
                       className="text-sm text-muted-foreground"
                       style={{ fontFamily: 'Space Grotesk' }}
                     >
-                      A step-by-step implementation guide for tech-savvy store owners who want to fix
-                      every issue from this audit themselves and recover lost revenue.
+                      {t("auditReport.fixItManualDesc")}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="mt-4 space-y-4">
@@ -838,7 +840,7 @@ const AnalyzeStore = () => {
                           className="text-xs uppercase tracking-wide text-muted-foreground"
                           style={{ fontFamily: 'Space Grotesk' }}
                         >
-                          One-time investment
+                          {t("auditReport.oneTimeInvestment")}
                         </p>
                         <p
                           className="text-2xl font-semibold text-[#222222]"
@@ -848,28 +850,27 @@ const AnalyzeStore = () => {
                         </p>
                       </div>
                       <p className="text-xs text-red-500 font-medium" style={{ fontFamily: 'Space Grotesk' }}>
-                        Best used while your audit results are fresh.
+                        {t("auditReport.bestUsed")}
                       </p>
                     </div>
                     <ul className="space-y-2 text-sm text-[#222222]" style={{ fontFamily: 'Space Grotesk' }}>
-                      <li>• Clear checklist of what to fix first to stop revenue leaks.</li>
-                      <li>• Actionable steps for UX, trust, SEO, product pages and tracking.</li>
-                      <li>• Ideal for tech-savvy founders who prefer to implement everything in-house.</li>
+                      <li>• {t("auditReport.fixItList1")}</li>
+                      <li>• {t("auditReport.fixItList2")}</li>
+                      <li>• {t("auditReport.fixItList3")}</li>
                     </ul>
                     <p className="text-xs text-red-500" style={{ fontFamily: 'Space Grotesk' }}>
-                      Every week you wait with these issues live means more lost sales. Use this manual
-                      to fix them fast before you scale ads or traffic.
+                      {t("auditReport.fixItUrgent")}
                     </p>
                     {!manualPurchased ? (
                       <>
                         <div className="space-y-2 pt-2">
                           <label htmlFor="manual-email" className="text-sm font-medium text-[#222222]" style={{ fontFamily: 'Space Grotesk' }}>
-                            Email (for payment receipt)
+                            {t("auditReport.emailForReceipt")}
                           </label>
                           <Input
                             id="manual-email"
                             type="email"
-                            placeholder="you@example.com"
+                            placeholder={t("auditReport.emailPlaceholder")}
                             value={purchaseEmail}
                             onChange={(e) => setPurchaseEmail(e.target.value)}
                             className="w-full border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
@@ -891,10 +892,10 @@ const AnalyzeStore = () => {
                           {paystackLoading ? (
                             <>
                               <Loader className="w-4 h-4 animate-spin" />
-                              Processing…
+                              {t("auditReport.processing")}
                             </>
                           ) : (
-                            <>Purchase Manual — $50</>
+                            <>{t("auditReport.purchaseManual")}</>
                           )}
                         </button>
                       </>
@@ -906,7 +907,7 @@ const AnalyzeStore = () => {
                         style={{ fontFamily: 'Space Grotesk' }}
                       >
                         <Download className="w-4 h-4" />
-                        Download Manual (PDF)
+                        {t("auditReport.downloadManual")}
                       </button>
                     )}
                   </div>

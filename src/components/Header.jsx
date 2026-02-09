@@ -211,7 +211,7 @@ const Header = () => {
                 {LANGUAGES.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
-                    onClick={() => i18n.changeLanguage(lang.code)}
+                    onClick={() => i18n.changeLanguage(lang.code).then(() => window.location.reload())}
                     className={i18n.language === lang.code ? "bg-muted" : ""}
                   >
                     {lang.label}
@@ -230,16 +230,35 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2"
-            onClick={() => {
-              if (isMenuOpen) {
-                handleCloseMenu();
-              } else {
-                setIsMenuOpen(true);
-              }
-            }}
+          {/* Mobile: Language switcher + Menu Button */}
+          <div className="lg:hidden flex items-center" style={{ gap: '5px' }}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9" aria-label={t("common.language")}>
+                  <Globe className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {LANGUAGES.map((lang) => (
+                  <DropdownMenuItem
+                    key={lang.code}
+                    onClick={() => i18n.changeLanguage(lang.code).then(() => window.location.reload())}
+                    className={i18n.language === lang.code ? "bg-muted" : ""}
+                  >
+                    {lang.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <button
+              className="p-2"
+              onClick={() => {
+                if (isMenuOpen) {
+                  handleCloseMenu();
+                } else {
+                  setIsMenuOpen(true);
+                }
+              }}
             style={{ background: 'none', paddingLeft: '18px', paddingRight: '18px' }}
           >
             {!isMenuOpen && !isMenuClosing && (
@@ -254,7 +273,8 @@ const Header = () => {
                 <line x1="2" y1="16" x2="22" y2="16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
               </svg>
             )}
-          </button>
+            </button>
+          </div>
       </div>
 
       {/* Mobile Menu Close Button - Overlay */}
