@@ -8,6 +8,8 @@ import {
   createTheme,
   updateTheme,
   deleteTheme,
+  getPriceModifier,
+  setPriceModifier,
 } from "@/lib/managerApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +94,9 @@ export default function Services() {
   const [deleteThemeId, setDeleteThemeId] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [priceModifierPercent, setPriceModifierPercent] = useState(-30);
+  const [priceModifierInput, setPriceModifierInput] = useState("-30");
+  const [priceModifierSaving, setPriceModifierSaving] = useState(false);
   const { toast } = useToast();
 
   const filteredServices = useMemo(() => {
@@ -139,6 +144,34 @@ export default function Services() {
   useEffect(() => {
     if (section === "themes") loadThemes();
   }, [section]);
+
+  useEffect(() => {
+    if (section === "services") {
+      getPriceModifier()
+        .then((r) => {
+          const p = Number(r?.priceModifierPercent ?? -30);
+          setPriceModifierPercent(p);
+          setPriceModifierInput(String(p));
+        })
+        .catch(() => {});
+    }
+  }, [section]);
+
+  const handleApplyPriceModifier = () => {
+    const n = Number(priceModifierInput);
+    if (!Number.isFinite(n)) {
+      toast({ title: "Invalid percent", variant: "destructive" });
+      return;
+    }
+    setPriceModifierSaving(true);
+    setPriceModifier(n)
+      .then(() => {
+        setPriceModifierPercent(n);
+        toast({ title: "Price modifier applied. All store prices updated." });
+      })
+      .catch((e) => toast({ title: "Error", description: e.message, variant: "destructive" }))
+      .finally(() => setPriceModifierSaving(false));
+  };
 
   useEffect(() => {
     setSearchQuery("");
@@ -316,6 +349,27 @@ export default function Services() {
       {/* Services section */}
       {section === "services" && (
         <div className="manager-glass-panel overflow-hidden">
+          {/* Global price modifier */}
+          <div className="p-6 border-b border-white/30 bg-white/20">
+            <h3 className="text-sm font-semibold text-black mb-2">Global price modifier</h3>
+            <p className="text-xs text-black/60 mb-3">Apply a percent change to all Basic, Standard, Premium package prices across the store. Negative = discount (e.g. -30 = 30% off).</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Input
+                type="number"
+                value={priceModifierInput}
+                onChange={(e) => setPriceModifierInput(e.target.value)}
+                className="w-24"
+                placeholder="-30"
+              />
+              <span className="text-sm text-black/70">%</span>
+              <Button onClick={handleApplyPriceModifier} disabled={priceModifierSaving} size="sm">
+                {priceModifierSaving ? "Applying…" : "Apply to all prices"}
+              </Button>
+              {Number.isFinite(priceModifierPercent) && (
+                <span className="text-xs text-black/60">Current: {priceModifierPercent}%</span>
+              )}
+            </div>
+          </div>
           <div className="p-6 border-b border-white/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-black">Products & services (Improve Store)</h2>

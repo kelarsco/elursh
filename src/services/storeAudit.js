@@ -1781,6 +1781,7 @@ export const auditStore = async (url) => {
         action: 'Replace free theme with custom design',
         priority: 'High Impact',
         timeEstimate: '4-6 weeks',
+        salesIncreasePercent: 25,
         revenueImpact: `$${themeLossMin.toLocaleString()}-${themeLossMax.toLocaleString()}/month`,
         icon: 'Zap'
       });
@@ -1792,6 +1793,7 @@ export const auditStore = async (url) => {
         action: 'Fix trust & credibility',
         priority: 'High Impact',
         timeEstimate: '2-3 weeks',
+        salesIncreasePercent: 40,
         revenueImpact: `$${Math.round(estimatedMonthlyLoss.min * 0.4)}-${Math.round(estimatedMonthlyLoss.max * 0.4)}/month`,
         icon: 'Zap'
       });
@@ -1801,6 +1803,7 @@ export const auditStore = async (url) => {
         action: 'Optimize product pages',
         priority: 'High Impact',
         timeEstimate: '3-4 weeks',
+        salesIncreasePercent: 30,
         revenueImpact: `$${Math.round(estimatedMonthlyLoss.min * 0.3)}-${Math.round(estimatedMonthlyLoss.max * 0.3)}/month`,
         icon: 'Zap'
       });
@@ -1810,6 +1813,7 @@ export const auditStore = async (url) => {
         action: 'Set up email automation',
         priority: 'Medium Impact',
         timeEstimate: '1-2 weeks',
+        salesIncreasePercent: 20,
         revenueImpact: `$${Math.round(estimatedMonthlyLoss.min * 0.2)}-${Math.round(estimatedMonthlyLoss.max * 0.2)}/month`,
         icon: 'TrendingUp'
       });
@@ -1819,6 +1823,7 @@ export const auditStore = async (url) => {
         action: 'Improve SEO foundation',
         priority: 'Medium Impact',
         timeEstimate: '4-6 weeks',
+        salesIncreasePercent: 15,
         revenueImpact: `$${Math.round(estimatedMonthlyLoss.min * 0.15)}-${Math.round(estimatedMonthlyLoss.max * 0.15)}/month`,
         icon: 'Search'
       });

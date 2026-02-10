@@ -625,14 +625,42 @@ app.post("/api/contacts", async (req, res) => {
   }
 });
 
+// ——— Helpers: price modifier (from settings table; default -30 = 30% off) ———
+async function getPriceModifierPercent(pool) {
+  if (!pool) return -30;
+  try {
+    const r = await pool.query("SELECT value FROM settings WHERE key = 'price_modifier_percent'");
+    const val = r?.rows?.[0]?.value;
+    const n = Number(val);
+    return Number.isFinite(n) ? n : -30;
+  } catch {
+    return -30;
+  }
+}
+function applyPriceModifierToPackages(packages, modifierPercent) {
+  if (!Array.isArray(packages)) return packages;
+  const factor = 1 + modifierPercent / 100;
+  return packages.map((p) => {
+    const price = Number(p.price);
+    if (!Number.isFinite(price)) return p;
+    const newPrice = Math.round(price * factor);
+    return { ...p, price: newPrice };
+  });
+}
+
 // ——— Public: list services (Improve Store; DB-backed; lazy-seed when empty) ———
 app.get("/api/services", async (req, res) => {
   const pool = getPool();
   if (!pool) return res.status(200).json([]);
   try {
     await ensureServicesSeeded();
+    const modifier = await getPriceModifierPercent(pool);
     const r = await pool.query("SELECT * FROM services ORDER BY sort_order ASC, id ASC");
-    res.status(200).json(r.rows || []);
+    const rows = (r.rows || []).map((row) => {
+      const packages = Array.isArray(row.packages) ? row.packages : (typeof row.packages === "string" ? (() => { try { return JSON.parse(row.packages); } catch { return []; } })() : []);
+      return { ...row, packages: applyPriceModifierToPackages(packages, modifier) };
+    });
+    res.status(200).json(rows);
   } catch (e) {
     logDbErr("services list public", e);
     res.status(500).json({ error: e.message });
@@ -920,6 +948,34 @@ app.delete("/api/manager/themes/:id", requireManager, requireDb, async (req, res
     res.json({ deleted: true, id: req.params.id });
   } catch (e) {
     logDbErr("themes delete", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ——— Manager: settings (price modifier for services) ———
+app.get("/api/manager/settings/price-modifier", requireManager, requireDb, async (req, res) => {
+  try {
+    const mod = await getPriceModifierPercent(getPool());
+    res.json({ priceModifierPercent: mod });
+  } catch (e) {
+    logDbErr("settings price-modifier get", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+app.put("/api/manager/settings/price-modifier", requireManager, requireDb, async (req, res) => {
+  try {
+    const percent = Number(req.body?.priceModifierPercent ?? req.body?.percent);
+    if (!Number.isFinite(percent)) return res.status(400).json({ error: "Invalid percent" });
+    const pool = getPool();
+    await pool.query(
+      `INSERT INTO settings (key, value, updated_at) VALUES ('price_modifier_percent', $1, NOW())
+       ON CONFLICT (key) DO UPDATE SET value = $1, updated_at = NOW()`,
+      [String(Math.round(percent))]
+    );
+    res.json({ priceModifierPercent: Math.round(percent) });
+  } catch (e) {
+    if (e?.code === "42P01") return res.status(503).json({ error: "Run migrations: node scripts/run-migrations.js" });
+    logDbErr("settings price-modifier put", e);
     res.status(500).json({ error: e.message });
   }
 });

@@ -60,6 +60,19 @@ export async function deleteAnalysedStores(ids) {
   return res.json();
 }
 
+export async function getPriceModifier() {
+  const res = await managerFetch("/settings/price-modifier");
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+export async function setPriceModifier(percent) {
+  const res = await managerFetch("/settings/price-modifier", {
+    method: "PUT",
+    body: JSON.stringify({ priceModifierPercent: percent }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
 export async function getServices() {
   const res = await managerFetch("/services");
   if (!res.ok) throw new Error(await res.text());

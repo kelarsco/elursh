@@ -39,13 +39,13 @@ const Header = () => {
     { name: t("header.agency"), href: "/we-are", isRoute: true },
     { name: t("header.expertise"), href: "#services", isRoute: true, isHash: true },
     {
-      name: t("header.products"),
+      name: t("header.boostSales"),
       href: "#products",
       isRoute: false,
       dropdown: [
         { name: t("header.storeAudit"), href: "/store-audit", icon: FileText },
         { name: t("header.purchaseTheme"), href: "/theme", icon: ShoppingBag },
-        { name: t("header.improveStore"), href: "/improve-store", icon: Zap },
+        { name: t("header.servicesNav"), href: "/improve-store", icon: Zap },
       ],
     },
     { name: t("header.contact"), href: "/contact", isRoute: true },
