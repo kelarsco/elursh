@@ -157,8 +157,6 @@ const WeAre = () => {
             alt="Our office" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-foreground/20" />
-          
           {/* Play Button - visible on hover only */}
           <button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-background rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:scale-110 transition-all duration-300 shadow-2xl">
             <Play className="w-8 h-8 text-foreground ml-1" fill="currentColor" />

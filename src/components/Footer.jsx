@@ -43,12 +43,12 @@ const Footer = () => {
       <div className="container-custom py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 lg:gap-16">
           {/* Logo */}
-          <div className="lg:col-span-1 h-[132px] w-[314px]">
+          <div className="lg:col-span-1 h-auto min-h-[28px] lg:h-[132px] w-auto lg:w-[314px]">
             <Link to="/" className="inline-block">
               <img
                 src={logo}
                 alt="Elursh"
-                className="w-[314px] h-auto max-w-[314px] max-h-[132px] brightness-0 invert object-contain object-left mt-0 lg:mt-[122px] mb-0"
+                className="h-[21px] w-auto max-w-[120px] md:h-[31px] md:max-w-[180px] lg:h-auto lg:w-[314px] lg:max-w-[314px] lg:max-h-[132px] brightness-0 invert object-contain object-left mt-0 lg:mt-[122px] mb-0"
                 data-aos="zoom-in"
                 data-aos-duration="1000"
                 data-aos-easing="ease-out"
