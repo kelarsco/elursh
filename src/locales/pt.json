@@ -10,7 +10,8 @@
     "purchaseTheme": "comprar tema",
     "improveStore": "Melhorar loja",
     "contact": "Contato",
-    "sendMessage": "enviar mensagem"
+    "sendMessage": "enviar mensagem",
+    "getStarted": "Começar"
   },
   "footer": {
     "services": "Serviços",
@@ -157,5 +158,24 @@
       "email": "E-mail marketing e automação",
       "ads": "Preparação para anúncios e funil"
     }
+  },
+  "onboarding": {
+    "step1Title": "Onde você vende?",
+    "step1Subtitle": "Escolha sua plataforma de ecommerce",
+    "shopify": "Shopify",
+    "etsy": "Etsy",
+    "bigcommerce": "BigCommerce",
+    "wordpress": "WordPress",
+    "wix": "Wix",
+    "woocommerce": "WooCommerce",
+    "step2Title": "Conecte sua loja",
+    "step2Subtitle": "Digite a URL da sua loja",
+    "storeUrlPlaceholder": "https://sualoja.com ou sualoja.myshopify.com",
+    "connectStore": "Conectar loja",
+    "connecting": "Conectando...",
+    "step3Title": "O que você quer fazer primeiro?",
+    "step3Subtitle": "Escolha sua prioridade",
+    "designOption": "Design ou redesign da loja",
+    "marketingOption": "Marketing para aumentar vendas"
   }
 }

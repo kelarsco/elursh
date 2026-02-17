@@ -4,6 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Google Translate widget - hide default top bar */
+.goog-te-banner-frame,
+.skiptranslate {
+  display: none !important;
+}
+body {
+  top: auto !important;
+}
+
 /* Crafto-inspired Design System */
 
 @layer base {

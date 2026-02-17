@@ -625,6 +625,71 @@ app.post("/api/contacts", async (req, res) => {
   }
 });
 
+// ——— Public: onboarding (get-started flow) ———
+app.post("/api/onboarding/session", async (req, res) => {
+  const pool = getPool();
+  if (!pool) return res.status(503).json({ error: "Database not available" });
+  try {
+    const r = await pool.query(
+      "INSERT INTO onboarding_sessions DEFAULT VALUES RETURNING id",
+      []
+    );
+    const id = r?.rows?.[0]?.id;
+    if (!id) return res.status(500).json({ error: "Failed to create session" });
+    res.status(201).json({ sessionId: id });
+  } catch (e) {
+    logDbErr("onboarding session create", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/onboarding/session/:id", async (req, res) => {
+  const pool = getPool();
+  if (!pool) return res.status(503).json({ error: "Database not available" });
+  const id = req.params.id;
+  if (!id) return res.status(400).json({ error: "Session ID required" });
+  try {
+    const r = await pool.query(
+      "SELECT id, platform, store_url, store_connected, first_choice, created_at FROM onboarding_sessions WHERE id = $1",
+      [id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: "Session not found" });
+    res.json(r.rows[0]);
+  } catch (e) {
+    logDbErr("onboarding session get", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.patch("/api/onboarding/session/:id", async (req, res) => {
+  const pool = getPool();
+  if (!pool) return res.status(503).json({ error: "Database not available" });
+  const id = req.params.id;
+  const body = req.body || {};
+  if (!id) return res.status(400).json({ error: "Session ID required" });
+  const updates = [];
+  const values = [];
+  let i = 1;
+  if (body.platform != null) { updates.push(`platform = $${i++}`); values.push(String(body.platform)); }
+  if (body.store_url != null) { updates.push(`store_url = $${i++}`); values.push(String(body.store_url)); }
+  if (body.store_connected != null) { updates.push(`store_connected = $${i++}`); values.push(!!body.store_connected); }
+  if (body.first_choice != null) { updates.push(`first_choice = $${i++}`); values.push(String(body.first_choice)); }
+  if (updates.length === 0) return res.status(400).json({ error: "No fields to update" });
+  updates.push("updated_at = NOW()");
+  values.push(id);
+  try {
+    const r = await pool.query(
+      `UPDATE onboarding_sessions SET ${updates.join(", ")} WHERE id = $${i} RETURNING id, platform, store_url, store_connected, first_choice`,
+      values
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: "Session not found" });
+    res.json(r.rows[0]);
+  } catch (e) {
+    logDbErr("onboarding session patch", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ——— Helpers: price modifier (from settings table; default -30 = 30% off) ———
 async function getPriceModifierPercent(pool) {
   if (!pool) return -30;
@@ -1362,6 +1427,18 @@ app.get("/api/manager/contacts", requireManager, requireDb, async (req, res) => 
     res.json(r.rows);
   } catch (e) {
     logDbErr("contacts", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/manager/onboarding-sessions", requireManager, requireDb, async (req, res) => {
+  try {
+    const r = await query(
+      "SELECT id, platform, store_url, store_connected, first_choice, created_at, updated_at FROM onboarding_sessions ORDER BY created_at DESC"
+    );
+    res.json(r.rows || []);
+  } catch (e) {
+    logDbErr("onboarding-sessions", e);
     res.status(500).json({ error: e.message });
   }
 });

@@ -10,7 +10,8 @@
     "purchaseTheme": "purchase theme",
     "improveStore": "Improve Store",
     "contact": "Contact",
-    "sendMessage": "send a message"
+    "sendMessage": "send a message",
+    "getStarted": "Get started"
   },
   "footer": {
     "services": "Services",
@@ -27,7 +28,7 @@
     "ecommerce": "eCommerce",
     "backbone": "Backbone",
     "tagline": "Scaling startups and established eCommerce brands to 7 figures and beyond.",
-    "freeStoreAudit": "Free store audit",
+    "freeStoreAudit": "Get started",
     "awardWinning": "AWARD WINNING AGENCY"
   },
   "services": {
@@ -85,7 +86,53 @@
   },
   "improveStore": {
     "title": "Improve Store",
-    "subtitle": "Done-for-you eCommerce services to increase sales."
+    "subtitle": "Done-for-you eCommerce services to increase sales.",
+    "headline1": "Increase Sales",
+    "headline2": "improve store",
+    "salesGrowth": "Sales Growth Services",
+    "storeImprovement": "Store Improvement Services",
+    "searchPlaceholder": "Search by service name or problem…",
+    "serviceCount_one": "{{count}} service",
+    "serviceCount_other": "{{count}} services",
+    "filters": "Filters",
+    "serviceType": "Service type",
+    "storeStage": "Store stage",
+    "noServicesMatch": "No services match your filters. Try adjusting them.",
+    "combineServices": "We can combine multiple services at a discounted rate tailored to your store.",
+    "paymentSuccess": "Payment successful! We'll process your order shortly.",
+    "painPoints": "Pain points we fix",
+    "keyBenefits": "Key benefits",
+    "packages": "Packages",
+    "copyLink": "Copy link",
+    "copied": "Copied!",
+    "ctaTitle": "Need a custom package?",
+    "ctaSubtitle": "We can combine multiple services at a discounted rate tailored to your store.",
+    "ctaButton": "Contact us",
+    "emailLabel": "Email address",
+    "storeUrlLabel": "Shopify store URL",
+    "storeUrlPlaceholder": "store url",
+    "heroDesc": "Underperforming stores lose sales every day to missing optimizations. Get actionable, done-for-you services that directly boost conversions and revenue.",
+    "browseServices": "Browse Services",
+    "trustedBy": "Trusted by {{count}} store owners",
+    "viewPackages": "View Packages",
+    "usersCount": "{{count}}+ users",
+    "contactUs": "Contact Us",
+    "openService": "Open service",
+    "services": {
+      "1": { "title": "SEO Optimization", "description": "On-page SEO, meta tags, collections & product optimization so search engines and buyers find you." },
+      "2": { "title": "Conversion Rate Optimization", "description": "Product pages, checkout flow, and trust elements tuned for more sales per visitor." },
+      "3": { "title": "Speed Optimization", "description": "Faster load times and Core Web Vitals improvements so every second counts for sales." },
+      "4": { "title": "Email & Abandoned Cart Flows", "description": "Automated sequences for abandoned cart, welcome, and post-purchase to recover lost sales." },
+      "5": { "title": "Trust & Credibility Setup", "description": "Trust badges, reviews, policies, and security cues so visitors feel safe buying." },
+      "6": { "title": "Product Page Copywriting", "description": "Conversion-focused product copy and structure that answers objections and drives add-to-cart." },
+      "7": { "title": "Mobile UX Enhancement", "description": "Mobile-first fixes so thumb-friendly navigation, forms, and checkout work on every device." },
+      "8": { "title": "Collection & Navigation Restructure", "description": "Logical collections, filters, and navigation so customers find products quickly." },
+      "9": { "title": "Analytics & Tracking Setup", "description": "Conversion tracking, GA4, and dashboards so you know what drives sales." },
+      "10": { "title": "Checkout & Payment Optimization", "description": "Reduce checkout friction, offer the right payment options, and recover more completed orders." },
+      "11": { "title": "App Cleanup & Performance", "description": "Audit and remove or replace heavy apps so your store stays fast and maintainable." },
+      "12": { "title": "Store Audit & Revenue Leak Fix", "description": "Full store review to find where you're losing sales and fix the highest-impact issues." },
+      "13": { "title": "Ads Tracking & ROAS Setup", "description": "Meta, Google, and TikTok conversion tracking so you know exactly what drives sales." }
+    }
   },
   "common": {
     "loading": "Loading...",
@@ -159,5 +206,24 @@
       "email": "Email Marketing & Automation",
       "ads": "Ads Readiness & Funnel"
     }
+  },
+  "onboarding": {
+    "step1Title": "Where do you sell?",
+    "step1Subtitle": "Choose your ecommerce platform",
+    "shopify": "Shopify",
+    "etsy": "Etsy",
+    "bigcommerce": "BigCommerce",
+    "wordpress": "WordPress",
+    "wix": "Wix",
+    "woocommerce": "WooCommerce",
+    "step2Title": "Connect your store",
+    "step2Subtitle": "Enter your store URL so we can access and work on it",
+    "storeUrlPlaceholder": "https://yourstore.com or yourstore.myshopify.com",
+    "connectStore": "Connect store",
+    "connecting": "Connecting...",
+    "step3Title": "What do you want to do first?",
+    "step3Subtitle": "Choose your priority",
+    "designOption": "Design or redesign your store",
+    "marketingOption": "Marketing to boost sales"
   }
 }

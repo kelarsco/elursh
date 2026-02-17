@@ -194,7 +194,7 @@ export default function Contact() {
                   { name: "Instagram", href: "https://instagram.com/elursh", icon: Instagram, stroke: true },
                   { name: "LinkedIn", href: "https://linkedin.com/company/elursh", icon: Linkedin, stroke: true },
                   { name: "Behance", href: "https://behance.net/elursh", icon: BehanceIcon },
-                  { name: "WhatsApp", href: "https://wa.me/23439462565", icon: WhatsAppIcon },
+                  { name: "WhatsApp", href: "https://wa.me/13439462565", icon: WhatsAppIcon },
                 ],
               },
             ].map(({ icon: Icon, title, detail, socials }, idx) => (
@@ -274,7 +274,6 @@ export default function Contact() {
                         id="name"
                         value={form.name}
                         onChange={(e) => updateForm("name", e.target.value)}
-                        placeholder="John Doe"
                         className="mt-2 h-12 rounded-xl border-2 border-neutral-200"
                         autoFocus
                       />
@@ -287,7 +286,6 @@ export default function Contact() {
                         type="email"
                         value={form.email}
                         onChange={(e) => updateForm("email", e.target.value)}
-                        placeholder="you@example.com"
                         className="mt-2 h-12 rounded-xl border-2 border-neutral-200"
                       />
                       {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}

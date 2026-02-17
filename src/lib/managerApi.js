@@ -245,6 +245,13 @@ export async function deleteEmailsSent(ids) {
   return res.json();
 }
 
+export async function getOnboardingSessions() {
+  const res = await managerFetch("/onboarding-sessions");
+  if (!res.ok) throw new Error(await res.text());
+  const json = await res.json();
+  return Array.isArray(json) ? json : [];
+}
+
 export async function getContacts() {
   const res = await managerFetch("/contacts");
   if (!res.ok) throw new Error(await res.text());

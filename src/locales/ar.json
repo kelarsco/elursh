@@ -10,7 +10,8 @@
     "purchaseTheme": "شراء سمة",
     "improveStore": "تحسين المتجر",
     "contact": "اتصل",
-    "sendMessage": "إرسال رسالة"
+    "sendMessage": "إرسال رسالة",
+    "getStarted": "ابدأ"
   },
   "footer": {
     "services": "الخدمات",
@@ -157,5 +158,24 @@
       "email": "التسويق عبر البريد الإلكتروني والأتمتة",
       "ads": "جاهزية الإعلانات والقمع التسويقي"
     }
+  },
+  "onboarding": {
+    "step1Title": "أين تبيع؟",
+    "step1Subtitle": "اختر منصتك للتجارة الإلكترونية",
+    "shopify": "Shopify",
+    "etsy": "Etsy",
+    "bigcommerce": "BigCommerce",
+    "wordpress": "WordPress",
+    "wix": "Wix",
+    "woocommerce": "WooCommerce",
+    "step2Title": "ربط متجرك",
+    "step2Subtitle": "أدخل رابط متجرك",
+    "storeUrlPlaceholder": "https://متجرك.com أو متجرك.myshopify.com",
+    "connectStore": "ربط المتجر",
+    "connecting": "جاري الربط...",
+    "step3Title": "ماذا تريد أن تفعل أولاً؟",
+    "step3Subtitle": "اختر أولويتك",
+    "designOption": "تصميم أو إعادة تصميم المتجر",
+    "marketingOption": "تسويق لزيادة المبيعات"
   }
 }

@@ -10,7 +10,8 @@
     "purchaseTheme": "Theme kaufen",
     "improveStore": "Shop verbessern",
     "contact": "Kontakt",
-    "sendMessage": "Nachricht senden"
+    "sendMessage": "Nachricht senden",
+    "getStarted": "Loslegen"
   },
   "footer": {
     "services": "Services",
@@ -85,7 +86,53 @@
   },
   "improveStore": {
     "title": "Shop verbessern",
-    "subtitle": "eCommerce-Services zur Steigerung Ihrer Verkäufe."
+    "subtitle": "Fertige eCommerce-Services zur Steigerung Ihrer Verkäufe.",
+    "headline1": "Umsatz steigern",
+    "headline2": "Shop verbessern",
+    "salesGrowth": "Umsatzwachstum-Services",
+    "storeImprovement": "Shop-Verbesserung-Services",
+    "searchPlaceholder": "Nach Service-Name oder Problem suchen…",
+    "serviceCount_one": "{{count}} Service",
+    "serviceCount_other": "{{count}} Services",
+    "filters": "Filter",
+    "serviceType": "Service-Typ",
+    "storeStage": "Shop-Phase",
+    "noServicesMatch": "Keine Services passen zu den Filtern. Bitte Filter anpassen.",
+    "combineServices": "Wir können mehrere Services zu einem maßgeschneiderten Rabatt für Ihren Shop kombinieren.",
+    "paymentSuccess": "Zahlung erfolgreich! Wir bearbeiten Ihre Bestellung in Kürze.",
+    "painPoints": "Probleme, die wir lösen",
+    "keyBenefits": "Kernvorteile",
+    "packages": "Pakete",
+    "copyLink": "Link kopieren",
+    "copied": "Kopiert!",
+    "ctaTitle": "Benötigen Sie ein maßgeschneidertes Paket?",
+    "ctaSubtitle": "Wir können mehrere Services zu einem maßgeschneiderten Rabatt kombinieren.",
+    "ctaButton": "Kontaktieren Sie uns",
+    "emailLabel": "E-Mail-Adresse",
+    "storeUrlLabel": "Shopify-Shop-URL",
+    "storeUrlPlaceholder": "Shop-URL",
+    "heroDesc": "Unterperformende Shops verlieren täglich Umsatz durch fehlende Optimierungen. Erhalten Sie maßgeschneiderte Services, die Conversions und Umsatz steigern.",
+    "browseServices": "Services durchsuchen",
+    "trustedBy": "Vertraut von {{count}} Shop-Betreibern",
+    "viewPackages": "Pakete ansehen",
+    "usersCount": "{{count}}+ Nutzer",
+    "contactUs": "Kontaktieren Sie uns",
+    "openService": "Service öffnen",
+    "services": {
+      "1": { "title": "SEO-Optimierung", "description": "On-Page-SEO, Meta-Tags, Kategorien & Produktoptimierung, damit Suchmaschinen und Käufer Sie finden." },
+      "2": { "title": "Conversion-Rate-Optimierung", "description": "Produktseiten, Checkout-Flow und Vertrauenselemente für mehr Verkäufe pro Besucher." },
+      "3": { "title": "Geschwindigkeitsoptimierung", "description": "Schnellere Ladezeiten und Core Web Vitals für mehr Verkäufe." },
+      "4": { "title": "E-Mail & Warenkorb-Abbruch-Flows", "description": "Automatisierte Abläufe für Warenkorb, Willkommen und Nachkauf zur Rückgewinnung von Verkäufen." },
+      "5": { "title": "Vertrauen & Glaubwürdigkeit", "description": "Vertrauens-Badges, Bewertungen, Richtlinien und Sicherheitshinweise." },
+      "6": { "title": "Produktseiten-Copywriting", "description": "Kaufabschluss-fokussierter Produkttext, der Einwände beantwortet und zum Warenkorb führt." },
+      "7": { "title": "Mobile-UX-Verbesserung", "description": "Mobile-First-Anpassungen für Navigation, Formulare und Checkout auf jedem Gerät." },
+      "8": { "title": "Kategorien & Navigation", "description": "Logische Kategorien, Filter und Navigation für schnelle Produktfindung." },
+      "9": { "title": "Analytics & Tracking", "description": "Conversion-Tracking, GA4 und Dashboards für Verkaufsanalyse." },
+      "10": { "title": "Checkout & Zahlung", "description": "Weniger Checkout-Reibung, passende Zahlungsoptionen und mehr abgeschlossene Bestellungen." },
+      "11": { "title": "App-Bereinigung & Performance", "description": "Audit und Entfernung schwerer Apps für einen schnellen, wartbaren Shop." },
+      "12": { "title": "Shop-Audit & Umsatzlecks", "description": "Vollständige Shop-Prüfung, um Umsatzverluste zu finden und zu beheben." },
+      "13": { "title": "Ads-Tracking & ROAS", "description": "Meta-, Google- und TikTok-Conversion-Tracking für klare Verkaufsattribution." }
+    }
   },
   "common": {
     "loading": "Laden...",
@@ -157,5 +204,24 @@
       "email": "E-Mail-Marketing & Automatisierung",
       "ads": "Anzeigenbereitschaft & Funnel"
     }
+  },
+  "onboarding": {
+    "step1Title": "Wo verkaufen Sie?",
+    "step1Subtitle": "Wählen Sie Ihre E-Commerce-Plattform",
+    "shopify": "Shopify",
+    "etsy": "Etsy",
+    "bigcommerce": "BigCommerce",
+    "wordpress": "WordPress",
+    "wix": "Wix",
+    "woocommerce": "WooCommerce",
+    "step2Title": "Verkauf verbinden",
+    "step2Subtitle": "Geben Sie Ihre Shop-URL ein",
+    "storeUrlPlaceholder": "https://ihrshop.com oder ihrshop.myshopify.com",
+    "connectStore": "Shop verbinden",
+    "connecting": "Verbinde...",
+    "step3Title": "Was möchten Sie zuerst tun?",
+    "step3Subtitle": "Wählen Sie Ihre Priorität",
+    "designOption": "Shop gestalten oder überarbeiten",
+    "marketingOption": "Marketing für mehr Umsatz"
   }
 }

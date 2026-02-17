@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -18,11 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { apiBase } from "@/lib/apiBase";
 
-const HEADLINE_OPTIONS = ["Increase Sales", "improve store"];
-const CATEGORIES = [
-  { value: "salesGrowth", label: "Sales Growth Services" },
-  { value: "storeImprovement", label: "Store Improvement Services" },
-];
 const TRUSTED_BY = "2,400+";
 
 function mapServiceFromApi(row) {
@@ -43,8 +39,22 @@ function mapServiceFromApi(row) {
   };
 }
 
+function getServiceTitle(t, service) {
+  return t(`improveStore.services.${service.id}.title`, { defaultValue: service.title });
+}
+function getServiceDescription(t, service) {
+  return t(`improveStore.services.${service.id}.description`, { defaultValue: service.description });
+}
+
 export default function ImproveStore() {
+  const { t } = useTranslation();
   const [servicesList, setServicesList] = useState(SERVICES_STATIC);
+
+  const HEADLINE_OPTIONS = [t("improveStore.headline1"), t("improveStore.headline2")];
+  const CATEGORIES = [
+    { value: "salesGrowth", label: t("improveStore.salesGrowth") },
+    { value: "storeImprovement", label: t("improveStore.storeImprovement") },
+  ];
   const [headlineIndex, setHeadlineIndex] = useState(0);
   const [category, setCategory] = useState("salesGrowth");
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,6 +125,13 @@ export default function ImproveStore() {
     }, 1000);
     return () => clearInterval(t);
   }, [codeExpiresAt, codeCountdown]);
+
+  // Set category when landing from onboarding with ?focus=design or ?focus=marketing
+  useEffect(() => {
+    const focus = searchParams.get("focus");
+    if (focus === "design") setCategory("storeImprovement");
+    if (focus === "marketing") setCategory("salesGrowth");
+  }, [searchParams]);
 
   // Open service modal when landing with ?service=ID
   useEffect(() => {
@@ -317,17 +334,17 @@ export default function ImproveStore() {
               {HEADLINE_OPTIONS[headlineIndex]}
             </h1>
             <p className="text-xl text-muted-foreground mb-6">
-              Underperforming stores lose sales every day to missing optimizations. Get actionable, done-for-you services that directly boost conversions and revenue.
+              {t("improveStore.heroDesc")}
             </p>
             <button
               onClick={scrollToServices}
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 font-semibold hover:bg-primary/90 transition-colors"
             >
-              Browse Services
+              {t("improveStore.browseServices")}
               <ArrowRight className="w-4 h-4" />
             </button>
             <p className="text-sm text-muted-foreground mt-6">
-              Trusted by {TRUSTED_BY} store owners
+              {t("improveStore.trustedBy", { count: TRUSTED_BY })}
             </p>
           </div>
 
@@ -361,7 +378,7 @@ export default function ImproveStore() {
           {paymentVerified && (
             <div className="flex items-center justify-center gap-2 text-green-700 bg-green-50 border border-green-200 px-4 py-2 rounded-lg mb-6 mx-auto w-fit">
               <Check className="w-5 h-5 text-green-600 shrink-0" />
-              <span className="font-medium">Payment successful! We'll process your order shortly.</span>
+              <span className="font-medium">{t("improveStore.paymentSuccess")}</span>
             </div>
           )}
 
@@ -371,7 +388,7 @@ export default function ImproveStore() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
               <input
                 type="search"
-                placeholder="Search by service name or problem…"
+                placeholder={t("improveStore.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 text-sm border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-md"
@@ -379,16 +396,16 @@ export default function ImproveStore() {
             </div>
             <div className="flex flex-wrap items-center gap-3 justify-center text-sm">
               <span className="text-muted-foreground font-medium">
-                {filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}
+                {t("improveStore.serviceCount", { count: filteredServices.length })}
               </span>
               <span className="text-muted-foreground/60">·</span>
-              <span className="text-muted-foreground font-medium">Filters:</span>
+              <span className="text-muted-foreground font-medium">{t("improveStore.filters")}:</span>
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
                 className="border border-border bg-background px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="">Service type</option>
+                <option value="">{t("improveStore.serviceType")}</option>
                 {SERVICE_TYPES.map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
@@ -398,7 +415,7 @@ export default function ImproveStore() {
                 onChange={(e) => setFilterStage(e.target.value)}
                 className="border border-border bg-background px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="">Store stage</option>
+                <option value="">{t("improveStore.storeStage")}</option>
                 {STORE_STAGES.map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
@@ -448,7 +465,7 @@ export default function ImproveStore() {
                               className="flex-1 text-xs"
                               onClick={(e) => handleCopyServiceLink(service, e)}
                             >
-                              {copyFeedback && shareOpenForId === service.id ? "Copied!" : "Copy link"}
+                              {copyFeedback && shareOpenForId === service.id ? t("improveStore.copied") : t("improveStore.copyLink")}
                             </Button>
                             <Button
                               size="sm"
@@ -461,7 +478,7 @@ export default function ImproveStore() {
                                 setShareOpenForId(null);
                               }}
                             >
-                              Open service
+                              {t("improveStore.openService")}
                             </Button>
                           </div>
                         </div>
@@ -473,20 +490,20 @@ export default function ImproveStore() {
                       {service.type}
                     </span>
                     <h3 className="text-lg font-semibold mb-2" style={{ fontFamily: "Space Grotesk" }}>
-                      {service.title}
+                      {getServiceTitle(t, service)}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {service.description}
+                      {getServiceDescription(t, service)}
                     </p>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                       <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" strokeWidth={2} />
                       <span>{service.rating}</span>
                       <span className="text-muted-foreground/70">·</span>
                       <User className="w-4 h-4 shrink-0" strokeWidth={2} />
-                      <span>{service.users}+ users</span>
+                      <span>{t("improveStore.usersCount", { count: service.users })}</span>
                     </div>
                     <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                      View Packages
+                      {t("improveStore.viewPackages")}
                   <ArrowRight className="w-4 h-4" />
                     </span>
                   </div>
@@ -496,22 +513,22 @@ export default function ImproveStore() {
           </div>
 
           {filteredServices.length === 0 && (
-            <p className="text-center text-muted-foreground py-12">No services match your filters. Try adjusting them.</p>
+            <p className="text-center text-muted-foreground py-12">{t("improveStore.noServicesMatch")}</p>
           )}
 
           {/* Custom package CTA */}
           <div className="mt-20 p-12 bg-primary text-primary-foreground text-center rounded-lg max-w-4xl mx-auto">
             <h2 className="text-2xl md:text-4xl font-semibold mb-4" style={{ fontFamily: "Space Grotesk", fontWeight: 600 }}>
-              Need a custom package?
+              {t("improveStore.ctaTitle")}
             </h2>
             <p className="text-primary-foreground/80 mb-6 max-w-lg mx-auto">
-              We can combine multiple services at a discounted rate tailored to your store.
+              {t("improveStore.combineServices")}
             </p>
             <Link
               to="/contact"
               className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-4 font-semibold hover:bg-secondary/90 transition-colors rounded-md"
             >
-              Contact Us
+              {t("improveStore.contactUs")}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -530,15 +547,15 @@ export default function ImproveStore() {
                   {selectedService.type}
                 </span>
                 <DialogTitle className="text-2xl" style={{ fontFamily: "Space Grotesk", fontWeight: 600 }}>
-                  {selectedService.title}
+                  {getServiceTitle(t, selectedService)}
                 </DialogTitle>
                 <DialogDescription className="text-muted-foreground">
-                  {selectedService.description}
+                  {getServiceDescription(t, selectedService)}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-6 py-4">
                 <div>
-                  <h4 className="text-sm font-semibold mb-2" style={{ fontFamily: "Space Grotesk" }}>Pain points we fix</h4>
+                  <h4 className="text-sm font-semibold mb-2" style={{ fontFamily: "Space Grotesk" }}>{t("improveStore.painPoints")}</h4>
                   <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                     {selectedService.painPoints.map((p, i) => (
                       <li key={i}>{p}</li>
@@ -546,7 +563,7 @@ export default function ImproveStore() {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold mb-2" style={{ fontFamily: "Space Grotesk" }}>Key benefits</h4>
+                  <h4 className="text-sm font-semibold mb-2" style={{ fontFamily: "Space Grotesk" }}>{t("improveStore.keyBenefits")}</h4>
                   <ul className="flex flex-wrap gap-2">
                     {selectedService.benefits.map((b, i) => (
                       <li key={i} className="flex items-center gap-1.5 text-sm bg-muted/50 px-2.5 py-1 rounded">
@@ -557,7 +574,7 @@ export default function ImproveStore() {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold mb-3" style={{ fontFamily: "Space Grotesk" }}>Packages</h4>
+                  <h4 className="text-sm font-semibold mb-3" style={{ fontFamily: "Space Grotesk" }}>{t("improveStore.packages")}</h4>
                   <div className="grid gap-4 sm:grid-cols-3">
                     {selectedService.packages.map((pkg) => (
                       <div
@@ -614,7 +631,7 @@ export default function ImproveStore() {
                 {orderStep === 1 ? (
                   <>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Email address</label>
+                      <label className="text-sm font-medium">{t("improveStore.emailLabel")}</label>
                       <Input
                         type="email"
                         placeholder="you@example.com"
@@ -624,12 +641,12 @@ export default function ImproveStore() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Shopify store URL</label>
+                      <label className="text-sm font-medium">{t("improveStore.storeUrlLabel")}</label>
                       <div className="flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
                         <span className="text-muted-foreground select-none text-sm shrink-0">https://</span>
                         <input
                           type="text"
-                          placeholder="store url"
+                          placeholder={t("improveStore.storeUrlPlaceholder")}
                           value={orderStoreUrl}
                           onChange={(e) => setOrderStoreUrl(e.target.value.replace(/^https?:\/\//i, ""))}
                           className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground px-0 py-0 h-full"

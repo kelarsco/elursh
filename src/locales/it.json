@@ -10,7 +10,8 @@
     "purchaseTheme": "acquista tema",
     "improveStore": "Migliora negozio",
     "contact": "Contatto",
-    "sendMessage": "invia messaggio"
+    "sendMessage": "invia messaggio",
+    "getStarted": "Inizia"
   },
   "footer": {
     "services": "Servizi",
@@ -157,5 +158,24 @@
       "email": "Email marketing e automazione",
       "ads": "Pronto per annunci e funnel"
     }
+  },
+  "onboarding": {
+    "step1Title": "Dove vendi?",
+    "step1Subtitle": "Scegli la tua piattaforma ecommerce",
+    "shopify": "Shopify",
+    "etsy": "Etsy",
+    "bigcommerce": "BigCommerce",
+    "wordpress": "WordPress",
+    "wix": "Wix",
+    "woocommerce": "WooCommerce",
+    "step2Title": "Collega il tuo negozio",
+    "step2Subtitle": "Inserisci l'URL del tuo negozio",
+    "storeUrlPlaceholder": "https://iltuonegozio.com o iltuonegozio.myshopify.com",
+    "connectStore": "Collega negozio",
+    "connecting": "Connessione...",
+    "step3Title": "Cosa vuoi fare prima?",
+    "step3Subtitle": "Scegli la tua priorità",
+    "designOption": "Progettare o rifare il negozio",
+    "marketingOption": "Marketing per aumentare le vendite"
   }
 }

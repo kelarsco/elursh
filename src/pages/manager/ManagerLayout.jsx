@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   CreditCard,
   Mail,
+  UserPlus,
   LogOut,
   Bell,
   Menu,
@@ -24,6 +25,7 @@ import notify1Url from "@/assets/notify1.wav";
 import notify2Url from "@/assets/notify2.wav";
 import notify3Url from "@/assets/notify3.wav";
 import admIco from "@/assets/adm-ico.png";
+import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -91,6 +93,7 @@ function playNotificationSound() {
 
 const nav = [
   { to: "/manager", end: true, label: "Dashboard", icon: LayoutDashboard },
+  { to: "/manager/signups", end: false, label: "Signups", icon: UserPlus },
   { to: "/manager/analysed-stores", end: false, label: "Analytics", icon: BarChart3 },
   { to: "/manager/services", end: false, label: "Data", icon: Database },
   { to: "/manager/orders", end: false, label: "Orders", icon: ShoppingCart },
@@ -325,42 +328,51 @@ export default function ManagerLayout() {
   if (!user) return <ManagerLogin />;
 
   return (
-    <div className="manager-dashboard min-h-screen bg-[var(--manager-bg)]">
-      {/* Top bar – glassmorphism */}
-      <header className="sticky top-0 z-50 manager-glass-panel border-0 rounded-none">
-        <div className="flex items-center justify-between h-14 px-4 py-2 md:px-8 md:py-3">
-          {/* Mobile: menu toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden rounded-full manager-pill w-10 h-10 text-black/80 hover:bg-white/50"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open menu"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+    <div className="manager-dashboard min-h-screen bg-[var(--manager-bg)] flex">
+      {/* Left sidebar – desktop only, fixed when scrolling */}
+      <aside className="hidden md:flex md:flex-col md:w-56 lg:w-64 shrink-0 bg-white/60 border-r border-black/5 md:sticky md:top-0 md:self-start md:h-screen">
+        <div className="flex items-center gap-2 px-6 py-5 border-b border-black/5">
+          <img src={logo} alt="Elursh" className="h-7 w-auto brightness-0" />
+        </div>
+        <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+          {nav.map(({ to, end, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-r-lg text-sm font-medium transition-colors",
+                  isActive ? "bg-black/5 text-black" : "text-black/70 hover:bg-black/5 hover:text-black"
+                )
+              }
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
 
-          {/* Desktop: pill nav (hidden on mobile) */}
-          <nav className="hidden md:flex items-center gap-1 md:gap-2 overflow-x-auto py-1 scrollbar-hide">
-            {nav.map(({ to, end, label, icon: Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) =>
-                  cn(
-                    "manager-pill flex items-center gap-2 px-3 py-2 md:px-4 text-sm font-medium whitespace-nowrap transition-colors",
-                    isActive ? "manager-pill-active" : "text-black/80 hover:bg-white/50 hover:text-black"
-                  )
-                }
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline">{label}</span>
-              </NavLink>
-            ))}
-          </nav>
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top bar – glassmorphism */}
+        <header className="sticky top-0 z-50 manager-glass-panel border-0 rounded-none shrink-0">
+          <div className="flex items-center justify-between h-14 px-4 py-2 md:px-6 md:py-3">
+            {/* Mobile: menu toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden rounded-full manager-pill w-10 h-10 text-black/80 hover:bg-white/50"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
 
-          {/* Desktop: Notifications, User (hidden on mobile) */}
+            <div className="flex-1 min-w-0" />
+
+            {/* Desktop: Notifications, User (hidden on mobile) */}
           <div className="hidden md:flex items-center gap-2 shrink-0">
             <Popover open={notificationOpen} onOpenChange={handleNotificationOpenChange}>
               <PopoverTrigger asChild>
@@ -628,9 +640,10 @@ export default function ManagerLayout() {
       </aside>
 
       {/* Main content */}
-      <main className="p-4 md:p-6">
-        <Outlet />
-      </main>
+        <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <Outlet />
+        </main>
+      </div>
 
       {/* Login activity dialog */}
       <Dialog open={loginActivityOpen} onOpenChange={setLoginActivityOpen}>

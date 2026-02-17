@@ -10,7 +10,8 @@
     "purchaseTheme": "テーマ購入",
     "improveStore": "ストア改善",
     "contact": "お問い合わせ",
-    "sendMessage": "メッセージを送る"
+    "sendMessage": "メッセージを送る",
+    "getStarted": "始める"
   },
   "footer": {
     "services": "サービス",
@@ -157,5 +158,24 @@
       "email": "メールマーケティングと自動化",
       "ads": "広告準備とファネル"
     }
+  },
+  "onboarding": {
+    "step1Title": "どこで販売していますか？",
+    "step1Subtitle": "eコマースプラットフォームを選択",
+    "shopify": "Shopify",
+    "etsy": "Etsy",
+    "bigcommerce": "BigCommerce",
+    "wordpress": "WordPress",
+    "wix": "Wix",
+    "woocommerce": "WooCommerce",
+    "step2Title": "ストアを接続",
+    "step2Subtitle": "ストアURLを入力してください",
+    "storeUrlPlaceholder": "https://yourstore.com または yourstore.myshopify.com",
+    "connectStore": "ストアを接続",
+    "connecting": "接続中...",
+    "step3Title": "最初に何をしますか？",
+    "step3Subtitle": "優先事項を選択",
+    "designOption": "ストアのデザイン・リデザイン",
+    "marketingOption": "マーケティングで売上向上"
   }
 }

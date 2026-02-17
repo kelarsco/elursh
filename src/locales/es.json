@@ -10,7 +10,8 @@
     "purchaseTheme": "comprar tema",
     "improveStore": "Mejorar tienda",
     "contact": "Contacto",
-    "sendMessage": "enviar mensaje"
+    "sendMessage": "enviar mensaje",
+    "getStarted": "Empezar"
   },
   "footer": {
     "services": "Servicios",
@@ -85,7 +86,53 @@
   },
   "improveStore": {
     "title": "Mejorar tienda",
-    "subtitle": "Servicios de eCommerce para aumentar tus ventas."
+    "subtitle": "Servicios de eCommerce realizados por expertos para aumentar tus ventas.",
+    "headline1": "Aumentar ventas",
+    "headline2": "mejorar tienda",
+    "salesGrowth": "Servicios de crecimiento de ventas",
+    "storeImprovement": "Servicios de mejora de tienda",
+    "searchPlaceholder": "Buscar por nombre de servicio o problema…",
+    "serviceCount_one": "{{count}} servicio",
+    "serviceCount_other": "{{count}} servicios",
+    "filters": "Filtros",
+    "serviceType": "Tipo de servicio",
+    "storeStage": "Etapa de la tienda",
+    "noServicesMatch": "Ningún servicio coincide con los filtros. Prueba a ajustarlos.",
+    "combineServices": "Podemos combinar varios servicios a un precio con descuento adaptado a tu tienda.",
+    "paymentSuccess": "¡Pago realizado! Procesaremos tu pedido en breve.",
+    "painPoints": "Problemas que solucionamos",
+    "keyBenefits": "Beneficios clave",
+    "packages": "Paquetes",
+    "copyLink": "Copiar enlace",
+    "copied": "¡Copiado!",
+    "ctaTitle": "¿Necesitas un paquete personalizado?",
+    "ctaSubtitle": "Podemos combinar varios servicios a un precio con descuento adaptado a tu tienda.",
+    "ctaButton": "Contáctanos",
+    "emailLabel": "Correo electrónico",
+    "storeUrlLabel": "URL de tu tienda Shopify",
+    "storeUrlPlaceholder": "url de la tienda",
+    "heroDesc": "Las tiendas que no rinden pierden ventas cada día por optimizaciones faltantes. Obtén servicios realizados por expertos que impulsan conversiones e ingresos.",
+    "browseServices": "Ver servicios",
+    "trustedBy": "Con la confianza de {{count}} propietarios de tiendas",
+    "viewPackages": "Ver paquetes",
+    "usersCount": "{{count}}+ usuarios",
+    "contactUs": "Contáctanos",
+    "openService": "Abrir servicio",
+    "services": {
+      "1": { "title": "Optimización SEO", "description": "SEO on-page, meta tags, colecciones y optimización de productos para que motores de búsqueda y compradores te encuentren." },
+      "2": { "title": "Optimización de tasa de conversión", "description": "Páginas de producto, flujo de pago y elementos de confianza ajustados para más ventas por visitante." },
+      "3": { "title": "Optimización de velocidad", "description": "Tiempos de carga más rápidos y mejoras en Core Web Vitals para que cada segundo cuente en ventas." },
+      "4": { "title": "Flujos de email y carrito abandonado", "description": "Secuencias automáticas para carrito abandonado, bienvenida y post-compra para recuperar ventas perdidas." },
+      "5": { "title": "Configuración de confianza y credibilidad", "description": "Insignias de confianza, reseñas, políticas y señales de seguridad para que los visitantes compren con tranquilidad." },
+      "6": { "title": "Copywriting para páginas de producto", "description": "Texto de producto centrado en conversión que responde objeciones y aumenta añadir al carrito." },
+      "7": { "title": "Mejora de UX móvil", "description": "Correcciones mobile-first para navegación, formularios y pago adaptados al móvil." },
+      "8": { "title": "Reestructuración de colecciones y navegación", "description": "Colecciones lógicas, filtros y navegación para que los clientes encuentren productos rápido." },
+      "9": { "title": "Configuración de analytics y seguimiento", "description": "Seguimiento de conversiones, GA4 y dashboards para saber qué genera ventas." },
+      "10": { "title": "Optimización de checkout y pago", "description": "Reduce la fricción en el pago, ofrece las opciones correctas y recupera más pedidos completados." },
+      "11": { "title": "Limpieza de apps y rendimiento", "description": "Auditoría y eliminación o reemplazo de apps pesadas para que tu tienda sea rápida y mantenible." },
+      "12": { "title": "Auditoría de tienda y corrección de fugas de ingresos", "description": "Revisión completa para localizar dónde pierdes ventas y corregir los problemas más impactantes." },
+      "13": { "title": "Seguimiento de anuncios y ROAS", "description": "Seguimiento de conversiones en Meta, Google y TikTok para saber exactamente qué genera ventas." }
+    }
   },
   "common": {
     "loading": "Cargando...",
@@ -157,5 +204,24 @@
       "email": "Email marketing y automatización",
       "ads": "Preparación para anuncios y embudo"
     }
+  },
+  "onboarding": {
+    "step1Title": "¿Dónde vendes?",
+    "step1Subtitle": "Elige tu plataforma de ecommerce",
+    "shopify": "Shopify",
+    "etsy": "Etsy",
+    "bigcommerce": "BigCommerce",
+    "wordpress": "WordPress",
+    "wix": "Wix",
+    "woocommerce": "WooCommerce",
+    "step2Title": "Conecta tu tienda",
+    "step2Subtitle": "Introduce la URL de tu tienda para que podamos acceder y trabajar en ella",
+    "storeUrlPlaceholder": "https://tutienda.com o tutienda.myshopify.com",
+    "connectStore": "Conectar tienda",
+    "connecting": "Conectando...",
+    "step3Title": "¿Qué quieres hacer primero?",
+    "step3Subtitle": "Elige tu prioridad",
+    "designOption": "Diseñar o rediseñar tu tienda",
+    "marketingOption": "Marketing para aumentar ventas"
   }
 }

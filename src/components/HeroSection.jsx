@@ -221,9 +221,9 @@ const HeroSection = () => {
           <div className="flex items-center gap-6">
             <Link 
               ref={buttonRef}
-              to="/store-audit" 
+              to="/get-started" 
               className="cta-discover-button inline-flex items-center gap-6 group"
-              aria-label="Free store audit"
+              aria-label="Get started"
               style={{
                 transform: `translate(${buttonPosition.x}px, ${buttonPosition.y}px)`,
                 transition: buttonPosition.x === 0 && buttonPosition.y === 0 ? 'transform 0.3s ease-out' : 'none'

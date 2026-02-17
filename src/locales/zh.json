@@ -10,7 +10,8 @@
     "purchaseTheme": "购买主题",
     "improveStore": "优化店铺",
     "contact": "联系",
-    "sendMessage": "发送消息"
+    "sendMessage": "发送消息",
+    "getStarted": "开始使用"
   },
   "footer": {
     "services": "服务",
@@ -157,5 +158,24 @@
       "email": "电子邮件营销与自动化",
       "ads": "广告准备与漏斗"
     }
+  },
+  "onboarding": {
+    "step1Title": "您在哪里销售？",
+    "step1Subtitle": "选择您的电商平台",
+    "shopify": "Shopify",
+    "etsy": "Etsy",
+    "bigcommerce": "BigCommerce",
+    "wordpress": "WordPress",
+    "wix": "Wix",
+    "woocommerce": "WooCommerce",
+    "step2Title": "连接您的店铺",
+    "step2Subtitle": "输入您的店铺URL",
+    "storeUrlPlaceholder": "https://您的店铺.com 或 您的店铺.myshopify.com",
+    "connectStore": "连接店铺",
+    "connecting": "连接中...",
+    "step3Title": "您想先做什么？",
+    "step3Subtitle": "选择您的优先事项",
+    "designOption": "设计或重新设计店铺",
+    "marketingOption": "营销提升销量"
   }
 }

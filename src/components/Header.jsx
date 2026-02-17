@@ -220,12 +220,12 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
             <Link
-              to="/contact"
+              to="/get-started"
               className="cta-button relative overflow-hidden bg-transparent px-6 py-3 text-sm font-semibold flex items-center gap-2 group transition-colors border border-foreground text-foreground hover:bg-foreground hover:text-background"
             >
               <span className="cta-button-text relative z-10 flex items-center gap-2">
                 <Mail className="w-4 h-4 transition-colors group-hover:text-background" />
-                {t("header.sendMessage")}
+                {t("header.getStarted")}
               </span>
             </Link>
           </div>

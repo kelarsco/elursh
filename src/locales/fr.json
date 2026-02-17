@@ -10,7 +10,8 @@
     "purchaseTheme": "acheter un thème",
     "improveStore": "Améliorer la boutique",
     "contact": "Contact",
-    "sendMessage": "envoyer un message"
+    "sendMessage": "envoyer un message",
+    "getStarted": "Commencer"
   },
   "footer": {
     "services": "Services",
@@ -85,7 +86,53 @@
   },
   "improveStore": {
     "title": "Améliorer la boutique",
-    "subtitle": "Services eCommerce pour augmenter vos ventes."
+    "subtitle": "Services eCommerce clés en main pour augmenter vos ventes.",
+    "headline1": "Augmenter les ventes",
+    "headline2": "améliorer la boutique",
+    "salesGrowth": "Services de croissance des ventes",
+    "storeImprovement": "Services d'amélioration de boutique",
+    "searchPlaceholder": "Rechercher par nom de service ou problème…",
+    "serviceCount_one": "{{count}} service",
+    "serviceCount_other": "{{count}} services",
+    "filters": "Filtres",
+    "serviceType": "Type de service",
+    "storeStage": "Étape de la boutique",
+    "noServicesMatch": "Aucun service ne correspond aux filtres. Essayez de les ajuster.",
+    "combineServices": "Nous pouvons combiner plusieurs services à un tarif réduit adapté à votre boutique.",
+    "paymentSuccess": "Paiement réussi ! Nous traiterons votre commande sous peu.",
+    "painPoints": "Problèmes que nous résolvons",
+    "keyBenefits": "Avantages clés",
+    "packages": "Forfaits",
+    "copyLink": "Copier le lien",
+    "copied": "Copié !",
+    "ctaTitle": "Besoin d'un forfait sur mesure ?",
+    "ctaSubtitle": "Nous pouvons combiner plusieurs services à un tarif réduit adapté à votre boutique.",
+    "ctaButton": "Contactez-nous",
+    "emailLabel": "Adresse e-mail",
+    "storeUrlLabel": "URL de votre boutique Shopify",
+    "storeUrlPlaceholder": "url de la boutique",
+    "heroDesc": "Les boutiques sous-performantes perdent des ventes chaque jour à cause d'optimisations manquantes. Obtenez des services clés en main qui augmentent conversions et chiffre d'affaires.",
+    "browseServices": "Parcourir les services",
+    "trustedBy": "Approuvé par {{count}} propriétaires de boutiques",
+    "viewPackages": "Voir les forfaits",
+    "usersCount": "{{count}}+ utilisateurs",
+    "contactUs": "Contactez-nous",
+    "openService": "Ouvrir le service",
+    "services": {
+      "1": { "title": "Optimisation SEO", "description": "SEO on-page, meta tags, collections et produits optimisés pour les moteurs de recherche et acheteurs." },
+      "2": { "title": "Optimisation du taux de conversion", "description": "Pages produit, tunnel de commande et éléments de confiance pour plus de ventes par visiteur." },
+      "3": { "title": "Optimisation de la vitesse", "description": "Temps de chargement plus rapides et Core Web Vitals pour maximiser les ventes." },
+      "4": { "title": "E-mails et paniers abandonnés", "description": "Séquences automatisées panier abandonné, bienvenue et post-achat pour récupérer les ventes." },
+      "5": { "title": "Confiance et crédibilité", "description": "Badges, avis, politiques et signaux de sécurité pour rassurer les visiteurs." },
+      "6": { "title": "Rédaction de fiches produit", "description": "Contenu orienté conversion qui répond aux objections et pousse à l'ajout au panier." },
+      "7": { "title": "UX mobile", "description": "Corrections mobile-first pour navigation, formulaires et checkout sur tous les appareils." },
+      "8": { "title": "Collections et navigation", "description": "Collections logiques, filtres et navigation pour une découverte rapide." },
+      "9": { "title": "Analytics et tracking", "description": "Suivi des conversions, GA4 et tableaux de bord pour comprendre ce qui vend." },
+      "10": { "title": "Checkout et paiement", "description": "Moins de friction, bonnes options de paiement et plus de commandes finalisées." },
+      "11": { "title": "Nettoyage apps et performance", "description": "Audit et suppression des apps lourdes pour un shop rapide et maintenable." },
+      "12": { "title": "Audit boutique et fuites de revenus", "description": "Revue complète pour identifier les pertes de ventes et corriger les problèmes clés." },
+      "13": { "title": "Suivi publicités et ROAS", "description": "Suivi des conversions Meta, Google et TikTok pour une attribution précise." }
+    }
   },
   "common": {
     "loading": "Chargement...",
@@ -157,5 +204,24 @@
       "email": "Email marketing et automatisation",
       "ads": "Préparation publicitaire et funnel"
     }
+  },
+  "onboarding": {
+    "step1Title": "Où vendez-vous ?",
+    "step1Subtitle": "Choisissez votre plateforme ecommerce",
+    "shopify": "Shopify",
+    "etsy": "Etsy",
+    "bigcommerce": "BigCommerce",
+    "wordpress": "WordPress",
+    "wix": "Wix",
+    "woocommerce": "WooCommerce",
+    "step2Title": "Connectez votre boutique",
+    "step2Subtitle": "Entrez l'URL de votre boutique pour que nous puissions y accéder et travailler",
+    "storeUrlPlaceholder": "https://votreboutique.com ou votreboutique.myshopify.com",
+    "connectStore": "Connecter la boutique",
+    "connecting": "Connexion...",
+    "step3Title": "Que voulez-vous faire en premier ?",
+    "step3Subtitle": "Choisissez votre priorité",
+    "designOption": "Concevoir ou refaire votre boutique",
+    "marketingOption": "Marketing pour augmenter les ventes"
   }
 }
