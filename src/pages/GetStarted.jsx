@@ -6,22 +6,25 @@ import Footer from "@/components/Footer";
 import { createSession, getSession, updateSession } from "@/lib/onboardingApi";
 
 const PLATFORMS = [
-  { id: "shopify", key: "shopify" },
-  { id: "etsy", key: "etsy" },
-  { id: "bigcommerce", key: "bigcommerce" },
-  { id: "wordpress", key: "wordpress" },
-  { id: "wix", key: "wix" },
-  { id: "woocommerce", key: "woocommerce" },
+  { id: "shopify", key: "shopify", logo: "/platforms/shopify.png" },
+  { id: "etsy", key: "etsy", logo: "/platforms/etsy.png" },
+  { id: "bigcommerce", key: "bigcommerce", logo: "/platforms/bigcommerce.png" },
+  { id: "wordpress", key: "wordpress", logo: "/platforms/wordpress.png" },
+  { id: "wix", key: "wix", logo: "/platforms/wix.png" },
+  { id: "woocommerce", key: "woocommerce", logo: "/platforms/woocommerce.png" },
 ];
 
 const SESSION_KEY = "elursh_onboarding_session";
 
-function PlatformCard({ label, onSelect }) {
+function PlatformCard({ label, logo, onSelect }) {
   return (
     <button
       onClick={onSelect}
-      className="group relative aspect-[4/3] rounded-xl border-2 border-border bg-card p-6 flex items-center justify-center text-lg font-semibold text-foreground transition-all duration-300 hover:border-foreground/40 hover:bg-muted/50 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+      className="group relative aspect-[4/3] rounded-xl border-2 border-border bg-card p-6 flex flex-col items-center justify-center gap-3 text-lg font-semibold text-foreground transition-all duration-300 hover:border-foreground/40 hover:bg-muted/50 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
     >
+      {logo && (
+        <img src={logo} alt="" className="h-12 w-auto object-contain max-w-full" aria-hidden />
+      )}
       <span className="relative z-10">{label}</span>
       <div className="absolute inset-0 rounded-xl bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300 pointer-events-none" />
     </button>
@@ -197,6 +200,7 @@ export default function GetStarted() {
                   <PlatformCard
                     key={p.id}
                     label={t(`onboarding.${p.key}`)}
+                    logo={p.logo}
                     onSelect={() => handlePlatformSelect(p.id)}
                   />
                 ))}

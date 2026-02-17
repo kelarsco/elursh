@@ -163,21 +163,25 @@ export default function ImproveStore() {
 
   const filteredServices = useMemo(() => {
     const hasSearch = searchQuery.trim().length > 0;
-    let list = hasSearch
+    const hasTypeFilter = Boolean(filterType);
+    const hasStageFilter = Boolean(filterStage);
+    // When type or stage filter is active, search across both categories so filter works
+    const searchAllCategories = hasTypeFilter || hasStageFilter || hasSearch;
+    let list = searchAllCategories
       ? servicesList
       : servicesList.filter((s) => s.category === category);
     if (hasSearch) {
       const q = searchQuery.trim().toLowerCase();
       list = list.filter(
         (s) =>
-          s.title.toLowerCase().includes(q) ||
+          (s.title || "").toLowerCase().includes(q) ||
           (s.description || "").toLowerCase().includes(q) ||
-          s.type.toLowerCase().includes(q) ||
-          (s.painPoints || []).some((p) => p.toLowerCase().includes(q))
+          (s.type || "").toLowerCase().includes(q) ||
+          (s.painPoints || []).some((p) => String(p).toLowerCase().includes(q))
       );
     }
-    if (filterType) list = list.filter((s) => s.type === filterType);
-    if (filterStage) list = list.filter((s) => (s.storeStages || []).includes(filterStage));
+    if (hasTypeFilter) list = list.filter((s) => (s.type || "") === filterType);
+    if (hasStageFilter) list = list.filter((s) => (s.storeStages || []).includes(filterStage));
     return list;
   }, [servicesList, category, searchQuery, filterType, filterStage]);
 
@@ -406,8 +410,8 @@ export default function ImproveStore() {
                 className="border border-border bg-background px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">{t("improveStore.serviceType")}</option>
-                {SERVICE_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                {SERVICE_TYPES.map((typeOption) => (
+                  <option key={typeOption} value={typeOption}>{typeOption}</option>
                 ))}
               </select>
               <select
