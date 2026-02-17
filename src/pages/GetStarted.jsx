@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { createSession, getSession, updateSession } from "@/lib/onboardingApi";
+import { getStoredToken } from "@/lib/authApi";
 
 const PLATFORMS = [
   { id: "shopify", key: "shopify", logo: "/platforms/shopify.png" },
@@ -59,8 +60,18 @@ export default function GetStarted() {
   const [storeError, setStoreError] = useState("");
 
   useEffect(() => {
+    const token = getStoredToken();
+    if (!token) {
+      navigate("/auth?redirect=/get-started", { replace: true });
+      return;
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     let mounted = true;
     (async () => {
+      const token = getStoredToken();
+      if (!token) return;
       let sid = sessionStorage.getItem(SESSION_KEY);
       if (sid) {
         try {
@@ -71,8 +82,7 @@ export default function GetStarted() {
               return;
             }
             if (s.store_connected) {
-              setStep(3);
-              setSessionId(sid);
+              navigate("/dashboard", { replace: true });
               return;
             }
             if (s.platform) {
@@ -147,10 +157,12 @@ export default function GetStarted() {
         await updateSession(sessionId, { store_url: url, store_connected: true });
       }
       await new Promise((r) => setTimeout(r, 1500));
-      setStep(3);
+      // Initiate Shopify connection (API call would go here in production)
+      // For now, redirect to dashboard regardless of connection status
+      navigate("/dashboard", { replace: true });
     } catch (e) {
       console.error(e);
-      setStep(3);
+      navigate("/dashboard", { replace: true });
     } finally {
       setLoading(false);
     }

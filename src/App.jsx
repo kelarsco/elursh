@@ -15,6 +15,9 @@ import ImproveStore from "./pages/ImproveStore";
 import AllProjects from "./pages/AllProjects";
 import Contact from "./pages/Contact";
 import GetStarted from "./pages/GetStarted";
+import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
+import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
 import ManagerLayout from "./pages/manager/ManagerLayout";
 import Dashboard from "./pages/manager/Dashboard";
@@ -50,7 +53,10 @@ function AppContent() {
           <Route path="/improve-store" element={<ImproveStore />} />
           <Route path="/all-projects" element={<AllProjects />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/get-started" element={<GetStarted />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/manager" element={<ManagerLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="analysed-stores" element={<AnalysedStores />} />

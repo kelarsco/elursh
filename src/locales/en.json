@@ -225,5 +225,22 @@
     "step3Subtitle": "Choose your priority",
     "designOption": "Design or redesign your store",
     "marketingOption": "Marketing to boost sales"
+  },
+  "auth": {
+    "title": "Start your free trial",
+    "subtitle": "Get started with eCommerce growth services tailored to your store.",
+    "emailLabel": "Email",
+    "continueWithEmail": "Continue with email",
+    "or": "or",
+    "signUpWithGoogle": "Sign up with Google",
+    "alreadyHaveAccount": "Already have an account?",
+    "logIn": "Log in",
+    "enterCode": "Enter the 4-digit code we sent to {{email}}",
+    "verify": "Verify",
+    "resendCode": "Resend code",
+    "termsPrefix": "By proceeding, you agree to the",
+    "termsLink": "Terms and Conditions",
+    "and": "and",
+    "privacyLink": "Privacy Policy"
   }
 }

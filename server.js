@@ -24,6 +24,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import nodemailer from "nodemailer";
 import speakeasy from "speakeasy";
+import jwt from "jsonwebtoken";
 import { getPool, query } from "./lib/db.js";
 import { config } from "./config/index.js";
 import v1Router from "./routes/v1/index.js";
@@ -244,6 +245,7 @@ passport.deserializeUser((user, done) => done(null, user));
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(
+    "google",
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
@@ -257,6 +259,30 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           return done(new Error("Not authorized to access manager"));
         }
         return done(null, { id: profile.id, email, name: profile?.displayName });
+      }
+    )
+  );
+  // Customer Google OAuth (anyone can sign up)
+  const customerCallback =
+    process.env.CUSTOMER_GOOGLE_CALLBACK_URL ||
+    `${process.env.API_BASE_URL || "http://localhost:3001"}/api/auth/google/callback`;
+  passport.use(
+    "google-customer",
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: customerCallback,
+      },
+      (_accessToken, _refreshToken, profile, done) => {
+        const email = profile?.emails?.[0]?.value?.toLowerCase();
+        if (!email) return done(new Error("No email from Google"));
+        return done(null, {
+          googleId: profile.id,
+          email,
+          name: profile?.displayName || profile?.name?.givenName,
+          avatarUrl: profile?.photos?.[0]?.value,
+        });
       }
     )
   );
@@ -828,6 +854,171 @@ app.post("/api/orders", async (req, res) => {
     res.status(201).json({ ok: true, id: r.rows[0]?.id });
   } catch (e) {
     logDbErr("orders save", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ——— Customer auth (Get Started flow) ———
+const authOtpCodes = new Map(); // email -> { code, expiresAt }
+const AUTH_OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 min
+
+function signCustomerToken(payload) {
+  const secret = config.jwt?.secret;
+  if (!secret) throw new Error("JWT secret not configured");
+  return jwt.sign(
+    { sub: String(payload.sub), email: payload.email, type: "customer" },
+    secret,
+    { expiresIn: config.jwt?.expiresIn || "7d", issuer: config.jwt?.issuer || "elursh-api" }
+  );
+}
+
+async function ensureCustomerUsersTable(pool) {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS customer_users (
+      id SERIAL PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      google_id TEXT UNIQUE,
+      name TEXT,
+      avatar_url TEXT,
+      email_verified_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_customer_users_email ON customer_users(email)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_customer_users_google_id ON customer_users(google_id)`);
+}
+
+app.post("/api/auth/send-otp", async (req, res) => {
+  const email = (req.body?.email ?? "").trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: "Valid email required" });
+  }
+  try {
+    const code = generateFourDigitCode();
+    const expiresAt = Date.now() + AUTH_OTP_EXPIRY_MS;
+    authOtpCodes.set(email, { code, expiresAt });
+    const html = `<p>Your Elursh verification code is: <strong>${code}</strong></p><p>It expires in 10 minutes. Enter it to sign in or create your account.</p><p>If you didn't request this, you can ignore this email.</p><p>— Elursh</p>`;
+    const resendKey = process.env.RESEND_API_KEY;
+    if (!resendKey?.trim()) return res.status(503).json({ error: "Email not configured" });
+    const from = process.env.RESEND_FROM || "onboarding@resend.dev";
+    const apiRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${resendKey}` },
+      body: JSON.stringify({
+        from: from.includes("<") ? from : `Elursh <${from}>`,
+        to: [email],
+        subject: "Your sign-in code – Elursh",
+        html,
+      }),
+    });
+    const data = await apiRes.json().catch(() => ({}));
+    if (!apiRes.ok) throw new Error(data.message || data.error || "Resend failed");
+    res.status(200).json({ ok: true, expiresIn: Math.floor(AUTH_OTP_EXPIRY_MS / 1000) });
+  } catch (e) {
+    console.error("auth send-otp:", e.message);
+    res.status(500).json({ error: e.message || "Failed to send code" });
+  }
+});
+
+app.post("/api/auth/verify-otp", async (req, res) => {
+  const email = (req.body?.email ?? "").trim().toLowerCase();
+  const code = (req.body?.code ?? "").toString().trim();
+  if (!email || !code) return res.status(400).json({ error: "Email and code required" });
+  const stored = authOtpCodes.get(email);
+  if (!stored) return res.status(400).json({ error: "Code expired or invalid. Request a new one." });
+  if (Date.now() > stored.expiresAt) {
+    authOtpCodes.delete(email);
+    return res.status(400).json({ error: "Code expired. Request a new one." });
+  }
+  if (stored.code !== code) return res.status(400).json({ error: "Invalid code" });
+  authOtpCodes.delete(email);
+  const pool = getPool();
+  if (!pool) return res.status(503).json({ error: "Database not available" });
+  try {
+    await ensureCustomerUsersTable(pool);
+    let r = await pool.query("SELECT id, email, name FROM customer_users WHERE email = $1", [email]);
+    let user = r.rows[0];
+    if (!user) {
+      r = await pool.query(
+        `INSERT INTO customer_users (email, email_verified_at) VALUES ($1, NOW()) RETURNING id, email, name`,
+        [email]
+      );
+      user = r.rows[0];
+    } else {
+      await pool.query("UPDATE customer_users SET email_verified_at = COALESCE(email_verified_at, NOW()), updated_at = NOW() WHERE id = $1", [user.id]);
+    }
+    const token = signCustomerToken({ sub: user.id, email: user.email });
+    res.status(200).json({ user: { id: user.id, email: user.email, name: user.name }, token });
+  } catch (e) {
+    logDbErr("auth verify-otp", e);
+    res.status(500).json({ error: e.message || "Verification failed" });
+  }
+});
+
+app.get("/api/auth/google", (req, res, next) => {
+  if (!getPool()) return res.status(503).json({ error: "Database not configured" });
+  passport.authenticate("google-customer", { scope: ["profile", "email"] })(req, res, next);
+});
+
+app.get("/api/auth/google/callback", async (req, res, next) => {
+  passport.authenticate("google-customer", { session: false }, async (err, profile) => {
+    const frontendBase = process.env.FRONTEND_ORIGIN || process.env.SITE_URL || "http://localhost:8080";
+    const authCallback = `${frontendBase}/auth/callback`;
+    if (err) return res.redirect(`${authCallback}?error=${encodeURIComponent(err.message || "Login failed")}`);
+    if (!profile) return res.redirect(`${authCallback}?error=login_failed`);
+    const pool = getPool();
+    if (!pool) return res.redirect(`${authCallback}?error=Database+not+available`);
+    try {
+      await ensureCustomerUsersTable(pool);
+      let r = await pool.query("SELECT id, email, name FROM customer_users WHERE google_id = $1 OR email = $2", [profile.googleId, profile.email]);
+      let user = r.rows[0];
+      if (!user) {
+        r = await pool.query(
+          `INSERT INTO customer_users (email, google_id, name, avatar_url, email_verified_at) VALUES ($1,$2,$3,$4,NOW()) RETURNING id, email, name`,
+          [profile.email, profile.googleId, profile.name || null, profile.avatarUrl || null]
+        );
+        user = r.rows[0];
+      } else {
+        await pool.query(
+          "UPDATE customer_users SET google_id = COALESCE(google_id, $1), name = COALESCE(name, $2), avatar_url = COALESCE(avatar_url, $3), updated_at = NOW() WHERE id = $4",
+          [profile.googleId, profile.name, profile.avatarUrl, user.id]
+        );
+      }
+      const token = signCustomerToken({ sub: user.id, email: user.email });
+      res.redirect(`${authCallback}#token=${encodeURIComponent(token)}`);
+    } catch (e) {
+      logDbErr("auth google callback", e);
+      res.redirect(`${authCallback}?error=${encodeURIComponent(e.message || "Login failed")}`);
+    }
+  })(req, res, next);
+});
+
+function requireCustomerAuth(req, res, next) {
+  const auth = req.headers.authorization;
+  const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
+  if (!token) return res.status(401).json({ error: "Login required" });
+  try {
+    const secret = config.jwt?.secret;
+    if (!secret) return res.status(500).json({ error: "Auth not configured" });
+    const decoded = jwt.verify(token, secret, { issuer: config.jwt?.issuer });
+    if (decoded.type !== "customer") return res.status(401).json({ error: "Invalid token" });
+    req.customer = { id: decoded.sub, email: decoded.email };
+    next();
+  } catch {
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+}
+
+app.get("/api/auth/me", requireCustomerAuth, async (req, res) => {
+  const pool = getPool();
+  if (!pool) return res.status(503).json({ error: "Database not available" });
+  try {
+    const r = await pool.query("SELECT id, email, name, avatar_url, email_verified_at FROM customer_users WHERE id = $1", [req.customer.id]);
+    if (!r.rows[0]) return res.status(404).json({ error: "User not found" });
+    res.json(r.rows[0]);
+  } catch (e) {
+    logDbErr("auth me", e);
     res.status(500).json({ error: e.message });
   }
 });
