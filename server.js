@@ -652,7 +652,8 @@ app.post("/api/contacts", async (req, res) => {
 });
 
 // ——— Public: onboarding (get-started flow) ———
-app.post("/api/onboarding/session", async (req, res) => {
+// Handler functions (mounted at both /api/onboarding and /onboarding for proxy compatibility)
+async function onboardingCreateSession(req, res) {
   const pool = getPool();
   if (!pool) return res.status(503).json({ error: "Database not available" });
   try {
@@ -667,9 +668,8 @@ app.post("/api/onboarding/session", async (req, res) => {
     logDbErr("onboarding session create", e);
     res.status(500).json({ error: e.message });
   }
-});
-
-app.get("/api/onboarding/session/:id", async (req, res) => {
+}
+async function onboardingGetSession(req, res) {
   const pool = getPool();
   if (!pool) return res.status(503).json({ error: "Database not available" });
   const id = req.params.id;
@@ -685,9 +685,8 @@ app.get("/api/onboarding/session/:id", async (req, res) => {
     logDbErr("onboarding session get", e);
     res.status(500).json({ error: e.message });
   }
-});
-
-app.patch("/api/onboarding/session/:id", async (req, res) => {
+}
+async function onboardingPatchSession(req, res) {
   const pool = getPool();
   if (!pool) return res.status(503).json({ error: "Database not available" });
   const id = req.params.id;
@@ -714,7 +713,15 @@ app.patch("/api/onboarding/session/:id", async (req, res) => {
     logDbErr("onboarding session patch", e);
     res.status(500).json({ error: e.message });
   }
-});
+}
+
+app.post("/api/onboarding/session", onboardingCreateSession);
+app.get("/api/onboarding/session/:id", onboardingGetSession);
+app.patch("/api/onboarding/session/:id", onboardingPatchSession);
+// Fallback: some proxies (e.g. Vercel→Railway) may strip /api; mount same handlers at /onboarding
+app.post("/onboarding/session", onboardingCreateSession);
+app.get("/onboarding/session/:id", onboardingGetSession);
+app.patch("/onboarding/session/:id", onboardingPatchSession);
 
 // ——— Helpers: price modifier (from settings table; default -30 = 30% off) ———
 async function getPriceModifierPercent(pool) {
