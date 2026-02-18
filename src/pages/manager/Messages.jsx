@@ -266,6 +266,7 @@ export default function Messages() {
   const handleReply = (email) => {
     setTo(email);
     setSubject("");
+    setStoreLink("");
     setBodyText("");
     setBodyHtml("");
     setSelectedTemplateId("");
@@ -276,19 +277,41 @@ export default function Messages() {
   const handleCompose = () => {
     setTo("");
     setSubject("");
+    setStoreLink("");
     setBodyText("");
     setBodyHtml("");
     setSelectedTemplateId("");
     setComposeOpen(true);
   };
 
+  // Personalize HTML by replacing store link placeholders
+  const personalizeHtml = (html, storeUrl) => {
+    if (!html || !storeUrl) return html;
+    // Replace patterns like "store: xxx.com" or "store: xxx" or "Store: xxx.com" (case insensitive)
+    // Also handle variations like "store:xxx.com" (no space)
+    const storeUrlClean = storeUrl.trim();
+    return html.replace(/store:\s*[^\s<]+/gi, `store: ${storeUrlClean}`);
+  };
+
+  // Get personalized HTML for preview/sending
+  const getPersonalizedHtml = () => {
+    return personalizeHtml(bodyHtml, storeLink);
+  };
+
   const handleTemplateChange = (templateId) => {
     setSelectedTemplateId(templateId);
     const tmpl = templates.find((t) => String(t.id) === String(templateId));
     if (tmpl) {
+      // Always sync subject + bodies from template
       setSubject((prev) => prev || tmpl.subject || "");
       setBodyText(tmpl.body_text || "");
-      setBodyHtml(tmpl.body_html || "");
+      const htmlFromTemplate =
+        tmpl.body_html && tmpl.body_html.trim()
+          ? tmpl.body_html
+          : tmpl.body_text
+            ? tmpl.body_text.replace(/\n/g, "<br>")
+            : "";
+      setBodyHtml(htmlFromTemplate);
     }
   };
 
@@ -299,12 +322,37 @@ export default function Messages() {
       toast({ title: "Error", description: "To email is required", variant: "destructive" });
       return;
     }
+    // If no body has been typed but a template is selected, fall back to the template content
+    let sendBodyText = bodyText;
+    let sendBodyHtml = bodyHtml;
+    if (!sendBodyText && !sendBodyHtml && selectedTemplateId) {
+      const tmpl = templates.find((t) => String(t.id) === String(selectedTemplateId));
+      if (tmpl) {
+        sendBodyText = tmpl.body_text || "";
+        sendBodyHtml =
+          tmpl.body_html && tmpl.body_html.trim()
+            ? tmpl.body_html
+            : sendBodyText
+              ? sendBodyText.replace(/\n/g, "<br>")
+              : "";
+      }
+    }
+    if (!sendBodyText && !sendBodyHtml) {
+      toast({
+        title: "Error",
+        description: "Email content is empty. Add text, HTML, or choose a template with content.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Personalize HTML with store link before sending
+    const personalizedHtml = personalizeHtml(sendBodyHtml, storeLink);
     setSending(true);
     sendEmail({
       to_email: toEmail,
       subject: subject.trim(),
-      body_text: bodyText.trim() || undefined,
-      body_html: bodyHtml.trim() || undefined,
+      body_text: sendBodyText.trim() || undefined,
+      body_html: personalizedHtml.trim() || undefined,
     })
       .then(() => {
         toast({ title: "Email sent", description: `Sent to ${toEmail}` });
@@ -433,6 +481,20 @@ export default function Messages() {
                 className="mt-1"
               />
             </div>
+            <div>
+              <Label htmlFor="storeLink">Store link</Label>
+              <Input
+                id="storeLink"
+                type="text"
+                placeholder="e.g., example.com or https://example.com"
+                value={storeLink}
+                onChange={(e) => setStoreLink(e.target.value)}
+                className="mt-1"
+              />
+              <p className="text-xs text-black/50 mt-1">
+                This will replace "store: xxx.com" in your template with the link above
+              </p>
+            </div>
             {/* Side-by-side plain text + HTML editor with preview */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -460,7 +522,7 @@ export default function Messages() {
                   <p className="text-xs text-muted-foreground mb-2 font-medium">Live HTML preview</p>
                   <div className="bg-background border rounded-md p-4 max-h-96 overflow-auto text-sm">
                     {/* eslint-disable-next-line react/no-danger */}
-                    <div dangerouslySetInnerHTML={{ __html: bodyHtml || "<p class='text-muted-foreground'>Preview will appear here…</p>" }} />
+                    <div dangerouslySetInnerHTML={{ __html: getPersonalizedHtml() || "<p class='text-muted-foreground'>Preview will appear here…</p>" }} />
                   </div>
                 </div>
               </div>
