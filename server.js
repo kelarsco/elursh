@@ -1922,6 +1922,9 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
   }
 });
 
+// Minimum seconds after send before counting as "opened" (filters Gmail/prefetcher false positives)
+const EMAIL_OPEN_MIN_DELAY_SECONDS = 60;
+
 // Email open tracking pixel endpoint (public, no auth required)
 app.get("/api/email/track/:id", requireDb, async (req, res) => {
   try {
@@ -1930,10 +1933,14 @@ app.get("/api/email/track/:id", requireDb, async (req, res) => {
       console.log(`[Email Track] Invalid ID: ${req.params.id}`);
       return res.status(400).send("Invalid ID");
     }
-    // Update opened_at if not already set (first open only)
+    // Only set opened_at if: not already opened, and request is at least EMAIL_OPEN_MIN_DELAY_SECONDS
+    // after sent_at (filters Gmail/prefetcher automated requests that run within seconds of delivery)
     const updateResult = await query(
-      "UPDATE emails_sent SET opened_at = NOW() WHERE id = $1 AND opened_at IS NULL RETURNING id",
-      [id]
+      `UPDATE emails_sent SET opened_at = NOW()
+       WHERE id = $1 AND opened_at IS NULL
+         AND (sent_at IS NULL OR EXTRACT(EPOCH FROM (NOW() - sent_at)) >= $2)
+       RETURNING id`,
+      [id, EMAIL_OPEN_MIN_DELAY_SECONDS]
     );
     if (updateResult.rows.length > 0) {
       console.log(`[Email Track] Email ${id} opened for the first time`);

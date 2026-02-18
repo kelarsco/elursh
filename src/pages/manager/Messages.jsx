@@ -6,6 +6,7 @@ import {
   sendEmail,
   updateContactStatus,
   getEmailTemplates,
+  getEmailTemplate,
 } from "@/lib/managerApi";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -299,43 +300,51 @@ export default function Messages() {
     return personalizeHtml(bodyHtml, storeLink);
   };
 
-  const handleTemplateChange = (templateId) => {
+  const handleTemplateChange = async (templateId) => {
     setSelectedTemplateId(templateId);
-    const tmpl = templates.find((t) => String(t.id) === String(templateId));
-    if (tmpl) {
-      // Always sync subject + bodies from template
-      setSubject((prev) => prev || tmpl.subject || "");
-      setBodyText(tmpl.body_text || "");
-      const htmlFromTemplate =
-        tmpl.body_html && tmpl.body_html.trim()
-          ? tmpl.body_html
-          : tmpl.body_text
-            ? tmpl.body_text.replace(/\n/g, "<br>")
-            : "";
-      setBodyHtml(htmlFromTemplate);
+    if (!templateId) return;
+    try {
+      const tmpl = await getEmailTemplate(parseInt(templateId, 10));
+      if (tmpl) {
+        setSubject((prev) => prev || tmpl.subject || "");
+        setBodyText(tmpl.body_text || "");
+        const htmlFromTemplate =
+          tmpl.body_html && tmpl.body_html.trim()
+            ? tmpl.body_html
+            : tmpl.body_text
+              ? tmpl.body_text.replace(/\n/g, "<br>")
+              : "";
+        setBodyHtml(htmlFromTemplate);
+      }
+    } catch (e) {
+      toast({ title: "Error loading template", description: e.message, variant: "destructive" });
     }
   };
 
-  const handleSendEmail = (e) => {
+  const handleSendEmail = async (e) => {
     e.preventDefault();
     const toEmail = to.trim();
     if (!toEmail) {
       toast({ title: "Error", description: "To email is required", variant: "destructive" });
       return;
     }
-    // If no body has been typed but a template is selected, fall back to the template content
+    // If no body has been typed but a template is selected, fetch template content
     let sendBodyText = bodyText;
     let sendBodyHtml = bodyHtml;
     if (!sendBodyText && !sendBodyHtml && selectedTemplateId) {
-      const tmpl = templates.find((t) => String(t.id) === String(selectedTemplateId));
-      if (tmpl) {
-        sendBodyText = tmpl.body_text || "";
-        sendBodyHtml =
-          tmpl.body_html && tmpl.body_html.trim()
-            ? tmpl.body_html
-            : sendBodyText
-              ? sendBodyText.replace(/\n/g, "<br>")
-              : "";
+      try {
+        const tmpl = await getEmailTemplate(parseInt(selectedTemplateId, 10));
+        if (tmpl) {
+          sendBodyText = tmpl.body_text || "";
+          sendBodyHtml =
+            tmpl.body_html && tmpl.body_html.trim()
+              ? tmpl.body_html
+              : sendBodyText
+                ? sendBodyText.replace(/\n/g, "<br>")
+                : "";
+        }
+      } catch (err) {
+        // ignore, will show error below if still empty
       }
     }
     if (!sendBodyText && !sendBodyHtml) {
