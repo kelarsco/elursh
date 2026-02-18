@@ -19,11 +19,17 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import UserDashboardLayout from "./layouts/UserDashboardLayout";
 import DashboardOverview from "./pages/dashboard/DashboardOverview";
+import DashboardActivity from "./pages/dashboard/DashboardActivity";
 import DashboardAudit from "./pages/dashboard/DashboardAudit";
 import DashboardChat from "./pages/dashboard/DashboardChat";
 import DashboardMarketplace from "./pages/dashboard/DashboardMarketplace";
 import DashboardProjects from "./pages/dashboard/DashboardProjects";
+import DashboardOrderHistory from "./pages/dashboard/DashboardOrderHistory";
 import DashboardResources from "./pages/dashboard/DashboardResources";
+import DashboardSalesHack from "./pages/dashboard/DashboardSalesHack";
+import DashboardChecklist from "./pages/dashboard/DashboardChecklist";
+import DashboardSupport from "./pages/dashboard/DashboardSupport";
+import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import NotFound from "./pages/NotFound";
 import ManagerLayout from "./pages/manager/ManagerLayout";
 import Dashboard from "./pages/manager/Dashboard";
@@ -66,11 +72,17 @@ function AppContent() {
           <Route path="/get-started" element={<GetStarted />} />
           <Route path="/dashboard" element={<UserDashboardLayout />}>
             <Route index element={<DashboardOverview />} />
+            <Route path="activity" element={<DashboardActivity />} />
             <Route path="audit" element={<DashboardAudit />} />
             <Route path="chat" element={<DashboardChat />} />
-            <Route path="marketplace" element={<DashboardMarketplace />} />
-            <Route path="projects" element={<DashboardProjects />} />
+            <Route path="services/custom-project" element={<DashboardMarketplace />} />
+            <Route path="services/projects" element={<DashboardProjects />} />
+            <Route path="services/orders" element={<DashboardOrderHistory />} />
+            <Route path="resources/sales-hack" element={<DashboardSalesHack />} />
+            <Route path="resources/checklist" element={<DashboardChecklist />} />
             <Route path="resources" element={<DashboardResources />} />
+            <Route path="support" element={<DashboardSupport />} />
+            <Route path="settings" element={<DashboardSettings />} />
           </Route>
           <Route path="/manager" element={<ManagerLayout />}>
             <Route index element={<Dashboard />} />

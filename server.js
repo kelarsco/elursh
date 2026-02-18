@@ -15,6 +15,7 @@
  * Vite proxies /api to this server when using npm run dev.
  */
 import "dotenv/config";
+import crypto from "crypto";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import express from "express";
@@ -722,6 +723,163 @@ app.patch("/api/onboarding/session/:id", onboardingPatchSession);
 app.post("/onboarding/session", onboardingCreateSession);
 app.get("/onboarding/session/:id", onboardingGetSession);
 app.patch("/onboarding/session/:id", onboardingPatchSession);
+
+// ——— Shopify OAuth (Connect Store) ———
+const SHOPIFY_CLIENT_ID = process.env.SHOPIFY_CLIENT_ID || "";
+const SHOPIFY_CLIENT_SECRET = process.env.SHOPIFY_CLIENT_SECRET || "";
+const SHOPIFY_SCOPES = "read_orders,read_products,read_customers,read_analytics";
+
+function normalizeShop(input) {
+  if (!input || typeof input !== "string") return "";
+  let s = input.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+  if (s && !s.endsWith(".myshopify.com")) s = s.replace(/\.myshopify\.com.*$/i, "") + ".myshopify.com";
+  return s || "";
+}
+
+app.post("/api/shopify/install", requireCustomerAuth, (req, res) => {
+  const shop = normalizeShop(req.body?.shop || req.query?.shop);
+  if (!shop) return res.status(400).json({ error: "shop required (e.g. store.myshopify.com)" });
+  if (!SHOPIFY_CLIENT_ID || !SHOPIFY_CLIENT_SECRET) {
+    return res.status(503).json({ error: "Shopify app not configured. Set SHOPIFY_CLIENT_ID and SHOPIFY_CLIENT_SECRET." });
+  }
+  const apiBase = process.env.API_BASE_URL || `http://localhost:${PORT}`;
+  const redirectUri = `${apiBase.replace(/\/$/, "")}/api/shopify/callback`;
+  const state = Buffer.from(JSON.stringify({ userId: req.customer.id, sessionId: req.body?.sessionId || null })).toString("base64url");
+  const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${SHOPIFY_CLIENT_ID}&scope=${encodeURIComponent(SHOPIFY_SCOPES)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+  res.json({ installUrl });
+});
+
+app.get("/api/shopify/callback", async (req, res) => {
+  const { code, shop: rawShop, state, hmac } = req.query;
+  const shop = normalizeShop(rawShop);
+  const frontendBase = process.env.FRONTEND_ORIGIN || process.env.SITE_URL || "http://localhost:8080";
+  const dash = `${frontendBase}/dashboard`;
+
+  if (!shop || !code) return res.redirect(`${dash}?shopify=error&msg=missing_params`);
+  if (!SHOPIFY_CLIENT_ID || !SHOPIFY_CLIENT_SECRET) return res.redirect(`${dash}?shopify=error&msg=not_configured`);
+
+  // Verify HMAC
+  const params = new URLSearchParams(req.query);
+  params.delete("hmac");
+  params.delete("signature");
+  const sorted = params.toString().split("&").sort().join("&");
+  const genHmac = crypto.createHmac("sha256", SHOPIFY_CLIENT_SECRET).update(sorted).digest("hex");
+  if (hmac !== genHmac) return res.redirect(`${dash}?shopify=error&msg=invalid_hmac`);
+
+  let userId, sessionId;
+  try {
+    const parsed = JSON.parse(Buffer.from(state, "base64url").toString());
+    userId = parsed?.userId;
+    sessionId = parsed?.sessionId;
+  } catch {
+    return res.redirect(`${dash}?shopify=error&msg=invalid_state`);
+  }
+  if (!userId) return res.redirect(`${dash}?shopify=error&msg=invalid_state`);
+
+  try {
+    const apiBase = process.env.API_BASE_URL || `http://localhost:${PORT}`;
+    const redirectUri = `${apiBase.replace(/\/$/, "")}/api/shopify/callback`;
+    const tokenRes = await fetch(`https://${shop}/admin/oauth/access_token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ client_id: SHOPIFY_CLIENT_ID, client_secret: SHOPIFY_CLIENT_SECRET, code, redirect_uri: redirectUri }),
+    });
+    const tokenData = await tokenRes.json().catch(() => ({}));
+    const accessToken = tokenData.access_token;
+    if (!accessToken) return res.redirect(`${dash}?shopify=error&msg=no_token`);
+
+    const pool = getPool();
+    if (!pool) return res.redirect(`${dash}?shopify=error&msg=db_unavailable`);
+
+    await pool.query(
+      `INSERT INTO shopify_stores (customer_user_id, shop, access_token, scope, updated_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       ON CONFLICT (shop, customer_user_id) DO UPDATE SET access_token = $3, scope = $4, updated_at = NOW()`,
+      [userId, shop, accessToken, tokenData.scope || SHOPIFY_SCOPES]
+    );
+
+    // Link onboarding session if passed in state
+    if (sessionId) {
+      await pool.query(
+        "UPDATE onboarding_sessions SET store_url = $1, store_connected = true, updated_at = NOW() WHERE id = $2",
+        [shop, sessionId]
+      ).catch(() => {});
+    }
+
+    res.redirect(`${dash}?shopify=connected&shop=${encodeURIComponent(shop)}`);
+  } catch (e) {
+    logDbErr("shopify callback", e);
+    res.redirect(`${dash}?shopify=error&msg=${encodeURIComponent(e.message || "Unknown error")}`);
+  }
+});
+
+app.get("/api/shopify/stores", requireCustomerAuth, async (req, res) => {
+  const pool = getPool();
+  if (!pool) return res.status(503).json({ error: "Database not available" });
+  try {
+    const r = await pool.query("SELECT id, shop, created_at FROM shopify_stores WHERE customer_user_id = $1 ORDER BY created_at DESC", [req.customer.id]);
+    res.json(r.rows || []);
+  } catch (e) {
+    logDbErr("shopify stores", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/shopify/dashboard", requireCustomerAuth, async (req, res) => {
+  const pool = getPool();
+  if (!pool) return res.status(503).json({ error: "Database not available" });
+  const shop = normalizeShop(req.query.shop);
+  if (!shop) return res.status(400).json({ error: "shop parameter required" });
+
+  try {
+    const r = await pool.query("SELECT access_token FROM shopify_stores WHERE customer_user_id = $1 AND shop = $2", [req.customer.id, shop]);
+    const row = r.rows[0];
+    if (!row) return res.status(404).json({ error: "Store not connected" });
+
+    const token = row.access_token;
+    const since = req.query.since || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    const gql = `query { orders(first: 50, query: "created_at:>=${since}") { edges { node { id totalPriceSet { shopMoney { amount } } createdAt } } } }`;
+    const gqlRes = await fetch(`https://${shop}/admin/api/2024-01/graphql.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Access-Token": token,
+      },
+      body: JSON.stringify({ query: gql }),
+    });
+    const gqlData = await gqlRes.json();
+    const orders = gqlData?.data?.orders?.edges?.map((e) => e.node) || [];
+
+    let totalRevenue = 0;
+    const byDay = {};
+    orders.forEach((o) => {
+      const amt = parseFloat(o?.totalPriceSet?.shopMoney?.amount || 0);
+      totalRevenue += amt;
+      const day = (o.createdAt || "").slice(0, 10);
+      if (day) byDay[day] = (byDay[day] || 0) + amt;
+    });
+
+    const days = ["S", "M", "T", "W", "T", "F", "S"];
+    const trend = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      const key = d.toISOString().slice(0, 10);
+      trend.push({ day: days[d.getDay()], value: byDay[key] || 0 });
+    }
+
+    res.json({
+      totalRevenue: Math.round(totalRevenue * 100) / 100,
+      ordersCount: orders.length,
+      trend,
+      conversionRate: null,
+    });
+  } catch (e) {
+    logDbErr("shopify dashboard", e);
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // ——— Helpers: price modifier (from settings table; default -30 = 30% off) ———
 async function getPriceModifierPercent(pool) {

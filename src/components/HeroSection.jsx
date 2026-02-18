@@ -221,7 +221,7 @@ const HeroSection = () => {
           <div className="flex items-center gap-6">
             <Link 
               ref={buttonRef}
-              to="/auth" 
+              to="/get-started" 
               className="cta-discover-button inline-flex items-center gap-6 group"
               aria-label="Get started"
               style={{

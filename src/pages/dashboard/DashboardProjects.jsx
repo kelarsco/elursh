@@ -43,7 +43,7 @@ export default function DashboardProjects() {
           </p>
         </div>
         <Link
-          to="/dashboard/marketplace?custom=1"
+          to="/dashboard/services/custom-project?custom=1"
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700"
         >
           New Project +

@@ -1,33 +1,60 @@
 import { useEffect, useState } from "react";
-import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   Home,
-  Bell,
   BarChart3,
   MessageCircle,
   ShoppingCart,
-  FolderKanban,
   BookOpen,
-  MoreHorizontal,
+  HelpCircle,
   Settings,
+  LayoutGrid,
+  Activity,
   User,
   Calendar,
+  Bell,
 } from "lucide-react";
 import { getMe, getStoredToken, setStoredToken } from "@/lib/authApi";
 import logo from "@/assets/logo.png";
 import { cn } from "@/lib/utils";
 
+// Main sidebar: Home, Store performance, Chat, Services, Resources, Support, Settings
 const SIDEBAR_NAV = [
-  { to: "/dashboard", end: true, label: "Overview", icon: Home },
-  { to: "/dashboard/audit", end: false, label: "Audit", icon: BarChart3 },
-  { to: "/dashboard/chat", end: false, label: "Chat", icon: MessageCircle, badge: true },
-  { to: "/dashboard/marketplace", end: false, label: "Services & Themes", icon: ShoppingCart },
-  { to: "/dashboard/projects", end: false, label: "Projects", icon: FolderKanban },
-  { to: "/dashboard/resources", end: false, label: "Resources", icon: BookOpen },
+  { to: "/dashboard", label: "Home", icon: Home, subPaths: ["/dashboard", "/dashboard/activity"] },
+  { to: "/dashboard/audit", label: "Store performance", icon: BarChart3, subPaths: ["/dashboard/audit"] },
+  { to: "/dashboard/chat", label: "Chat", icon: MessageCircle, badge: true, subPaths: ["/dashboard/chat"] },
+  { to: "/dashboard/services/custom-project", label: "Services", icon: ShoppingCart, subPaths: ["/dashboard/services"] },
+  { to: "/dashboard/resources/sales-hack", label: "Resources", icon: BookOpen, subPaths: ["/dashboard/resources"] },
+  { to: "/dashboard/support", label: "Support", icon: HelpCircle, subPaths: ["/dashboard/support"] },
+  { to: "/dashboard/settings", label: "Settings", icon: Settings, subPaths: ["/dashboard/settings"] },
 ];
+
+const HOME_SUB_NAV = [
+  { to: "/dashboard", end: true, label: "Overview", icon: LayoutGrid },
+  { to: "/dashboard/activity", end: true, label: "Activity", icon: Activity },
+];
+
+const SERVICES_SUB_NAV = [
+  { to: "/dashboard/services/custom-project", label: "Custom project", end: false },
+  { to: "/dashboard/services/projects", label: "Manage projects", end: false },
+  { to: "/dashboard/services/orders", label: "Order History", end: false },
+];
+
+const RESOURCES_SUB_NAV = [
+  { to: "/dashboard/resources/sales-hack", label: "Sales Hack", end: false },
+  { to: "/dashboard/resources/checklist", label: "Checklist", end: false },
+];
+
+function getSubNav(pathname) {
+  if (pathname.startsWith("/dashboard/services")) return SERVICES_SUB_NAV;
+  if (pathname.startsWith("/dashboard/resources")) return RESOURCES_SUB_NAV;
+  if (pathname === "/dashboard" || pathname === "/dashboard/activity") return HOME_SUB_NAV;
+  return null;
+}
 
 export default function UserDashboardLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [dateRange, setDateRange] = useState({ start: "01 Jan 2026", end: "31 Jan 2026" });
   const [loading, setLoading] = useState(true);
@@ -59,6 +86,8 @@ export default function UserDashboardLayout() {
     navigate("/", { replace: true });
   };
 
+  const subNav = getSubNav(location.pathname);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
@@ -69,56 +98,63 @@ export default function UserDashboardLayout() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex">
-      {/* Left Sidebar - icon + label on wider screens */}
       <aside className="w-16 lg:w-52 flex flex-col py-6 bg-white border-r border-neutral-200 shrink-0">
         <Link to="/" className="px-4 mb-8 flex items-center gap-2">
           <img src={logo} alt="Elursh" className="h-6 w-auto" />
         </Link>
         <nav className="flex-1 flex flex-col gap-1 px-3">
-          {SIDEBAR_NAV.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                cn(
+          {SIDEBAR_NAV.map((item) => {
+            const isActive = item.subPaths?.some((p) =>
+              p === "/dashboard" ? location.pathname === "/dashboard" : location.pathname.startsWith(p)
+            );
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === "/dashboard"}
+                className={cn(
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800"
-                )
-              }
-            >
-              <span className="relative shrink-0">
-                <item.icon className="w-5 h-5" />
-                {item.badge && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                  isActive ? "bg-emerald-100 text-emerald-700" : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800"
                 )}
-              </span>
-              <span className="hidden lg:inline truncate">{item.label}</span>
-            </NavLink>
-          ))}
-          <div className="w-full border-t border-neutral-200 my-4" />
-          <button className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800 transition-colors">
-            <MoreHorizontal className="w-5 h-5 shrink-0" />
-            <span className="hidden lg:inline">More</span>
-          </button>
+              >
+                <span className="relative shrink-0">
+                  <item.icon className="w-5 h-5" />
+                  {item.badge && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />}
+                </span>
+                <span className="hidden lg:inline truncate">{item.label}</span>
+              </NavLink>
+            );
+          })}
         </nav>
-        <div className="px-3 pt-4 border-t border-neutral-200">
-          <button className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800 transition-colors w-full">
-            <Settings className="w-5 h-5 shrink-0" />
-            <span className="hidden lg:inline">Settings</span>
-          </button>
-        </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 px-6 flex items-center justify-between border-b border-neutral-200 bg-white shrink-0">
           <div className="flex items-center gap-3">
-            <span className="px-4 py-2 rounded-full bg-neutral-100 text-neutral-800 text-sm font-medium">
-              Dashboard
-            </span>
+            {subNav ? (
+              <div className="flex items-center gap-1">
+                {subNav.map((s) => (
+                  <NavLink
+                    key={s.to}
+                    to={s.to}
+                    end={s.end}
+                    className={({ isActive }) =>
+                      cn(
+                        "px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2",
+                        isActive ? "bg-emerald-100 text-emerald-700" : "text-neutral-600 hover:bg-neutral-100"
+                      )
+                    }
+                  >
+                    {s.icon && <s.icon className="w-4 h-4" />}
+                    {s.label}
+                  </NavLink>
+                ))}
+              </div>
+            ) : (
+              <span className="px-4 py-2 rounded-full bg-neutral-100 text-neutral-800 text-sm font-medium">
+                Dashboard
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <button className="flex items-center gap-2 rounded-xl px-3 py-2 text-neutral-600 hover:bg-neutral-50">
@@ -128,7 +164,7 @@ export default function UserDashboardLayout() {
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
                 <User className="w-4 h-4 text-emerald-700" />
               </div>
-              <span className="text-sm font-medium text-neutral-800">{user?.name || "User"}</span>
+              <span className="text-sm font-medium text-neutral-800 hidden sm:inline">{user?.name || "User"}</span>
             </div>
             <button
               onClick={handleLogout}

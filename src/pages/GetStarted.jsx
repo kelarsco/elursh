@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { createSession, getSession, updateSession } from "@/lib/onboardingApi";
 import { getStoredToken } from "@/lib/authApi";
+import { getShopifyInstallUrl } from "@/lib/shopifyAuthApi";
 
 const PLATFORMS = [
   { id: "shopify", key: "shopify", logo: "/platforms/shopify.png" },
@@ -58,6 +59,7 @@ export default function GetStarted() {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [storeUrl, setStoreUrl] = useState("");
   const [storeError, setStoreError] = useState("");
+  const [selectedPlatform, setSelectedPlatform] = useState("");
 
   useEffect(() => {
     const token = getStoredToken();
@@ -88,6 +90,7 @@ export default function GetStarted() {
             if (s.platform) {
               setStep(2);
               setStoreUrl(s.store_url || "");
+              setSelectedPlatform(s.platform || "");
               setSessionId(sid);
               return;
             }
@@ -122,6 +125,7 @@ export default function GetStarted() {
   }
 
   const handlePlatformSelect = async (platformId) => {
+    setSelectedPlatform(platformId);
     setLoading(true);
     setLoadingMessage(t("onboarding.connecting"));
     try {
@@ -145,24 +149,30 @@ export default function GetStarted() {
       setStoreError("Please enter your store URL");
       return;
     }
-    if (!url.includes(".") && !url.includes("myshopify")) {
-      setStoreError("Please enter a valid store URL");
+    const normalized = url.toLowerCase().replace(/^https?:\/\//, "");
+    if (!normalized.includes(".") && !normalized.includes("myshopify")) {
+      setStoreError("Please enter a valid store URL (e.g. mystore.myshopify.com)");
       return;
     }
     setStoreError("");
     setLoading(true);
     setLoadingMessage(t("onboarding.connecting"));
+
     try {
+      if (selectedPlatform === "shopify") {
+        const installUrl = await getShopifyInstallUrl(url, sessionId && sessionId !== "local" ? sessionId : null);
+        if (installUrl) {
+          window.location.href = installUrl;
+          return;
+        }
+      }
       if (sessionId && sessionId !== "local") {
         await updateSession(sessionId, { store_url: url, store_connected: true });
       }
       await new Promise((r) => setTimeout(r, 1500));
-      // Initiate Shopify connection (API call would go here in production)
-      // For now, redirect to dashboard regardless of connection status
       navigate("/dashboard", { replace: true });
     } catch (e) {
-      console.error(e);
-      navigate("/dashboard", { replace: true });
+      setStoreError(e.message || "Connection failed");
     } finally {
       setLoading(false);
     }

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { apiBase } from "@/lib/apiBase";
+import { getConnectedStores, getShopifyDashboard } from "@/lib/shopifyAuthApi";
 
 // Dashboard data - will be replaced with Shopify API when integrated
 const MOCK_DASHBOARD = {
@@ -41,15 +42,25 @@ export default function DashboardOverview() {
   const { user } = useOutletContext() || {};
   const [store, setStore] = useState(null);
   const [reports, setReports] = useState(null);
+  const [shopifyData, setShopifyData] = useState(null);
+  const [shopifyStore, setShopifyStore] = useState(null);
 
   useEffect(() => {
     const sid = sessionStorage.getItem("elursh_onboarding_session");
-    if (!sid) return;
-    const base = apiBase || "";
-    fetch(`${base}/api/onboarding/session/${sid}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((s) => s?.store_url && setStore(s.store_url))
-      .catch(() => {});
+    if (sid) {
+      const base = apiBase || "";
+      fetch(`${base}/api/onboarding/session/${sid}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((s) => s?.store_url && setStore(s.store_url))
+        .catch(() => {});
+    }
+    getConnectedStores().then((stores) => {
+      const shop = stores[0]?.shop;
+      if (shop) {
+        setShopifyStore(shop);
+        getShopifyDashboard(shop).then(setShopifyData);
+      }
+    }).catch(() => {});
   }, []);
 
   // Fetch store report if store is connected (store-audit-result returns report_json directly)
@@ -70,6 +81,13 @@ export default function DashboardOverview() {
   const upgrades = displayReports?.upgrades ?? MOCK_DASHBOARD.reports.upgrades;
   const completed = displayReports?.completed ?? MOCK_DASHBOARD.reports.completed;
 
+  const revenueValue = shopifyData?.totalRevenue ?? MOCK_DASHBOARD.revenue.value;
+  const revenueGrowth = MOCK_DASHBOARD.revenue.growth;
+  const chartData = (shopifyData?.trend?.length ? shopifyData.trend : MOCK_DASHBOARD.revenue.trend.map((v, i) => ({
+    day: ["S", "M", "T", "W", "T", "F", "S"][i],
+    value: v,
+  })));
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
@@ -84,7 +102,13 @@ export default function DashboardOverview() {
       <div className="mb-8 p-6 rounded-2xl bg-white border border-neutral-200 shadow-sm">
         <span className="text-2xl">⚡</span>
         <h3 className="text-lg font-semibold text-neutral-900 mt-2">Sales</h3>
-        <p className="text-neutral-600 mt-1">{MOCK_DASHBOARD.highlightMessage}</p>
+        <p className="text-neutral-600 mt-1">
+          {shopifyData ? (
+            <>Your store has {shopifyData.ordersCount || 0} orders in the last 30 days. Total revenue: ${Number(revenueValue).toLocaleString()}.</>
+          ) : (
+            MOCK_DASHBOARD.highlightMessage
+          )}
+        </p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
@@ -93,7 +117,7 @@ export default function DashboardOverview() {
             <h3 className="font-semibold text-neutral-800">Conversion rate</h3>
             <ArrowUpRight className="w-5 h-5 text-neutral-400" />
           </div>
-          <p className="text-4xl font-bold text-neutral-900 mt-4">{MOCK_DASHBOARD.conversionRate.value}%</p>
+          <p className="text-4xl font-bold text-neutral-900 mt-4">{(shopifyData?.conversionRate ?? MOCK_DASHBOARD.conversionRate.value)}%</p>
           <p className="text-sm text-emerald-600 mt-1">&gt; {MOCK_DASHBOARD.conversionRate.growth}%</p>
         </div>
 
@@ -102,7 +126,7 @@ export default function DashboardOverview() {
             <h3 className="font-semibold text-neutral-800">Revenue trend</h3>
             <Calendar className="w-5 h-5 text-neutral-400" />
           </div>
-          <p className="text-4xl font-bold text-neutral-900 mt-4">${MOCK_DASHBOARD.revenue.value.toLocaleString()}</p>
+                <p className="text-4xl font-bold text-neutral-900 mt-4">${Number(revenueValue).toLocaleString()}</p>
           <p className="text-sm text-emerald-600 mt-1">&gt; {MOCK_DASHBOARD.revenue.growth}%</p>
           <div className="h-24 mt-6">
             <ResponsiveContainer width="100%" height="100%">
@@ -173,7 +197,7 @@ export default function DashboardOverview() {
               Run full audit →
             </Link>
             <Link
-              to="/dashboard/marketplace"
+              to="/dashboard/services/custom-project"
               className="flex-1 py-2.5 rounded-lg border border-neutral-300 text-neutral-700 text-sm font-medium text-center hover:bg-neutral-50 transition-colors"
             >
               Start Fixing
@@ -188,13 +212,13 @@ export default function DashboardOverview() {
           </div>
           <div className="flex gap-2 mt-4">
             <Link
-              to="/dashboard/projects"
+              to="/dashboard/services/projects"
               className="px-4 py-2 rounded-lg border border-neutral-300 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
             >
               View All Projects
             </Link>
             <Link
-              to="/dashboard/marketplace?custom=1"
+              to="/dashboard/services/custom-project?custom=1"
               className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700"
             >
               New Project +
