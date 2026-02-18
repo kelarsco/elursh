@@ -22,6 +22,7 @@ import {
   Activity,
   Smartphone,
   MonitorOff,
+  FileText,
 } from "lucide-react";
 import notify1Url from "@/assets/notify1.wav";
 import notify2Url from "@/assets/notify2.wav";
@@ -101,7 +102,8 @@ const nav = [
   { to: "/manager/orders", end: false, label: "Orders", icon: ShoppingCart },
   { to: "/manager/payments", end: false, label: "Payments", icon: CreditCard },
   { to: "/manager/customer-chat", end: false, label: "Customer Chat", icon: MessageCircle },
-  { to: "/manager/messages", end: false, label: "Messages", icon: Mail },
+  { to: "/manager/messages", end: false, label: "Camages", icon: Mail },
+  { to: "/manager/email-templates", end: false, label: "Email templates", icon: FileText },
   { to: "/manager/projects", end: false, label: "Projects", icon: FolderKanban },
 ];
 

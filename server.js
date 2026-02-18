@@ -17,8 +17,10 @@
 import "dotenv/config";
 import crypto from "crypto";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
 import express from "express";
+import multer from "multer";
 import cors from "cors";
 import session from "express-session";
 import passport from "passport";
@@ -214,6 +216,9 @@ app.use(
   })
 );
 app.use(express.json());
+
+// Static uploads (e.g. email template images)
+app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Versioned REST API (JWT-based)
 app.use("/api/v1", v1Router);
@@ -1929,6 +1934,126 @@ app.post("/api/manager/chat/messages/:customerUserId/read", requireManager, requ
     res.json({ success: true });
   } catch (e) {
     logDbErr("chat messages read", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Manager email templates: static uploads (so uploaded image URLs work)
+const uploadsDir = path.join(__dirname, "uploads");
+const emailTemplatesUploadDir = path.join(uploadsDir, "email-templates");
+try {
+  fs.mkdirSync(emailTemplatesUploadDir, { recursive: true });
+} catch (err) {
+  // ignore
+}
+const emailTemplateStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, emailTemplatesUploadDir),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || ".png";
+    cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
+  },
+});
+const uploadEmailTemplateImage = multer({
+  storage: emailTemplateStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const ok = /^image\//.test(file.mimetype || "");
+    cb(null, !!ok);
+  },
+});
+
+// Manager email templates endpoints
+app.get("/api/manager/email-templates", requireManager, requireDb, async (req, res) => {
+  try {
+    const r = await query(
+      "SELECT id, name, subject, image_url, created_at, updated_at FROM email_templates ORDER BY created_at DESC"
+    );
+    res.json(r.rows || []);
+  } catch (e) {
+    logDbErr("email-templates list", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post(
+  "/api/manager/email-templates/upload-image",
+  requireManager,
+  uploadEmailTemplateImage.single("image"),
+  (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No image file uploaded" });
+    }
+    const url = `/api/uploads/email-templates/${req.file.filename}`;
+    res.json({ url, image_url: url });
+  }
+);
+
+app.get("/api/manager/email-templates/:id", requireManager, requireDb, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid template ID" });
+    const r = await query(
+      "SELECT id, name, subject, body_text, body_html, image_url, created_at, updated_at FROM email_templates WHERE id = $1",
+      [id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: "Template not found" });
+    res.json(r.rows[0]);
+  } catch (e) {
+    logDbErr("email-templates get", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/manager/email-templates", requireManager, requireDb, async (req, res) => {
+  try {
+    const name = (req.body?.name || "").trim();
+    const subject = (req.body?.subject || "").trim() || null;
+    const bodyText = (req.body?.body_text || "").trim() || null;
+    const bodyHtml = (req.body?.body_html || "").trim() || null;
+    const imageUrl = (req.body?.image_url || "").trim() || null;
+    if (!name) return res.status(400).json({ error: "Name is required" });
+    const r = await query(
+      "INSERT INTO email_templates (name, subject, body_text, body_html, image_url) VALUES ($1,$2,$3,$4,$5) RETURNING id, name, subject, body_text, body_html, image_url, created_at, updated_at",
+      [name, subject, bodyText, bodyHtml, imageUrl]
+    );
+    res.status(201).json(r.rows[0]);
+  } catch (e) {
+    logDbErr("email-templates create", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.put("/api/manager/email-templates/:id", requireManager, requireDb, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid template ID" });
+    const name = (req.body?.name || "").trim();
+    const subject = (req.body?.subject || "").trim() || null;
+    const bodyText = (req.body?.body_text || "").trim() || null;
+    const bodyHtml = (req.body?.body_html || "").trim() || null;
+    const imageUrl = (req.body?.image_url || "").trim() || null;
+    if (!name) return res.status(400).json({ error: "Name is required" });
+    const r = await query(
+      "UPDATE email_templates SET name = $1, subject = $2, body_text = $3, body_html = $4, image_url = $5, updated_at = NOW() WHERE id = $6 RETURNING id, name, subject, body_text, body_html, image_url, created_at, updated_at",
+      [name, subject, bodyText, bodyHtml, imageUrl, id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: "Template not found" });
+    res.json(r.rows[0]);
+  } catch (e) {
+    logDbErr("email-templates update", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete("/api/manager/email-templates/:id", requireManager, requireDb, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid template ID" });
+    const r = await query("DELETE FROM email_templates WHERE id = $1 RETURNING id", [id]);
+    if (!r.rows[0]) return res.status(404).json({ error: "Template not found" });
+    res.json({ deleted: true, id });
+  } catch (e) {
+    logDbErr("email-templates delete", e);
     res.status(500).json({ error: e.message });
   }
 });

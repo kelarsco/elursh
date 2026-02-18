@@ -35,3 +35,6 @@ dist-ssr
 
 # Local→Neon sync dump (temporary, contains data)
 sync_local_to_neon_dump.sql
+
+# Uploaded files (email template images, etc.)
+uploads/

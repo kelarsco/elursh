@@ -11,10 +11,16 @@ export const managerApiBase = base;
 
 export async function managerFetch(path, options = {}) {
   const hasBody = options.body != null;
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
+  const headers = isFormData
+    ? { ...options.headers }
+    : hasBody
+      ? { "Content-Type": "application/json", ...options.headers }
+      : { ...options.headers };
   const res = await fetch(`${base}${path}`, {
     credentials: "include",
     ...options,
-    headers: hasBody ? { "Content-Type": "application/json", ...options.headers } : { ...options.headers },
+    headers,
   });
   return res;
 }
@@ -279,6 +285,57 @@ export async function sendChatMessage(customerUserId, messageText) {
 export async function markChatMessagesRead(customerUserId) {
   const res = await managerFetch(`/chat/messages/${customerUserId}/read`, {
     method: "POST",
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+// Email Templates API
+export async function getEmailTemplates() {
+  const res = await managerFetch("/email-templates");
+  if (!res.ok) throw new Error(await res.text());
+  const json = await res.json();
+  return Array.isArray(json) ? json : [];
+}
+
+export async function getEmailTemplate(id) {
+  const res = await managerFetch(`/email-templates/${id}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function createEmailTemplate(body) {
+  const res = await managerFetch("/email-templates", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function updateEmailTemplate(id, body) {
+  const res = await managerFetch(`/email-templates/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function deleteEmailTemplate(id) {
+  const res = await managerFetch(`/email-templates/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function uploadTemplateImage(formData) {
+  const res = await managerFetch("/email-templates/upload-image", {
+    method: "POST",
+    body: formData,
+    headers: {}, // Let browser set Content-Type with boundary
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();

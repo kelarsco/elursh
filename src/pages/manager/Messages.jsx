@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { getContacts, getEmailsSent, deleteEmailsSent, sendEmail, updateContactStatus } from "@/lib/managerApi";
+import {
+  getContacts,
+  getEmailsSent,
+  deleteEmailsSent,
+  sendEmail,
+  updateContactStatus,
+  getEmailTemplates,
+} from "@/lib/managerApi";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -45,6 +52,8 @@ export default function Messages() {
   const [emailsSentSelectMode, setEmailsSentSelectMode] = useState(false);
   const [emailsSentSelectedIds, setEmailsSentSelectedIds] = useState(new Set());
   const [emailsSentDeleting, setEmailsSentDeleting] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const { toast } = useToast();
 
   const displayList = list.filter((c) => c.status !== "deleted");
@@ -136,6 +145,12 @@ export default function Messages() {
       .finally(() => setLoading(false));
   };
 
+  const loadTemplates = () => {
+    getEmailTemplates()
+      .then(setTemplates)
+      .catch(() => setTemplates([]));
+  };
+
   const handleRowClick = (row, e) => {
     if (e.target.closest('[role="combobox"]') || e.target.closest('[role="listbox"]') || e.target.closest('[role="checkbox"]')) return;
     if (selectMode) {
@@ -164,6 +179,7 @@ export default function Messages() {
     setSubject("");
     setBodyText("");
     setBodyHtml("");
+    setSelectedTemplateId("");
     setDetailsOpen(false);
     setComposeOpen(true);
   };
@@ -173,7 +189,18 @@ export default function Messages() {
     setSubject("");
     setBodyText("");
     setBodyHtml("");
+    setSelectedTemplateId("");
     setComposeOpen(true);
+  };
+
+  const handleTemplateChange = (templateId) => {
+    setSelectedTemplateId(templateId);
+    const tmpl = templates.find((t) => String(t.id) === String(templateId));
+    if (tmpl) {
+      setSubject((prev) => prev || tmpl.subject || "");
+      setBodyText(tmpl.body_text || "");
+      setBodyHtml(tmpl.body_html || "");
+    }
   };
 
   const handleSendEmail = (e) => {
@@ -208,6 +235,118 @@ export default function Messages() {
   };
 
   const pendingCount = displayList.filter((c) => c.status !== "completed" && c.status !== "cancelled").length;
+
+  // Show full-page compose view when composeOpen is true
+  if (composeOpen) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-black">Send Email</h1>
+            <p className="text-sm text-black/60 mt-1">Send an email to a customer</p>
+          </div>
+          <Button variant="outline" onClick={() => setComposeOpen(false)}>
+            Back to Messages
+          </Button>
+        </div>
+
+        <div className="manager-glass-panel p-6">
+          <form onSubmit={handleSendEmail} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="to">To email</Label>
+                <Input
+                  id="to"
+                  type="email"
+                  placeholder="customer@example.com"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="template">Template</Label>
+                <Select
+                  value={selectedTemplateId}
+                  onValueChange={handleTemplateChange}
+                  onOpenChange={(open) => {
+                    if (open && templates.length === 0) loadTemplates();
+                  }}
+                >
+                  <SelectTrigger id="template" className="mt-1">
+                    <SelectValue placeholder="Choose template (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map((t) => (
+                      <SelectItem key={t.id} value={String(t.id)}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="subject">Subject</Label>
+              <Input
+                id="subject"
+                type="text"
+                placeholder="Subject line"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            {/* Side-by-side plain text + HTML editor with preview */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="bodyText">Body (plain text)</Label>
+                <Textarea
+                  id="bodyText"
+                  placeholder="Plain text content..."
+                  value={bodyText}
+                  onChange={(e) => setBodyText(e.target.value)}
+                  rows={12}
+                  className="mt-1"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bodyHtml">Body (HTML)</Label>
+                <Textarea
+                  id="bodyHtml"
+                  placeholder="<p>HTML content...</p>"
+                  value={bodyHtml}
+                  onChange={(e) => setBodyHtml(e.target.value)}
+                  rows={8}
+                  className="mt-1 font-mono text-sm"
+                />
+                <div className="mt-2 border rounded-md bg-muted/40 p-3">
+                  <p className="text-xs text-muted-foreground mb-2 font-medium">Live HTML preview</p>
+                  <div className="bg-background border rounded-md p-4 max-h-96 overflow-auto text-sm">
+                    {/* eslint-disable-next-line react/no-danger */}
+                    <div dangerouslySetInnerHTML={{ __html: bodyHtml || "<p class='text-muted-foreground'>Preview will appear here…</p>" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button type="button" variant="outline" onClick={() => setComposeOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={sending}
+                className="bg-black text-white hover:bg-black/90"
+              >
+                {sending ? "Sending…" : "Send email"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -577,76 +716,6 @@ export default function Messages() {
         </DialogContent>
       </Dialog>
 
-      {/* Compose email modal */}
-      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Send Email</DialogTitle>
-            <DialogDescription>
-              Send an email to a customer
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSendEmail} className="space-y-4">
-            <div>
-              <Label htmlFor="to">To email</Label>
-              <Input
-                id="to"
-                type="email"
-                placeholder="customer@example.com"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                required
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="subject">Subject</Label>
-              <Input
-                id="subject"
-                type="text"
-                placeholder="Subject line"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="bodyText">Body (plain text)</Label>
-              <Textarea
-                id="bodyText"
-                placeholder="Plain text content..."
-                value={bodyText}
-                onChange={(e) => setBodyText(e.target.value)}
-                rows={6}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="bodyHtml">Body (HTML, optional)</Label>
-              <Textarea
-                id="bodyHtml"
-                placeholder="<p>HTML content...</p>"
-                value={bodyHtml}
-                onChange={(e) => setBodyHtml(e.target.value)}
-                rows={4}
-                className="mt-1 font-mono text-sm"
-              />
-            </div>
-            <div className="flex justify-end gap-2 pt-4 border-t">
-              <Button type="button" variant="outline" onClick={() => setComposeOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={sending}
-                className="bg-black text-white hover:bg-black/90"
-              >
-                {sending ? "Sending…" : "Send email"}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

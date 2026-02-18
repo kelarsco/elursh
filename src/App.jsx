@@ -38,6 +38,7 @@ import Services from "./pages/manager/Services";
 import Orders from "./pages/manager/Orders";
 import Payments from "./pages/manager/Payments";
 import Messages from "./pages/manager/Messages";
+import EmailTemplates from "./pages/manager/EmailTemplates";
 import ManagerCustomerChat from "./pages/manager/ManagerCustomerChat";
 import ManagerProjects from "./pages/manager/ManagerProjects";
 import SignupUsers from "./pages/manager/SignupUsers";
@@ -92,6 +93,7 @@ function AppContent() {
             <Route path="payments" element={<Payments />} />
             <Route path="customer-chat" element={<ManagerCustomerChat />} />
             <Route path="messages" element={<Messages />} />
+            <Route path="email-templates" element={<EmailTemplates />} />
             <Route path="projects" element={<ManagerProjects />} />
             <Route path="signups" element={<SignupUsers />} />
           </Route>
