@@ -10,8 +10,6 @@ import {
   getSenderEmails,
   createSenderEmail,
   deleteSenderEmail,
-  getResendDomains,
-  createResendDomain,
 } from "@/lib/managerApi";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -111,9 +109,6 @@ export default function Messages() {
   const [selectedSenderEmail, setSelectedSenderEmail] = useState("");
   const [senderEmails, setSenderEmails] = useState([]);
   const [domainsViewOpen, setDomainsViewOpen] = useState(false);
-  const [domains, setDomains] = useState([]);
-  const [newDomainInput, setNewDomainInput] = useState("");
-  const [addingDomain, setAddingDomain] = useState(false);
   const [newSenderEmail, setNewSenderEmail] = useState("");
   const [newSenderDisplayName, setNewSenderDisplayName] = useState("");
   const [addingSender, setAddingSender] = useState(false);
@@ -226,19 +221,9 @@ export default function Messages() {
       .catch(() => setSenderEmails([]));
   };
 
-  const loadDomains = () => {
-    getResendDomains()
-      .then(setDomains)
-      .catch(() => setDomains([]));
-  };
-
   useEffect(() => {
     if (composeOpen || domainsViewOpen) loadSenderEmails();
   }, [composeOpen, domainsViewOpen]);
-
-  useEffect(() => {
-    if (domainsViewOpen) loadDomains();
-  }, [domainsViewOpen]);
 
   useEffect(() => {
     const loadEmails = () => {
@@ -688,68 +673,12 @@ export default function Messages() {
       {domainsViewOpen && (
         <div className="manager-glass-panel p-6 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-black">Domain & Sender Emails</h2>
+            <h2 className="text-lg font-semibold text-black">Sender Emails</h2>
             <Button variant="outline" onClick={() => setDomainsViewOpen(false)}>Back</Button>
           </div>
-
-          <div>
-            <h3 className="text-sm font-medium text-black mb-2">Resend domains</h3>
-            <p className="text-xs text-black/60 mb-3">Add and verify domains in Resend to send from your own addresses.</p>
-            <div className="flex flex-wrap gap-2 mb-3">
-              <Input
-                placeholder="example.com"
-                value={newDomainInput}
-                onChange={(e) => setNewDomainInput(e.target.value)}
-                className="max-w-[200px]"
-              />
-              <Button
-                size="sm"
-                disabled={!newDomainInput.trim() || addingDomain}
-                onClick={async () => {
-                  const name = newDomainInput.trim().replace(/^https?:\/\//, "").split("/")[0];
-                  if (!name) return;
-                  setAddingDomain(true);
-                  try {
-                    await createResendDomain(name);
-                    toast({ title: "Domain added", description: `Add the DNS records in Resend dashboard to verify ${name}` });
-                    setNewDomainInput("");
-                    loadDomains();
-                  } catch (e) {
-                    toast({ title: "Error", description: e.message, variant: "destructive" });
-                  } finally {
-                    setAddingDomain(false);
-                  }
-                }}
-              >
-                {addingDomain ? "Adding…" : "Add domain"}
-              </Button>
-            </div>
-            {domains.length === 0 ? (
-              <p className="text-sm text-black/60">No domains. Add one above or in <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer" className="underline">Resend dashboard</a>.</p>
-            ) : (
-              <div className="rounded border border-black/10 overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Domain</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {domains.map((d) => (
-                      <TableRow key={d.id}>
-                        <TableCell className="font-mono">{d.name}</TableCell>
-                        <TableCell>
-                          <span className={d.status === "verified" ? "text-green-600" : "text-amber-600"}>{d.status || "pending"}</span>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </div>
-
+          <p className="text-sm text-black/60">
+            Add sender addresses from your verified domain (e.g. support@elursh.com). Manage domains in the <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer" className="underline">Resend dashboard</a>.
+          </p>
           <div>
             <h3 className="text-sm font-medium text-black mb-2">Sender emails</h3>
             <p className="text-xs text-black/60 mb-3">Use these when composing. Must be from a verified domain.</p>
