@@ -220,7 +220,7 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
             <Link
-              to="/get-started"
+              to="/contact"
               className="cta-button relative overflow-hidden bg-transparent px-6 py-3 text-sm font-semibold flex items-center gap-2 group transition-colors border border-foreground text-foreground hover:bg-foreground hover:text-background"
             >
               <span className="cta-button-text relative z-10 flex items-center gap-2">
