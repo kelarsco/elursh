@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   getContacts,
   getEmailsSent,
@@ -22,15 +22,75 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Plus, Mail, MoreHorizontal, Trash2 } from "lucide-react";
+import { Plus, Mail, MoreHorizontal, Trash2, Inbox, Send, Eye, AlertTriangle, Calendar as CalendarIcon, ChevronDown, ArrowUpRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const STATUS_OPTIONS = ["pending", "in_progress", "completed", "cancelled", "deleted"];
 const TABS = [
   { id: "messages", label: "Messages" },
   { id: "sent", label: "Sent" },
 ];
+
+function parseDateOnly(isoOrStr) {
+  if (!isoOrStr) return null;
+  const s = typeof isoOrStr === "string" ? isoOrStr : isoOrStr;
+  const match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return match[0];
+  try {
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toISOString().slice(0, 10);
+  } catch {
+    return null;
+  }
+}
+
+function inRange(dateStr, from, to) {
+  if (!dateStr) return false;
+  if (from && dateStr < from) return false;
+  if (to && dateStr > to) return false;
+  return true;
+}
+
+function formatDateLabel(ymd) {
+  if (!ymd || ymd.length < 10) return "";
+  const [y, m, d] = [ymd.slice(0, 4), ymd.slice(5, 7), ymd.slice(8, 10)];
+  const date = new Date(Number(y), Number(m) - 1, Number(d));
+  if (Number.isNaN(date.getTime())) return ymd;
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function getDateRangeButtonLabel(from, to) {
+  if (!from && !to) return "All time";
+  if (from && to) return `${formatDateLabel(from)} – ${formatDateLabel(to)}`;
+  if (from) return `From ${formatDateLabel(from)}`;
+  return `Until ${formatDateLabel(to)}`;
+}
+
+function ymdToDate(ymd) {
+  if (!ymd || ymd.length < 10) return undefined;
+  const d = new Date(ymd.slice(0, 4), Number(ymd.slice(5, 7)) - 1, ymd.slice(8, 10));
+  return Number.isNaN(d.getTime()) ? undefined : d;
+}
+
+function dateToYmd(d) {
+  if (!d || !(d instanceof Date) || Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+const METRIC_CARD_COLORS = {
+  inbox: "bg-rose-500",
+  sent: "bg-emerald-500",
+  opens: "bg-blue-500",
+  spam: "bg-amber-500",
+};
 
 export default function Messages() {
   const [activeTab, setActiveTab] = useState("messages");
@@ -54,9 +114,20 @@ export default function Messages() {
   const [emailsSentDeleting, setEmailsSentDeleting] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+  const [pendingRange, setPendingRange] = useState(undefined);
   const { toast } = useToast();
 
   const displayList = list.filter((c) => c.status !== "deleted");
+  const effectiveRange =
+    datePopoverOpen
+      ? pendingRange ??
+        (dateFrom || dateTo
+          ? { from: ymdToDate(dateFrom), to: ymdToDate(dateTo) }
+          : undefined)
+      : undefined;
   const getRowKey = (row) => `contact-${row.id}`;
   const toggleSelect = (row) => {
     const key = getRowKey(row);
@@ -67,9 +138,12 @@ export default function Messages() {
       return next;
     });
   };
-  const selectAll = () => {
-    if (selectedIds.size === displayList.length) setSelectedIds(new Set());
-    else setSelectedIds(new Set(displayList.map((r) => getRowKey(r))));
+  const selectAll = (listToUse) => {
+    const list = listToUse ?? displayList;
+    if (!list.length) return;
+    const keys = new Set(list.map((r) => getRowKey(r)));
+    if (selectedIds.size === keys.size && [...keys].every((k) => selectedIds.has(k))) setSelectedIds(new Set());
+    else setSelectedIds(keys);
   };
   const handleDeleteSelected = async () => {
     if (selectedIds.size === 0) return;
@@ -102,9 +176,12 @@ export default function Messages() {
       return next;
     });
   };
-  const selectAllEmailsSent = () => {
-    if (emailsSentSelectedIds.size === emailsSentList.length) setEmailsSentSelectedIds(new Set());
-    else setEmailsSentSelectedIds(new Set(emailsSentList.map((r) => getEmailsSentRowKey(r))));
+  const selectAllEmailsSent = (listToUse) => {
+    const list = listToUse ?? emailsSentList;
+    if (!list.length) return;
+    const keys = new Set(list.map((r) => getEmailsSentRowKey(r)));
+    if (emailsSentSelectedIds.size === keys.size && [...keys].every((k) => emailsSentSelectedIds.has(k))) setEmailsSentSelectedIds(new Set());
+    else setEmailsSentSelectedIds(keys);
   };
   const handleDeleteEmailsSentSelected = async () => {
     if (emailsSentSelectedIds.size === 0) return;
@@ -128,12 +205,18 @@ export default function Messages() {
   }, []);
 
   useEffect(() => {
+    setEmailsSentLoading(true);
+    getEmailsSent()
+      .then(setEmailsSentList)
+      .catch(() => setEmailsSentList([]))
+      .finally(() => setEmailsSentLoading(false));
+  }, []);
+
+  useEffect(() => {
     if (activeTab === "sent") {
-      setEmailsSentLoading(true);
       getEmailsSent()
         .then(setEmailsSentList)
-        .catch(() => setEmailsSentList([]))
-        .finally(() => setEmailsSentLoading(false));
+        .catch(() => {});
     }
   }, [activeTab]);
 
@@ -235,6 +318,51 @@ export default function Messages() {
   };
 
   const pendingCount = displayList.filter((c) => c.status !== "completed" && c.status !== "cancelled").length;
+
+  const metrics = useMemo(() => {
+    const from = dateFrom.trim() || null;
+    const to = dateTo.trim() || null;
+
+    const inboxFiltered = from || to
+      ? displayList.filter((c) => inRange(parseDateOnly(c.created_at), from, to))
+      : displayList;
+    const inboxTotal = inboxFiltered.length;
+    const inboxPending = inboxFiltered.filter((c) => c.status !== "completed" && c.status !== "cancelled").length;
+
+    const sentFiltered = from || to
+      ? emailsSentList.filter((e) => inRange(parseDateOnly(e.sent_at || e.created_at), from, to))
+      : emailsSentList;
+    const sentCount = sentFiltered.length;
+
+    return {
+      inboxTotal,
+      inboxPending,
+      sentCount,
+      opensCount: 0,
+      spamCount: 0,
+    };
+  }, [displayList, emailsSentList, dateFrom, dateTo]);
+
+  const filteredDisplayList = useMemo(() => {
+    const from = dateFrom.trim() || null;
+    const to = dateTo.trim() || null;
+    if (!from && !to) return displayList;
+    return displayList.filter((c) => inRange(parseDateOnly(c.created_at), from, to));
+  }, [displayList, dateFrom, dateTo]);
+
+  const filteredEmailsSentList = useMemo(() => {
+    const from = dateFrom.trim() || null;
+    const to = dateTo.trim() || null;
+    if (!from && !to) return emailsSentList;
+    return emailsSentList.filter((e) => inRange(parseDateOnly(e.sent_at || e.created_at), from, to));
+  }, [emailsSentList, dateFrom, dateTo]);
+
+  const metricCards = [
+    { id: "inbox", title: "INBOX", subtitle: "Messages received", value: metrics.inboxTotal, pending: metrics.inboxPending, icon: Inbox, progressPercent: Math.min(100, (metrics.inboxTotal || 0) * 5), color: METRIC_CARD_COLORS.inbox },
+    { id: "sent", title: "EMAILS SENT", subtitle: "Campaigns & replies", value: metrics.sentCount, icon: Send, progressPercent: Math.min(100, (metrics.sentCount || 0) * 4), color: METRIC_CARD_COLORS.sent },
+    { id: "opens", title: "OPENS", subtitle: "Tracked opens", value: metrics.opensCount, icon: Eye, progressPercent: metrics.sentCount ? Math.min(100, (metrics.opensCount / metrics.sentCount) * 100) : 0, color: METRIC_CARD_COLORS.opens },
+    { id: "spam", title: "SPAM REPORTS", subtitle: "User-reported spam", value: metrics.spamCount, icon: AlertTriangle, progressPercent: Math.min(100, (metrics.spamCount || 0) * 20), color: METRIC_CARD_COLORS.spam },
+  ];
 
   // Show full-page compose view when composeOpen is true
   if (composeOpen) {
@@ -353,13 +481,59 @@ export default function Messages() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-black">
-            Messages
+            Camages
           </h1>
           <p className="text-sm text-black/60 mt-1">
-            {activeTab === "messages" ? `${pendingCount} pending · ${displayList.length} total` : `${emailsSentList.length} emails sent`}
+            {activeTab === "messages"
+              ? `${pendingCount} pending · ${displayList.length} total${dateFrom || dateTo ? ` · ${filteredDisplayList.length} in range` : ""}`
+              : `${emailsSentList.length} sent${dateFrom || dateTo ? ` · ${filteredEmailsSentList.length} in range` : ""}`}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className="manager-pill h-9 px-4 py-2 rounded-lg text-sm font-medium text-black/80 hover:bg-white/50 hover:text-black gap-2"
+              >
+                <CalendarIcon className="h-4 w-4 shrink-0 text-black/60" />
+                <span>{getDateRangeButtonLabel(dateFrom, dateTo)}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-black/50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-auto p-0 manager-glass-panel border-white/50 shadow-lg rounded-xl overflow-hidden"
+              align="end"
+              sideOffset={8}
+            >
+              <div className="p-4 space-y-4">
+                <Calendar
+                  mode="range"
+                  defaultMonth={pendingRange?.from ?? ymdToDate(dateFrom) ?? new Date()}
+                  selected={pendingRange}
+                  onSelect={setPendingRange}
+                  numberOfMonths={1}
+                  className="rounded-lg border-0 [&_.rdp-day_range_start]:!bg-black [&_.rdp-day_range_start]:!text-white [&_.rdp-day_range_end]:!bg-black [&_.rdp-day_range_end]:!text-white [&_.rdp-day_range_middle]:!bg-black/15 [&_.rdp-day_range_middle]:!text-black [&_.rdp-caption]:flex [&_.rdp-caption_label]:text-sm [&_.rdp-head_cell]:text-black/70 [&_.rdp-day]:text-black [&_.rdp-day]:rounded-full [&_.rdp-cell]:rounded-full [&_.rdp-nav_button]:rounded-lg"
+                />
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/10">
+                  <Button variant="ghost" className="h-9 px-4 rounded-lg text-sm font-medium text-black/80 hover:bg-black/5" onClick={() => setDatePopoverOpen(false)}>Cancel</Button>
+                  <Button
+                    type="button"
+                    className="h-9 px-4 rounded-[49px] bg-black text-white hover:bg-black/90 font-medium text-sm"
+                    onClick={() => {
+                      if (effectiveRange?.from) setDateFrom(dateToYmd(effectiveRange.from));
+                      else setDateFrom("");
+                      if (effectiveRange?.to) setDateTo(dateToYmd(effectiveRange.to));
+                      else setDateTo("");
+                      setDatePopoverOpen(false);
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
           <Button
             onClick={handleCompose}
             className="bg-black text-[var(--manager-lime)] hover:bg-black/90 gap-2"
@@ -368,6 +542,32 @@ export default function Messages() {
             New Message
           </Button>
         </div>
+      </div>
+
+      {/* Overview metric cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {metricCards.map(({ id, title, subtitle, value, pending, icon: Icon, progressPercent, color }) => (
+          <div key={id} className="manager-glass-panel p-6 h-full flex flex-col transition-all hover:shadow-lg hover:border-white/70">
+            <span className="text-xs font-semibold tracking-wide text-black/70 uppercase">{title}</span>
+            <div className="mt-4 flex-1">
+              {loading && (id === "inbox" || id === "sent") ? (
+                <span className="text-3xl font-bold text-black">—</span>
+              ) : (
+                <span className="text-3xl md:text-4xl font-bold text-black tracking-tight">
+                  {id === "inbox" && pending != null ? `${pending} / ${value}` : value}
+                </span>
+              )}
+              <p className="text-xs text-black/50 mt-1">{subtitle}</p>
+              <div className="mt-3 h-1.5 w-full rounded-full bg-black/5 overflow-hidden">
+                <div
+                  className={cn("h-full rounded-full transition-all duration-500", color)}
+                  style={{ width: loading && (id === "inbox" || id === "sent") ? "0%" : `${Math.max(5, progressPercent)}%` }}
+                />
+              </div>
+            </div>
+            <ArrowUpRight className="h-4 w-4 text-black/40 shrink-0 mt-2" />
+          </div>
+        ))}
       </div>
 
       <div className="flex justify-center">
@@ -449,8 +649,8 @@ export default function Messages() {
         <div className="p-6">
           {loading ? (
             <Skeleton className="h-64 w-full rounded-lg" />
-          ) : displayList.length === 0 ? (
-            <p className="text-black/60">No messages yet.</p>
+          ) : filteredDisplayList.length === 0 ? (
+            <p className="text-black/60">{dateFrom || dateTo ? "No messages in this date range." : "No messages yet."}</p>
           ) : (
             <Table>
               <TableHeader>
@@ -458,8 +658,8 @@ export default function Messages() {
                   {selectMode && (
                     <TableHead className="w-12">
                       <Checkbox
-                        checked={selectedIds.size === displayList.length && displayList.length > 0}
-                        onCheckedChange={selectAll}
+                        checked={filteredDisplayList.length > 0 && selectedIds.size === filteredDisplayList.length}
+                        onCheckedChange={() => selectAll(filteredDisplayList)}
                         aria-label="Select all"
                       />
                     </TableHead>
@@ -473,7 +673,7 @@ export default function Messages() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {displayList.map((row) => (
+                {filteredDisplayList.map((row) => (
                   <TableRow
                     key={row.id}
                     onClick={(e) => handleRowClick(row, e)}
@@ -574,8 +774,8 @@ export default function Messages() {
         <div className="p-6">
           {emailsSentLoading ? (
             <Skeleton className="h-64 w-full rounded-lg" />
-          ) : emailsSentList.length === 0 ? (
-            <p className="text-black/60">No emails sent yet.</p>
+          ) : filteredEmailsSentList.length === 0 ? (
+            <p className="text-black/60">{dateFrom || dateTo ? "No emails sent in this date range." : "No emails sent yet."}</p>
           ) : (
             <Table>
               <TableHeader>
@@ -583,8 +783,8 @@ export default function Messages() {
                   {emailsSentSelectMode && (
                     <TableHead className="w-12">
                       <Checkbox
-                        checked={emailsSentSelectedIds.size === emailsSentList.length && emailsSentList.length > 0}
-                        onCheckedChange={selectAllEmailsSent}
+                        checked={filteredEmailsSentList.length > 0 && emailsSentSelectedIds.size === filteredEmailsSentList.length}
+                        onCheckedChange={() => selectAllEmailsSent(filteredEmailsSentList)}
                         aria-label="Select all"
                       />
                     </TableHead>
@@ -595,7 +795,7 @@ export default function Messages() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {emailsSentList.map((row) => (
+                {filteredEmailsSentList.map((row) => (
                   <TableRow key={row.id}>
                     {emailsSentSelectMode && (
                       <TableCell onClick={(e) => e.stopPropagation()}>
