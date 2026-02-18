@@ -8,27 +8,40 @@ import { getStoredToken } from "@/lib/authApi";
 import { getShopifyInstallUrl } from "@/lib/shopifyAuthApi";
 
 const PLATFORMS = [
-  { id: "shopify", key: "shopify", logo: "/platforms/shopify.png" },
-  { id: "etsy", key: "etsy", logo: "/platforms/etsy.png" },
-  { id: "bigcommerce", key: "bigcommerce", logo: "/platforms/bigcommerce.png" },
-  { id: "wordpress", key: "wordpress", logo: "/platforms/wordpress.png" },
-  { id: "wix", key: "wix", logo: "/platforms/wix.png" },
-  { id: "woocommerce", key: "woocommerce", logo: "/platforms/woocommerce.png" },
+  { id: "shopify", key: "shopify", logo: "/platforms/shopify.png", comingSoon: false },
+  { id: "etsy", key: "etsy", logo: "/platforms/etsy.png", comingSoon: true },
+  { id: "bigcommerce", key: "bigcommerce", logo: "/platforms/bigcommerce.png", comingSoon: true },
+  { id: "wordpress", key: "wordpress", logo: "/platforms/wordpress.png", comingSoon: true },
+  { id: "wix", key: "wix", logo: "/platforms/wix.png", comingSoon: true },
+  { id: "woocommerce", key: "woocommerce", logo: "/platforms/woocommerce.png", comingSoon: true },
 ];
 
 const SESSION_KEY = "elursh_onboarding_session";
 
-function PlatformCard({ label, logo, onSelect }) {
+function PlatformCard({ label, logo, onSelect, comingSoon }) {
   return (
     <button
-      onClick={onSelect}
-      className="group relative aspect-[4/3] rounded-xl border-2 border-border bg-card p-6 flex flex-col items-center justify-center gap-3 text-lg font-semibold text-foreground transition-all duration-300 hover:border-foreground/40 hover:bg-muted/50 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+      type="button"
+      onClick={comingSoon ? undefined : onSelect}
+      disabled={comingSoon}
+      className={`group relative aspect-[4/3] rounded-xl border-2 border-border bg-card p-6 flex flex-col items-center justify-center gap-3 text-lg font-semibold text-foreground transition-all duration-300 ${
+        comingSoon
+          ? "opacity-60 cursor-not-allowed"
+          : "hover:border-foreground/40 hover:bg-muted/50 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+      }`}
     >
+      {comingSoon && (
+        <span className="absolute top-3 right-3 rounded-full bg-muted/90 px-2 py-0.5 text-xs font-medium text-muted-foreground">
+          Coming soon
+        </span>
+      )}
       {logo && (
         <img src={logo} alt="" className="h-12 w-auto object-contain max-w-full" aria-hidden />
       )}
       <span className="relative z-10">{label}</span>
-      <div className="absolute inset-0 rounded-xl bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300 pointer-events-none" />
+      {!comingSoon && (
+        <div className="absolute inset-0 rounded-xl bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300 pointer-events-none" />
+      )}
     </button>
   );
 }
@@ -224,6 +237,7 @@ export default function GetStarted() {
                     label={t(`onboarding.${p.key}`)}
                     logo={p.logo}
                     onSelect={() => handlePlatformSelect(p.id)}
+                    comingSoon={p.comingSoon}
                   />
                 ))}
               </div>
