@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { setStoredToken } from "@/lib/authApi";
+import { updateSession } from "@/lib/onboardingApi";
+import { getShopifyInstallUrl } from "@/lib/shopifyAuthApi";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -21,7 +23,50 @@ export default function AuthCallback() {
     if (token) {
       setStoredToken(token);
       setStatus("success");
-      navigate(redirect.startsWith("/") ? redirect : "/get-started", { replace: true });
+      
+      // Check for pending onboarding data from GetStarted flow
+      const pendingOnboarding = sessionStorage.getItem("pending_onboarding");
+      if (pendingOnboarding) {
+        try {
+          const { sessionId, platform, storeUrl } = JSON.parse(pendingOnboarding);
+          sessionStorage.removeItem("pending_onboarding");
+          
+          // Save onboarding data to session
+          if (sessionId && sessionId !== "local") {
+            updateSession(sessionId, {
+              platform,
+              store_url: storeUrl,
+              store_connected: true
+            }).then(() => {
+              // Handle Shopify OAuth if needed
+              if (platform === "shopify" && storeUrl) {
+                getShopifyInstallUrl(storeUrl, sessionId)
+                  .then((installUrl) => {
+                    if (installUrl) {
+                      window.location.href = installUrl;
+                      return;
+                    }
+                    navigate("/dashboard", { replace: true });
+                  })
+                  .catch(() => {
+                    navigate("/dashboard", { replace: true });
+                  });
+              } else {
+                navigate("/dashboard", { replace: true });
+              }
+            }).catch(() => {
+              navigate("/dashboard", { replace: true });
+            });
+          } else {
+            navigate("/dashboard", { replace: true });
+          }
+        } catch (e) {
+          console.error("Failed to process pending onboarding:", e);
+          navigate("/dashboard", { replace: true });
+        }
+      } else {
+        navigate(redirect.startsWith("/") ? redirect : "/dashboard", { replace: true });
+      }
     } else {
       setStatus("error");
       setTimeout(() => navigate(`/auth?redirect=${encodeURIComponent(redirect)}`, { replace: true }), 2000);

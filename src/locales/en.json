@@ -245,8 +245,8 @@
     "storeUrlPlaceholder": "https://yourstore.com or yourstore.myshopify.com",
     "connectStore": "Connect store",
     "connecting": "Connecting...",
-    "step3Title": "What do you want to do first?",
-    "step3Subtitle": "Choose your priority",
+    "step3Title": "Create your account",
+    "step3Subtitle": "Sign up to access your dashboard",
     "designOption": "Design or redesign your store",
     "marketingOption": "Marketing to boost sales"
   },
