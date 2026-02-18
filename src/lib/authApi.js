@@ -51,3 +51,29 @@ export async function getMe() {
   if (!res.ok) return null;
   return res.json();
 }
+
+// Chat API
+export async function getChatMessages() {
+  const token = getStoredToken();
+  if (!token) throw new Error("Not authenticated");
+  const res = await fetch(`${base}/chat/messages`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function sendChatMessage(messageText) {
+  const token = getStoredToken();
+  if (!token) throw new Error("Not authenticated");
+  const res = await fetch(`${base}/chat/messages`, {
+    method: "POST",
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ message: messageText }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}

@@ -1199,6 +1199,35 @@ app.get("/api/auth/me", requireCustomerAuth, async (req, res) => {
   }
 });
 
+// Customer chat endpoints
+app.get("/api/auth/chat/messages", requireCustomerAuth, requireDb, async (req, res) => {
+  try {
+    const r = await query(
+      "SELECT id, sender_role, message_text, created_at FROM chat_messages WHERE customer_user_id = $1 ORDER BY created_at ASC",
+      [req.customer.id]
+    );
+    res.json(r.rows || []);
+  } catch (e) {
+    logDbErr("chat messages get", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/auth/chat/messages", requireCustomerAuth, requireDb, async (req, res) => {
+  try {
+    const messageText = (req.body?.message || "").trim();
+    if (!messageText) return res.status(400).json({ error: "Message text required" });
+    const r = await query(
+      "INSERT INTO chat_messages (customer_user_id, sender_role, message_text) VALUES ($1, 'customer', $2) RETURNING id, sender_role, message_text, created_at",
+      [req.customer.id, messageText]
+    );
+    res.json(r.rows[0]);
+  } catch (e) {
+    logDbErr("chat messages post", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ——— Manager auth ———
 app.get("/api/manager/auth/google", (req, res, next) => {
   if (!getPool()) {
@@ -1801,11 +1830,105 @@ app.get("/api/manager/contacts", requireManager, requireDb, async (req, res) => 
 app.get("/api/manager/onboarding-sessions", requireManager, requireDb, async (req, res) => {
   try {
     const r = await query(
-      "SELECT id, platform, store_url, store_connected, first_choice, created_at, updated_at FROM onboarding_sessions ORDER BY created_at DESC"
+      `SELECT 
+        os.id, 
+        os.platform, 
+        os.store_url, 
+        os.store_connected, 
+        os.first_choice, 
+        os.created_at, 
+        os.updated_at,
+        cu.email
+      FROM onboarding_sessions os
+      LEFT JOIN customer_users cu ON os.customer_user_id = cu.id
+      ORDER BY os.created_at DESC`
     );
     res.json(r.rows || []);
   } catch (e) {
     logDbErr("onboarding-sessions", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete("/api/manager/onboarding-sessions", requireManager, requireDb, async (req, res) => {
+  try {
+    const ids = Array.isArray(req.body?.ids) ? req.body.ids : req.query?.ids ? req.query.ids.split(",").map((id) => parseInt(id, 10)).filter((id) => !isNaN(id)) : [];
+    if (ids.length === 0) return res.status(400).json({ error: "ids required" });
+    const r = await query("DELETE FROM onboarding_sessions WHERE id = ANY($1::int[]) RETURNING id", [ids]);
+    res.json({ deleted: r.rows.length, ids: r.rows.map((row) => row.id) });
+  } catch (e) {
+    logDbErr("onboarding-sessions delete", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Manager chat endpoints
+app.get("/api/manager/chat/conversations", requireManager, requireDb, async (req, res) => {
+  try {
+    const r = await query(
+      `SELECT 
+        cu.id as customer_user_id,
+        cu.email,
+        cu.name,
+        MAX(cm.created_at) as last_message_at,
+        (SELECT message_text FROM chat_messages WHERE customer_user_id = cu.id ORDER BY created_at DESC LIMIT 1) as last_message,
+        COUNT(CASE WHEN cm.read_at IS NULL AND cm.sender_role = 'customer' THEN 1 END) as unread_count
+      FROM customer_users cu
+      LEFT JOIN chat_messages cm ON cu.id = cm.customer_user_id
+      WHERE EXISTS (SELECT 1 FROM chat_messages WHERE customer_user_id = cu.id)
+      GROUP BY cu.id, cu.email, cu.name
+      ORDER BY last_message_at DESC NULLS LAST`
+    );
+    res.json(r.rows || []);
+  } catch (e) {
+    logDbErr("chat conversations", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/manager/chat/messages/:customerUserId", requireManager, requireDb, async (req, res) => {
+  try {
+    const customerUserId = parseInt(req.params.customerUserId, 10);
+    if (isNaN(customerUserId)) return res.status(400).json({ error: "Invalid customer user ID" });
+    const r = await query(
+      "SELECT id, sender_role, message_text, created_at FROM chat_messages WHERE customer_user_id = $1 ORDER BY created_at ASC",
+      [customerUserId]
+    );
+    res.json(r.rows || []);
+  } catch (e) {
+    logDbErr("chat messages get", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/manager/chat/messages/:customerUserId", requireManager, requireDb, async (req, res) => {
+  try {
+    const customerUserId = parseInt(req.params.customerUserId, 10);
+    if (isNaN(customerUserId)) return res.status(400).json({ error: "Invalid customer user ID" });
+    const messageText = (req.body?.message || "").trim();
+    if (!messageText) return res.status(400).json({ error: "Message text required" });
+    const r = await query(
+      "INSERT INTO chat_messages (customer_user_id, sender_role, message_text) VALUES ($1, 'manager', $2) RETURNING id, sender_role, message_text, created_at",
+      [customerUserId, messageText]
+    );
+    res.json(r.rows[0]);
+  } catch (e) {
+    logDbErr("chat messages post", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/manager/chat/messages/:customerUserId/read", requireManager, requireDb, async (req, res) => {
+  try {
+    const customerUserId = parseInt(req.params.customerUserId, 10);
+    if (isNaN(customerUserId)) return res.status(400).json({ error: "Invalid customer user ID" });
+    await query(
+      "UPDATE chat_messages SET read_at = NOW() WHERE customer_user_id = $1 AND sender_role = 'customer' AND read_at IS NULL",
+      [customerUserId]
+    );
+    res.json({ success: true });
+  } catch (e) {
+    logDbErr("chat messages read", e);
     res.status(500).json({ error: e.message });
   }
 });

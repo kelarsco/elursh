@@ -1,24 +1,50 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Send, Paperclip, Image, Smile } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getChatMessages, sendChatMessage } from "@/lib/authApi";
+import { format } from "date-fns";
 
 export default function DashboardChat() {
   const { user } = useOutletContext() || {};
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([
-    { id: 1, role: "support", text: "Hi! How can we help you today?", time: "10:30 AM" },
-  ]);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
   const fileInputRef = useRef(null);
 
-  const sendMessage = () => {
+  const loadMessages = async () => {
+    try {
+      setLoading(true);
+      const data = await getChatMessages();
+      setMessages(data || []);
+    } catch (e) {
+      console.error("Failed to load messages:", e);
+      setMessages([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadMessages();
+    // Poll for new messages every 5 seconds
+    const interval = setInterval(loadMessages, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const sendMessage = async () => {
     if (!message.trim()) return;
-    setMessages((m) => [
-      ...m,
-      { id: m.length + 1, role: "user", text: message.trim(), time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) },
-    ]);
+    const messageText = message.trim();
     setMessage("");
+    try {
+      const newMsg = await sendChatMessage(messageText);
+      setMessages((m) => [...m, newMsg]);
+    } catch (e) {
+      console.error("Failed to send message:", e);
+      alert("Failed to send message: " + (e.message || "Unknown error"));
+      setMessage(messageText); // Restore message on error
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -55,32 +81,39 @@ export default function DashboardChat() {
 
         {/* Messages - scrollable */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
-                  msg.role === "user"
-                    ? "bg-emerald-600 text-white rounded-br-md"
-                    : "bg-neutral-100 text-neutral-900 rounded-bl-md"
-                }`}
-              >
-                {msg.attachment ? (
-                  <p className="text-sm flex items-center gap-2">
-                    <Paperclip className="w-4 h-4" />
-                    {msg.attachment}
-                  </p>
-                ) : (
-                  <p className="text-sm">{msg.text}</p>
-                )}
-                <p className={`text-xs mt-1 ${msg.role === "user" ? "text-emerald-100" : "text-neutral-500"}`}>
-                  {msg.time}
-                </p>
-              </div>
+          {loading && messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-neutral-500">
+              Loading messages...
             </div>
-          ))}
+          ) : messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-neutral-500">
+              No messages yet. Start the conversation!
+            </div>
+          ) : (
+            messages.map((msg) => {
+              const isCustomer = msg.sender_role === "customer";
+              const time = msg.created_at ? format(new Date(msg.created_at), "h:mm a") : "";
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex ${isCustomer ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
+                      isCustomer
+                        ? "bg-emerald-600 text-white rounded-br-md"
+                        : "bg-neutral-100 text-neutral-900 rounded-bl-md"
+                    }`}
+                  >
+                    <p className="text-sm">{msg.message_text}</p>
+                    <p className={`text-xs mt-1 ${isCustomer ? "text-emerald-100" : "text-neutral-500"}`}>
+                      {time}
+                    </p>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* Input area - Instagram style with attachment */}

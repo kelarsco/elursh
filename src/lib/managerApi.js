@@ -252,6 +252,55 @@ export async function getOnboardingSessions() {
   return Array.isArray(json) ? json : [];
 }
 
+// Chat API
+export async function getChatConversations() {
+  const res = await managerFetch("/chat/conversations");
+  if (!res.ok) throw new Error(await res.text());
+  const json = await res.json();
+  return Array.isArray(json) ? json : [];
+}
+
+export async function getChatMessages(customerUserId) {
+  const res = await managerFetch(`/chat/messages/${customerUserId}`);
+  if (!res.ok) throw new Error(await res.text());
+  const json = await res.json();
+  return Array.isArray(json) ? json : [];
+}
+
+export async function sendChatMessage(customerUserId, messageText) {
+  const res = await managerFetch(`/chat/messages/${customerUserId}`, {
+    method: "POST",
+    body: JSON.stringify({ message: messageText }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function markChatMessagesRead(customerUserId) {
+  const res = await managerFetch(`/chat/messages/${customerUserId}/read`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function deleteOnboardingSessions(ids) {
+  const idList = Array.isArray(ids) ? ids : [ids];
+  // Ensure IDs are numbers
+  const numericIds = idList.map(id => typeof id === 'string' ? parseInt(id, 10) : id).filter(id => !isNaN(id));
+  if (numericIds.length === 0) throw new Error("No valid IDs provided");
+  
+  const res = await managerFetch("/onboarding-sessions", {
+    method: "DELETE",
+    body: JSON.stringify({ ids: numericIds }),
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to delete onboarding sessions");
+  }
+  return res.json();
+}
+
 export async function getContacts() {
   const res = await managerFetch("/contacts");
   if (!res.ok) throw new Error(await res.text());
