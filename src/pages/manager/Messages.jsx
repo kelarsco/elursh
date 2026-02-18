@@ -101,6 +101,7 @@ export default function Messages() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
+  const [storeLink, setStoreLink] = useState("");
   const [bodyText, setBodyText] = useState("");
   const [bodyHtml, setBodyHtml] = useState("");
   const [sending, setSending] = useState(false);
