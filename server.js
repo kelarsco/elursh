@@ -731,8 +731,19 @@ const SHOPIFY_SCOPES = "read_orders,read_products,read_customers,read_analytics"
 
 function normalizeShop(input) {
   if (!input || typeof input !== "string") return "";
-  let s = input.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/+$/, "");
-  if (s && !s.endsWith(".myshopify.com")) s = s.replace(/\.myshopify\.com.*$/i, "") + ".myshopify.com";
+  let s = input.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/+$/, "").split("/")[0];
+  if (!s) return "";
+  if (s.endsWith(".myshopify.com")) return s;
+  // User may enter custom domain (e.g. jamrokessentials.com) - extract store name and use storename.myshopify.com
+  // Shopify OAuth requires *.myshopify.com; custom domains cause ERR_CERT_COMMON_NAME_INVALID
+  const customDomainMatch = s.match(/^(.+)\.(com|net|org|io|co|dk|de|fr|es|it|uk|eu|store|shop|info|biz)(\.[a-z]{2,})?$/i);
+  if (customDomainMatch) {
+    const name = customDomainMatch[1].replace(/^www\./, "");
+    if (name && /^[a-z0-9][a-z0-9-]*$/.test(name)) s = name + ".myshopify.com";
+    else s = s.replace(/\.[^.]+\.[^.]+$/, "").replace(/^www\./, "") + ".myshopify.com";
+  } else {
+    s = s.replace(/\.myshopify\.com.*$/i, "") + ".myshopify.com";
+  }
   return s || "";
 }
 
