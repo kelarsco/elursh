@@ -205,11 +205,17 @@ export default function Messages() {
   }, []);
 
   useEffect(() => {
-    setEmailsSentLoading(true);
-    getEmailsSent()
-      .then(setEmailsSentList)
-      .catch(() => setEmailsSentList([]))
-      .finally(() => setEmailsSentLoading(false));
+    const loadEmails = () => {
+      setEmailsSentLoading(true);
+      getEmailsSent()
+        .then(setEmailsSentList)
+        .catch(() => setEmailsSentList([]))
+        .finally(() => setEmailsSentLoading(false));
+    };
+    loadEmails();
+    // Poll for email opens every 10 seconds
+    const interval = setInterval(loadEmails, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -333,12 +339,13 @@ export default function Messages() {
       ? emailsSentList.filter((e) => inRange(parseDateOnly(e.sent_at || e.created_at), from, to))
       : emailsSentList;
     const sentCount = sentFiltered.length;
+    const opensCount = sentFiltered.filter((e) => e.opened_at != null).length;
 
     return {
       inboxTotal,
       inboxPending,
       sentCount,
-      opensCount: 0,
+      opensCount,
       spamCount: 0,
     };
   }, [displayList, emailsSentList, dateFrom, dateTo]);
@@ -806,7 +813,14 @@ export default function Messages() {
                         />
                       </TableCell>
                     )}
-                    <TableCell className="font-mono text-sm">{row.to_email}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm">{row.to_email}</span>
+                        {row.opened_at && (
+                          <Eye className="h-4 w-4 text-green-600 shrink-0" title={`Opened ${format(new Date(row.opened_at), "PPp")}`} />
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="max-w-[300px] truncate" title={row.subject || ""}>
                       {row.subject || "—"}
                     </TableCell>

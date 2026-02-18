@@ -1755,7 +1755,7 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
     const to = (b.to_email || b.to || b.email || "").trim();
     const subject = (b.subject || "").trim();
     const bodyText = b.body_text || b.text || "";
-    const bodyHtml = b.body_html || b.html || "";
+    let bodyHtml = b.body_html || b.html || "";
     if (!to) return res.status(400).json({ error: "to_email required" });
     if (!bodyText && !bodyHtml) return res.status(400).json({ error: "Message body (body_text or body_html) required" });
     const resendKey = process.env.RESEND_API_KEY;
@@ -1763,6 +1763,138 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
       return res.status(503).json({ error: "Email not configured. Set RESEND_API_KEY and RESEND_FROM on Railway." });
     }
     const from = process.env.RESEND_FROM || "onboarding@resend.dev";
+    // Insert email record first to get ID for tracking
+    const insertResult = await query(
+      "INSERT INTO emails_sent (to_email, subject, body_text, body_html) VALUES ($1,$2,$3,$4) RETURNING id",
+      [to, subject || null, bodyText || null, bodyHtml || null]
+    );
+    const emailId = insertResult.rows[0].id;
+    // Inject tracking pixel into HTML if HTML exists
+    const apiBase = process.env.API_BASE_URL || `http://localhost:${PORT}`;
+    // Ensure API_BASE_URL doesn't have trailing slash
+    const cleanApiBase = apiBase.replace(/\/$/, '');
+    const trackingUrl = `${cleanApiBase}/api/email/track/${emailId}`;
+    
+    // Helper to convert common Tailwind classes to inline styles for email compatibility
+    const convertTailwindToInline = (html) => {
+      // Common Tailwind to inline style mappings
+      const replacements = [
+        // Flexbox
+        { pattern: /class="([^"]*\bflex\b[^"]*)"/g, replace: (match, classes) => {
+          const hasFlexCol = classes.includes('flex-col');
+          const hasFlexRow = classes.includes('flex-row') || (!classes.includes('flex-col') && classes.includes('flex'));
+          const hasJustifyCenter = classes.includes('justify-center');
+          const hasItemsCenter = classes.includes('items-center');
+          const hasGap = classes.match(/gap-(\d+)/);
+          let style = 'display:flex;';
+          if (hasFlexCol) style += 'flex-direction:column;';
+          if (hasFlexRow) style += 'flex-direction:row;';
+          if (hasJustifyCenter) style += 'justify-content:center;';
+          if (hasItemsCenter) style += 'align-items:center;';
+          if (hasGap) style += `gap:${hasGap[1] * 0.25}rem;`;
+          return `style="${style}"`;
+        }},
+        // Text alignment and styling
+        { pattern: /class="([^"]*\btext-center\b[^"]*)"/g, replace: () => 'style="text-align:center;"' },
+        { pattern: /class="([^"]*\btext-white\b[^"]*)"/g, replace: () => 'style="color:#ffffff;"' },
+        { pattern: /class="([^"]*\buppercase\b[^"]*)"/g, replace: () => 'style="text-transform:uppercase;"' },
+        { pattern: /class="([^"]*\bfont-bold\b[^"]*)"/g, replace: () => 'style="font-weight:bold;"' },
+        // Padding
+        { pattern: /class="([^"]*\bpx-(\d+)\b[^"]*)"/g, replace: (match, classes, px) => {
+          const py = classes.match(/py-(\d+)/);
+          const padding = py ? `${py[1] * 0.25}rem ${px * 0.25}rem` : `0 ${px * 0.25}rem`;
+          return `style="padding:${padding};"`;
+        }},
+        { pattern: /class="([^"]*\bpy-(\d+)\b[^"]*)"/g, replace: (match, classes, py) => {
+          const px = classes.match(/px-(\d+)/);
+          const padding = px ? `${py * 0.25}rem ${px[1] * 0.25}rem` : `${py * 0.25}rem 0`;
+          return `style="padding:${padding};"`;
+        }},
+        // Rounded corners
+        { pattern: /class="([^"]*\brounded-full\b[^"]*)"/g, replace: () => 'style="border-radius:9999px;"' },
+        { pattern: /class="([^"]*\brounded\b[^"]*)"/g, replace: () => 'style="border-radius:0.25rem;"' },
+        // Links
+        { pattern: /class="([^"]*\btarget="_blank"\b[^"]*)"/g, replace: () => 'target="_blank" rel="noopener noreferrer"' },
+      ];
+      
+      let result = html;
+      replacements.forEach(({ pattern, replace }) => {
+        result = result.replace(pattern, replace);
+      });
+      
+      // Remove remaining Tailwind classes (they won't work in email)
+      result = result.replace(/class="([^"]*)"/g, (match, classes) => {
+        // Keep only non-Tailwind classes
+        const nonTailwind = classes.split(/\s+/).filter(c => 
+          !c.match(/^(flex|grid|md:|lg:|sm:|text-|bg-|p-|m-|w-|h-|rounded|border|shadow|gap-|items-|justify-|uppercase|font-|gradient|hover:|focus:)/)
+        ).join(' ');
+        return nonTailwind ? `class="${nonTailwind}"` : '';
+      });
+      
+      return result;
+    };
+    
+    // Helper to wrap HTML in proper email structure
+    const wrapEmailHTML = (content) => {
+      // If already wrapped in html/body tags, return as-is
+      if (content.includes("<!DOCTYPE") || (content.includes("<html") && content.includes("</html>"))) {
+        return content;
+      }
+      // Wrap in proper email HTML structure
+      return `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Email</title>
+  <!--[if mso]>
+  <style type="text/css">
+    table {border-collapse:collapse;border-spacing:0;margin:0;}
+    div, td {padding:0;}
+    div {margin:0 !important;}
+  </style>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+</head>
+<body style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background-color:#ffffff;color:#000000;">
+  <div style="max-width:600px;margin:0 auto;padding:20px;">
+    ${content}
+  </div>
+</body>
+</html>`;
+    };
+    
+    if (bodyHtml) {
+      // Convert Tailwind classes to inline styles for email compatibility
+      let processedHtml = convertTailwindToInline(bodyHtml);
+      
+      // Wrap in proper email structure if not already wrapped
+      processedHtml = wrapEmailHTML(processedHtml);
+      
+      // Add tracking pixel before closing body tag (Gmail-safe format)
+      const trackingPixel = `<img src="${trackingUrl}" width="1" height="1" style="display:none;width:1px;height:1px;border:none;visibility:hidden;opacity:0;" alt="" border="0" />`;
+      if (processedHtml.includes("</body>")) {
+        processedHtml = processedHtml.replace("</body>", `${trackingPixel}</body>`);
+      } else {
+        processedHtml += trackingPixel;
+      }
+      bodyHtml = processedHtml;
+    } else if (bodyText) {
+      // Convert text to HTML and wrap properly
+      const textHtml = (bodyText || "").replace(/\n/g, "<br>");
+      bodyHtml = wrapEmailHTML(textHtml);
+      // Add tracking pixel
+      const trackingPixel = `<img src="${trackingUrl}" width="1" height="1" style="display:none;width:1px;height:1px;border:none;visibility:hidden;opacity:0;" alt="" border="0" />`;
+      bodyHtml = bodyHtml.replace("</body>", `${trackingPixel}</body>`);
+    }
     const resRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -1774,26 +1906,75 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
         to: [to],
         subject: subject || "(No subject)",
         text: bodyText || undefined,
-        html: bodyHtml || (bodyText || "").replace(/\n/g, "<br>") || "<p>No content</p>",
+        html: bodyHtml || "<p>No content</p>",
       }),
     });
     const data = await resRes.json().catch(() => ({}));
-    if (!resRes.ok) throw new Error(data.message || data.error || `Resend failed: ${resRes.status}`);
-    await query(
-      "INSERT INTO emails_sent (to_email, subject, body_text, body_html) VALUES ($1,$2,$3,$4)",
-      [to, subject || null, bodyText || null, bodyHtml || null]
-    );
-    res.json({ sent: true, to });
+    if (!resRes.ok) {
+      // If send failed, delete the record
+      await query("DELETE FROM emails_sent WHERE id = $1", [emailId]).catch(() => {});
+      throw new Error(data.message || data.error || `Resend failed: ${resRes.status}`);
+    }
+    res.json({ sent: true, to, id: emailId });
   } catch (e) {
     logDbErr("send-email", e);
     res.status(500).json({ error: e.message });
   }
 });
 
+// Email open tracking pixel endpoint (public, no auth required)
+app.get("/api/email/track/:id", requireDb, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      console.log(`[Email Track] Invalid ID: ${req.params.id}`);
+      return res.status(400).send("Invalid ID");
+    }
+    // Update opened_at if not already set (first open only)
+    const updateResult = await query(
+      "UPDATE emails_sent SET opened_at = NOW() WHERE id = $1 AND opened_at IS NULL RETURNING id",
+      [id]
+    );
+    if (updateResult.rows.length > 0) {
+      console.log(`[Email Track] Email ${id} opened for the first time`);
+    } else {
+      // Check if already opened
+      const checkResult = await query("SELECT opened_at FROM emails_sent WHERE id = $1", [id]);
+      if (checkResult.rows.length > 0) {
+        if (checkResult.rows[0].opened_at) {
+          console.log(`[Email Track] Email ${id} already opened at ${checkResult.rows[0].opened_at}`);
+        } else {
+          console.log(`[Email Track] Email ${id} not found`);
+        }
+      }
+    }
+    // Return 1x1 transparent PNG
+    const pixel = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "base64"
+    );
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.send(pixel);
+  } catch (e) {
+    console.error(`[Email Track] Error tracking email ${req.params.id}:`, e.message);
+    // Still return pixel even on error (so email clients don't show broken image)
+    const pixel = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "base64"
+    );
+    res.setHeader("Content-Type", "image/png");
+    res.send(pixel);
+  }
+});
+
 // Emails sent log
 app.get("/api/manager/emails-sent", requireManager, requireDb, async (req, res) => {
   try {
-    const r = await query("SELECT id, to_email, subject, sent_at, created_at FROM emails_sent ORDER BY sent_at DESC");
+    const r = await query("SELECT id, to_email, subject, sent_at, opened_at, created_at FROM emails_sent ORDER BY sent_at DESC");
     res.json(r.rows);
   } catch (e) {
     logDbErr("emails-sent", e);
