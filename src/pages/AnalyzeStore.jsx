@@ -456,47 +456,6 @@ const AnalyzeStore = () => {
     }
   };
 
-  const CircularScore = ({ score, size = 120 }) => {
-    const radius = (size - 20) / 2;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (score / 100) * circumference;
-    const color = score >= 70 ? "#10b981" : score >= 50 ? "#f59e0b" : "#ef4444";
-
-    return (
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg className="transform -rotate-90" width={size} height={size}>
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="currentColor"
-            strokeWidth="8"
-            fill="none"
-            className="text-gray-200"
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={color}
-            strokeWidth="8"
-            fill="none"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            className="transition-all duration-1000"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold" style={{ fontFamily: 'Space Grotesk', color }}>
-            {score}
-          </span>
-          <span className="text-xs text-muted-foreground">/100</span>
-        </div>
-      </div>
-    );
-  };
-
   if (!auditData) {
     return (
       <div className="min-h-screen">
@@ -515,48 +474,86 @@ const AnalyzeStore = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Header / Store Overview */}
-      <section className="pt-32 pb-12 bg-background border-b border-border">
-        <div className="container-custom">
-          <div className="bg-white rounded-lg shadow-sm border border-border p-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 overflow-hidden md:overflow-visible">
-              <div className="flex items-center gap-4 min-w-0">
-                <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                  <Package className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-2xl font-semibold text-[#222222] mb-1 truncate" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-                    {auditData?.storeInfo?.url ?? storeUrl ?? ""}
-                  </h1>
-                  <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                    <span>{t("auditReport.platform")}: {auditData?.storeInfo?.platform ?? t("auditReport.unknown")}</span>
-                    {(auditData?.storeInfo?.industry ?? "Unknown") !== "Unknown" && (
-                      <>
-                        <span>•</span>
-                        <span>{auditData?.storeInfo?.industry}</span>
-                      </>
-                    )}
-                    {(auditData?.storeInfo?.country ?? "Unknown") !== "Unknown" && (
-                      <>
-                        <span>•</span>
-                        <span>{auditData?.storeInfo?.country}</span>
-                      </>
-                    )}
-                    <span>•</span>
-                    <span>{t("auditReport.audited")}: {auditData?.storeInfo?.auditDate ?? ""}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-center md:items-end gap-3">
-                <CircularScore score={auditData.overallScore} />
-                <Badge className={`${getStatusBadgeColor(auditData.status)} border font-semibold`}>
+      {/* Report Header – PDF-style professional layout */}
+      <section className="pt-28 pb-16 bg-neutral-50">
+        <div className="container-custom max-w-4xl">
+          {/* Title block */}
+          <div className="text-center mb-10">
+            <p className="text-xs font-semibold tracking-[0.2em] text-neutral-500 uppercase mb-1" style={{ fontFamily: 'Space Grotesk' }}>
+              {t("auditReport.auditByElursh")}
+            </p>
+            <h1 className="text-2xl md:text-3xl font-semibold text-neutral-900 mb-1" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
+              {(auditData?.storeInfo?.url ?? storeUrl ?? "").replace(/^https?:\/\//, "").replace(/\/$/, "")}: {t("auditReport.performanceAudit")}
+            </h1>
+            <p className="text-sm text-neutral-500" style={{ fontFamily: 'Space Grotesk' }}>
+              {t("auditReport.reportSubtitle")}
+            </p>
+          </div>
+
+          {/* Overall score + status */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 mb-12">
+            <div className="flex flex-col items-center md:items-start">
+              <p className="text-xs font-semibold tracking-wider text-neutral-500 uppercase mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+                {t("auditReport.overallScore")}
+              </p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-5xl md:text-6xl font-bold text-neutral-900" style={{ fontFamily: 'Space Grotesk' }}>
+                  {auditData.overallScore ?? 0}/100
+                </span>
+                <Badge className={`${getStatusBadgeColor(auditData.status)} border font-semibold text-sm`}>
                   {t(`auditReport.status.${auditData.status}`) || auditData.status}
                 </Badge>
-                <p className="text-xs text-muted-foreground text-center md:text-right max-w-[200px]">
-                  {t("auditReport.scoreBasedOn")}
-                </p>
               </div>
             </div>
+            {/* Metadata grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-0.5">{t("auditReport.domain")}</p>
+                <p className="text-sm font-medium text-neutral-800 truncate" title={auditData?.storeInfo?.url ?? storeUrl}>
+                  {(auditData?.storeInfo?.url ?? storeUrl ?? "").replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-0.5">{t("auditReport.platform")}</p>
+                <p className="text-sm font-medium text-neutral-800">{auditData?.storeInfo?.platform ?? t("auditReport.unknown")}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-0.5">{t("auditReport.date")}</p>
+                <p className="text-sm font-medium text-neutral-800">{auditData?.storeInfo?.auditDate ?? new Date().toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-0.5">{t("auditReport.analyst")}</p>
+                <p className="text-sm font-medium text-neutral-800">{t("auditReport.elurshStrategy")}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 01. Executive Summary – Severity cards */}
+          <div className="mb-10">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-4" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
+              {t("auditReport.execSummary")}
+            </h2>
+            {(() => {
+              const criticalCount = (auditData.categories ?? []).reduce((acc, c) => acc + (c.checks?.filter((ch) => ch.status === "critical").length || 0), 0);
+              const escalatedCount = 0;
+              const quickWinCount = Math.min((auditData.actionPlan ?? []).length, 6);
+              return (
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-red-50 border border-red-100 rounded-lg p-5 text-center">
+                    <p className="text-3xl font-bold text-red-700" style={{ fontFamily: 'Space Grotesk' }}>{criticalCount}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-red-600 mt-1">{t("auditReport.critical")}</p>
+                  </div>
+                  <div className="bg-amber-50 border border-amber-100 rounded-lg p-5 text-center">
+                    <p className="text-3xl font-bold text-amber-700" style={{ fontFamily: 'Space Grotesk' }}>{escalatedCount}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-amber-600 mt-1">{t("auditReport.escalated")}</p>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-5 text-center">
+                    <p className="text-3xl font-bold text-emerald-700" style={{ fontFamily: 'Space Grotesk' }}>{quickWinCount}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mt-1">{t("auditReport.quickWins")}</p>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </section>
@@ -579,19 +576,24 @@ const AnalyzeStore = () => {
         </div>
       )}
 
-      {/* Revenue Leakage Section */}
+      {/* Revenue Leakage Section – PDF-style prominent callout */}
       <section className="py-12 bg-background">
-        <div className="container-custom">
-          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-8">
-            <h2 className="text-2xl font-semibold text-[#222222] mb-2" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-              {t("auditReport.revenueLoss")}
-            </h2>
-            <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-4xl md:text-5xl font-bold text-red-600" style={{ fontFamily: 'Space Grotesk' }}>
-                ${(auditData.revenueLoss?.min ?? 0).toLocaleString()} – ${(auditData.revenueLoss?.max ?? 0).toLocaleString()}
-              </span>
-              <span className="text-muted-foreground">{t("auditReport.perMonth")}</span>
+        <div className="container-custom max-w-4xl">
+          <div className="bg-amber-50 border-l-4 border-amber-500 rounded-r-lg p-8 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-amber-800" style={{ fontFamily: 'Space Grotesk' }}>
+                {t("auditReport.monthlyLoss")}
+              </h2>
             </div>
+            <p className="text-3xl md:text-4xl font-bold text-neutral-900 mb-1" style={{ fontFamily: 'Space Grotesk' }}>
+              ${(auditData.revenueLoss?.min ?? 0).toLocaleString()} – ${(auditData.revenueLoss?.max ?? 0).toLocaleString()}
+            </p>
+            <p className="text-sm text-neutral-600 mb-6">{t("auditReport.revenueSubtitle")}</p>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-600 mb-4" style={{ fontFamily: 'Space Grotesk' }}>
+              {t("auditReport.revenueLeakCauses")}
+            </h3>
+            <p className="text-xs text-neutral-500 mb-4">{t("auditReport.revenueWhatMeansDesc")}</p>
             <div className="space-y-4 mb-4 max-h-[600px] overflow-y-auto pr-2">
               {(auditData.revenueLoss?.breakdown ?? []).map((item, index) => (
                 <div key={index} className="bg-white/50 rounded-lg p-4">
@@ -615,7 +617,7 @@ const AnalyzeStore = () => {
               ))}
             </div>
             <div className="bg-white/70 rounded-lg p-4 mt-4">
-              <p className="text-sm text-[#222222] leading-relaxed" style={{ fontFamily: 'Space Grotesk' }}>
+              <p className="text-sm text-neutral-700 leading-relaxed" style={{ fontFamily: 'Space Grotesk' }}>
                 <strong>{t("auditReport.revenueWhatMeans")}</strong> {t("auditReport.revenueWhatMeansDesc")}
               </p>
             </div>
@@ -626,7 +628,7 @@ const AnalyzeStore = () => {
       {/* Domain Name Audit – only when store uses Shopify subdomain (*.myshopify.com), not a branded domain */}
       {isShopifySubdomain(auditData?.storeInfo?.url ?? "") && (
         <section className="py-12 bg-background">
-          <div className="container-custom">
+          <div className="container-custom max-w-4xl">
             <div className="bg-amber-50 border-2 border-amber-200 rounded-lg p-8">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
@@ -666,12 +668,15 @@ const AnalyzeStore = () => {
         </section>
       )}
 
-      {/* Category-Based Audit Sections */}
+      {/* Category-Based Audit Sections – Puntuaciones por Área */}
       <section ref={detailedAuditRef} className="py-12 bg-muted/30">
-        <div className="container-custom">
-          <h2 className="text-3xl font-semibold text-[#222222] mb-8 text-center" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-            {t("auditReport.detailedResults")}
+        <div className="container-custom max-w-4xl">
+          <h2 className="text-lg font-semibold uppercase tracking-wider text-neutral-600 mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+            {t("auditReport.scoresByArea")}
           </h2>
+          <h3 className="text-2xl font-semibold text-[#222222] mb-8" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
+            {t("auditReport.detailedResults")}
+          </h3>
           <div className="space-y-6">
             {(auditData.categories ?? []).map((category) => {
               const IconComponent = iconMap[category.icon] || Package;
@@ -869,47 +874,64 @@ const AnalyzeStore = () => {
         </div>
       )}
 
-      {/* Action Plan */}
+      {/* Action Plan – Hoja de Ruta de Recuperación de Ingresos */}
       <section className="py-12 bg-background">
-        <div className="container-custom">
-          <h2 className="text-3xl font-semibold text-[#222222] mb-8 text-center" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
-            {t("auditReport.recommendedActions")}
+        <div className="container-custom max-w-4xl">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-neutral-500 mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+            {t("auditReport.recoveryRoadmap")}
           </h2>
-          <div className="space-y-4">
+          <h3 className="text-2xl font-semibold text-[#222222] mb-8" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
+            {t("auditReport.recommendedActions")}
+          </h3>
+          <div className="space-y-5">
             {(auditData.actionPlan ?? []).map((action, index) => {
               const ActionIcon = iconMap[action.icon] || TrendingUp;
               return (
-                <div key={index} className="bg-white rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <ActionIcon className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-[#222222] mb-1" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
+                <div key={index} className="bg-white rounded-lg border border-neutral-200 p-6 hover:border-neutral-300 transition-colors">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                    <div className="flex items-start gap-4 flex-1">
+                      <span className="flex-shrink-0 w-8 h-8 bg-neutral-900 text-white rounded-full flex items-center justify-center text-sm font-bold" style={{ fontFamily: 'Space Grotesk' }}>
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-[#222222] mb-2" style={{ fontFamily: 'Space Grotesk', fontWeight: 600 }}>
                           {action.action}
                         </h3>
                         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
+                            <Clock className="w-4 h-4 flex-shrink-0" />
                             {action.timeEstimate}
                           </span>
                           <span className="flex items-center gap-1">
-                            <DollarSign className="w-4 h-4" />
+                            <DollarSign className="w-4 h-4 flex-shrink-0" />
                             {action.salesIncreasePercent != null
-                              ? `${t("auditReport.increaseSalesBy", { percent: action.salesIncreasePercent })} ${action.revenueImpact}`
+                              ? `${t("auditReport.increaseSalesBy", { percent: action.salesIncreasePercent })} — ${action.revenueImpact}`
                               : action.revenueImpact}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <Badge className={`${getStatusBadgeColor(action.priority)} border font-semibold`}>
-                      {t(`auditReport.status.${action.priority}`) || action.priority}
-                    </Badge>
+                    <div className="flex flex-col items-end gap-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">{t("auditReport.estimatedImpact")}</p>
+                      <Badge className={`${getStatusBadgeColor(action.priority)} border font-semibold`}>
+                        {t(`auditReport.status.${action.priority}`) || action.priority}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               );
             })}
+          </div>
+          {/* Strategic Conclusion */}
+          <div className="mt-12 p-6 bg-neutral-50 border border-neutral-200 rounded-lg">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2" style={{ fontFamily: 'Space Grotesk' }}>
+              {t("auditReport.strategicConclusion")}
+            </p>
+            <p className="text-base text-neutral-800 leading-relaxed" style={{ fontFamily: 'Space Grotesk' }}>
+              {t("auditReport.recommendedAction")}: {auditData.status === "Needs improvement" || auditData.status === "Needs Work" || auditData.status === "Critical" || auditData.status === "Not Ready"
+                ? t("auditReport.strategicConclusionPhrase")
+                : t("auditReport.strategicConclusionContinue")}
+            </p>
           </div>
         </div>
       </section>
