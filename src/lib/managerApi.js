@@ -233,6 +233,38 @@ export async function sendEmail(body) {
   return res.json();
 }
 
+export async function getSenderEmails() {
+  const res = await managerFetch("/sender-emails");
+  if (!res.ok) throw new Error(await res.text());
+  const json = await res.json();
+  return Array.isArray(json) ? json : [];
+}
+
+export async function createSenderEmail(body) {
+  const res = await managerFetch("/sender-emails", { method: "POST", body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function deleteSenderEmail(id) {
+  const res = await managerFetch(`/sender-emails/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function getResendDomains() {
+  const res = await managerFetch("/resend-domains");
+  if (!res.ok) throw new Error(await res.text());
+  const json = await res.json();
+  return Array.isArray(json) ? json : [];
+}
+
+export async function createResendDomain(name) {
+  const res = await managerFetch("/resend-domains", { method: "POST", body: JSON.stringify({ name }) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
 export async function getEmailsSent() {
   const res = await managerFetch("/emails-sent");
   if (!res.ok) throw new Error(await res.text());

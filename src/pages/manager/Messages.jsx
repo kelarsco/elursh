@@ -7,6 +7,11 @@ import {
   updateContactStatus,
   getEmailTemplates,
   getEmailTemplate,
+  getSenderEmails,
+  createSenderEmail,
+  deleteSenderEmail,
+  getResendDomains,
+  createResendDomain,
 } from "@/lib/managerApi";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -27,7 +32,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Plus, Mail, MoreHorizontal, Trash2, Inbox, Send, Eye, AlertTriangle, Calendar as CalendarIcon, ChevronDown, ArrowUpRight } from "lucide-react";
+import { Plus, Mail, MoreHorizontal, Trash2, Inbox, Send, Eye, AlertTriangle, Calendar as CalendarIcon, ChevronDown, ArrowUpRight, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STATUS_OPTIONS = ["pending", "in_progress", "completed", "cancelled", "deleted"];
@@ -103,6 +108,15 @@ export default function Messages() {
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
   const [storeLink, setStoreLink] = useState("");
+  const [selectedSenderEmail, setSelectedSenderEmail] = useState("");
+  const [senderEmails, setSenderEmails] = useState([]);
+  const [domainsViewOpen, setDomainsViewOpen] = useState(false);
+  const [domains, setDomains] = useState([]);
+  const [newDomainInput, setNewDomainInput] = useState("");
+  const [addingDomain, setAddingDomain] = useState(false);
+  const [newSenderEmail, setNewSenderEmail] = useState("");
+  const [newSenderDisplayName, setNewSenderDisplayName] = useState("");
+  const [addingSender, setAddingSender] = useState(false);
   const [bodyText, setBodyText] = useState("");
   const [bodyHtml, setBodyHtml] = useState("");
   const [sending, setSending] = useState(false);
@@ -205,6 +219,26 @@ export default function Messages() {
   useEffect(() => {
     loadContacts();
   }, []);
+
+  const loadSenderEmails = () => {
+    getSenderEmails()
+      .then(setSenderEmails)
+      .catch(() => setSenderEmails([]));
+  };
+
+  const loadDomains = () => {
+    getResendDomains()
+      .then(setDomains)
+      .catch(() => setDomains([]));
+  };
+
+  useEffect(() => {
+    if (composeOpen || domainsViewOpen) loadSenderEmails();
+  }, [composeOpen, domainsViewOpen]);
+
+  useEffect(() => {
+    if (domainsViewOpen) loadDomains();
+  }, [domainsViewOpen]);
 
   useEffect(() => {
     const loadEmails = () => {
@@ -357,9 +391,11 @@ export default function Messages() {
     }
     // Personalize HTML with store link before sending
     const personalizedHtml = personalizeHtml(sendBodyHtml, storeLink);
+    const fromEmail = selectedSenderEmail || (senderEmails[0]?.email) || "";
     setSending(true);
     sendEmail({
       to_email: toEmail,
+      from_email: fromEmail || undefined,
       subject: subject.trim(),
       body_text: sendBodyText.trim() || undefined,
       body_html: personalizedHtml.trim() || undefined,
@@ -458,6 +494,27 @@ export default function Messages() {
                   className="mt-1"
                 />
               </div>
+              <div>
+                <Label htmlFor="sender">From (sender)</Label>
+                <Select
+                  value={selectedSenderEmail || (senderEmails[0]?.email ?? "")}
+                  onValueChange={setSelectedSenderEmail}
+                  onOpenChange={(open) => { if (open && senderEmails.length === 0) loadSenderEmails(); }}
+                >
+                  <SelectTrigger id="sender" className="mt-1">
+                    <SelectValue placeholder="Select sender email" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {senderEmails.map((s) => (
+                      <SelectItem key={s.id} value={s.email}>
+                        {s.display_name ? `${s.display_name} <${s.email}>` : s.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="template">Template</Label>
                 <Select
@@ -613,6 +670,10 @@ export default function Messages() {
               </div>
             </PopoverContent>
           </Popover>
+          <Button variant="outline" onClick={() => setDomainsViewOpen(true)} className="gap-2">
+            <Globe className="h-4 w-4" />
+            Domains
+          </Button>
           <Button
             onClick={handleCompose}
             className="bg-black text-[var(--manager-lime)] hover:bg-black/90 gap-2"
@@ -623,6 +684,163 @@ export default function Messages() {
         </div>
       </div>
 
+      {/* Domains sub-page */}
+      {domainsViewOpen && (
+        <div className="manager-glass-panel p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-black">Domain & Sender Emails</h2>
+            <Button variant="outline" onClick={() => setDomainsViewOpen(false)}>Back</Button>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-black mb-2">Resend domains</h3>
+            <p className="text-xs text-black/60 mb-3">Add and verify domains in Resend to send from your own addresses.</p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              <Input
+                placeholder="example.com"
+                value={newDomainInput}
+                onChange={(e) => setNewDomainInput(e.target.value)}
+                className="max-w-[200px]"
+              />
+              <Button
+                size="sm"
+                disabled={!newDomainInput.trim() || addingDomain}
+                onClick={async () => {
+                  const name = newDomainInput.trim().replace(/^https?:\/\//, "").split("/")[0];
+                  if (!name) return;
+                  setAddingDomain(true);
+                  try {
+                    await createResendDomain(name);
+                    toast({ title: "Domain added", description: `Add the DNS records in Resend dashboard to verify ${name}` });
+                    setNewDomainInput("");
+                    loadDomains();
+                  } catch (e) {
+                    toast({ title: "Error", description: e.message, variant: "destructive" });
+                  } finally {
+                    setAddingDomain(false);
+                  }
+                }}
+              >
+                {addingDomain ? "Adding…" : "Add domain"}
+              </Button>
+            </div>
+            {domains.length === 0 ? (
+              <p className="text-sm text-black/60">No domains. Add one above or in <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer" className="underline">Resend dashboard</a>.</p>
+            ) : (
+              <div className="rounded border border-black/10 overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Domain</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {domains.map((d) => (
+                      <TableRow key={d.id}>
+                        <TableCell className="font-mono">{d.name}</TableCell>
+                        <TableCell>
+                          <span className={d.status === "verified" ? "text-green-600" : "text-amber-600"}>{d.status || "pending"}</span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-black mb-2">Sender emails</h3>
+            <p className="text-xs text-black/60 mb-3">Use these when composing. Must be from a verified domain.</p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              <Input
+                placeholder="support@yourdomain.com"
+                value={newSenderEmail}
+                onChange={(e) => setNewSenderEmail(e.target.value)}
+                className="max-w-[220px]"
+              />
+              <Input
+                placeholder="Display name (optional)"
+                value={newSenderDisplayName}
+                onChange={(e) => setNewSenderDisplayName(e.target.value)}
+                className="max-w-[180px]"
+              />
+              <Button
+                size="sm"
+                disabled={!newSenderEmail.trim() || addingSender}
+                onClick={async () => {
+                  if (!newSenderEmail.trim()) return;
+                  setAddingSender(true);
+                  try {
+                    await createSenderEmail({ email: newSenderEmail.trim(), display_name: newSenderDisplayName.trim() || null });
+                    toast({ title: "Sender added" });
+                    setNewSenderEmail("");
+                    setNewSenderDisplayName("");
+                    loadSenderEmails();
+                  } catch (e) {
+                    toast({ title: "Error", description: e.message, variant: "destructive" });
+                  } finally {
+                    setAddingSender(false);
+                  }
+                }}
+              >
+                {addingSender ? "Adding…" : "Add sender"}
+              </Button>
+            </div>
+            {senderEmails.length === 0 ? (
+              <p className="text-sm text-black/60">No sender emails. Add one above or use RESEND_FROM from env.</p>
+            ) : (
+              <div className="rounded border border-black/10 overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Display name</TableHead>
+                      <TableHead className="w-20">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {senderEmails.map((s) => (
+                      <TableRow key={s.id}>
+                        <TableCell className="font-mono text-sm">{s.email}</TableCell>
+                        <TableCell className="text-black/70">{s.display_name || "—"}</TableCell>
+                        <TableCell>
+                          {s.id !== "env" && (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600" onClick={async () => {
+                              try {
+                                await deleteSenderEmail(s.id);
+                                toast({ title: "Sender removed" });
+                                loadSenderEmails();
+                              } catch (e) {
+                                toast({ title: "Error", description: e.message, variant: "destructive" });
+                              }
+                            }}><Trash2 className="h-4 w-4" /></Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4">
+            <h3 className="text-sm font-medium text-amber-800 mb-2">Reduce spam – best practices</h3>
+            <ul className="text-xs text-amber-900/90 space-y-1 list-disc list-inside">
+              <li>Verify your domain in Resend (add SPF, DKIM, DMARC records)</li>
+              <li>Use a real, branded sender address (e.g. hello@yourdomain.com)</li>
+              <li>Avoid spammy words in subject lines and content</li>
+              <li>Include an unsubscribe link for marketing emails</li>
+              <li>Register at gravatar.com with your sender email for better trust</li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {!domainsViewOpen && (
+      <>
       {/* Overview metric cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {metricCards.map(({ id, title, subtitle, value, pending, icon: Icon, progressPercent, color }) => (
@@ -904,6 +1122,8 @@ export default function Messages() {
           )}
         </div>
       </div>
+      )}
+      </>
       )}
 
       {/* Message details modal */}

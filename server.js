@@ -1762,7 +1762,8 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
     if (!resendKey || !resendKey.trim()) {
       return res.status(503).json({ error: "Email not configured. Set RESEND_API_KEY and RESEND_FROM on Railway." });
     }
-    const from = process.env.RESEND_FROM || "onboarding@resend.dev";
+    const fromInput = (b.from_email || b.from || "").trim();
+    const from = fromInput || process.env.RESEND_FROM || "onboarding@resend.dev";
     // Insert email record first to get ID for tracking
     const insertResult = await query(
       "INSERT INTO emails_sent (to_email, subject, body_text, body_html) VALUES ($1,$2,$3,$4) RETURNING id",
@@ -2242,6 +2243,86 @@ app.delete("/api/manager/email-templates/:id", requireManager, requireDb, async 
     res.json({ deleted: true, id });
   } catch (e) {
     logDbErr("email-templates delete", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Sender emails (custom "from" addresses for Camages)
+app.get("/api/manager/sender-emails", requireManager, requireDb, async (req, res) => {
+  try {
+    const r = await query("SELECT id, email, display_name, is_default, created_at FROM sender_emails ORDER BY is_default DESC, email ASC");
+    const fromEnv = process.env.RESEND_FROM || "onboarding@resend.dev";
+    const list = r.rows || [];
+    // Prepend env default if not in list
+    if (!list.some((s) => s.email === fromEnv)) {
+      list.unshift({ id: "env", email: fromEnv, display_name: "Default (RESEND_FROM)", is_default: true });
+    }
+    res.json(list);
+  } catch (e) {
+    logDbErr("sender-emails list", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/manager/sender-emails", requireManager, requireDb, async (req, res) => {
+  try {
+    const email = (req.body?.email || "").trim();
+    const displayName = (req.body?.display_name || "").trim() || null;
+    if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) return res.status(400).json({ error: "Valid email required" });
+    const r = await query(
+      "INSERT INTO sender_emails (email, display_name, is_default) VALUES ($1,$2,false) ON CONFLICT (email) DO UPDATE SET display_name = EXCLUDED.display_name, updated_at = NOW() RETURNING id, email, display_name, is_default, created_at",
+      [email, displayName]
+    );
+    res.status(201).json(r.rows[0]);
+  } catch (e) {
+    logDbErr("sender-emails create", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete("/api/manager/sender-emails/:id", requireManager, requireDb, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    const r = await query("DELETE FROM sender_emails WHERE id = $1 RETURNING id", [id]);
+    if (!r.rows[0]) return res.status(404).json({ error: "Not found" });
+    res.json({ deleted: true, id });
+  } catch (e) {
+    logDbErr("sender-emails delete", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Resend domains (proxy to Resend API)
+app.get("/api/manager/resend-domains", requireManager, async (req, res) => {
+  try {
+    const key = process.env.RESEND_API_KEY;
+    if (!key?.trim()) return res.json({ data: [], message: "RESEND_API_KEY not set" });
+    const r = await fetch("https://api.resend.com/domains", { headers: { Authorization: `Bearer ${key}` } });
+    const json = await r.json().catch(() => ({}));
+    res.json(json.data || []);
+  } catch (e) {
+    console.error("resend-domains:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/manager/resend-domains", requireManager, async (req, res) => {
+  try {
+    const key = process.env.RESEND_API_KEY;
+    if (!key?.trim()) return res.status(503).json({ error: "RESEND_API_KEY not set" });
+    const name = (req.body?.name || "").trim().replace(/^https?:\/\//, "").replace(/\/$/, "").split("/")[0];
+    if (!name) return res.status(400).json({ error: "Domain name required" });
+    const r = await fetch("https://api.resend.com/domains", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ name }),
+    });
+    const json = await r.json().catch(() => ({}));
+    if (!r.ok) return res.status(r.status).json(json);
+    res.status(201).json(json);
+  } catch (e) {
+    console.error("resend-domains create:", e.message);
     res.status(500).json({ error: e.message });
   }
 });
