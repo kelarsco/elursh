@@ -17,7 +17,13 @@ import Contact from "./pages/Contact";
 import GetStarted from "./pages/GetStarted";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
-import UserDashboard from "./pages/UserDashboard";
+import UserDashboardLayout from "./layouts/UserDashboardLayout";
+import DashboardOverview from "./pages/dashboard/DashboardOverview";
+import DashboardAudit from "./pages/dashboard/DashboardAudit";
+import DashboardChat from "./pages/dashboard/DashboardChat";
+import DashboardMarketplace from "./pages/dashboard/DashboardMarketplace";
+import DashboardProjects from "./pages/dashboard/DashboardProjects";
+import DashboardResources from "./pages/dashboard/DashboardResources";
 import NotFound from "./pages/NotFound";
 import ManagerLayout from "./pages/manager/ManagerLayout";
 import Dashboard from "./pages/manager/Dashboard";
@@ -26,6 +32,8 @@ import Services from "./pages/manager/Services";
 import Orders from "./pages/manager/Orders";
 import Payments from "./pages/manager/Payments";
 import Messages from "./pages/manager/Messages";
+import ManagerCustomerChat from "./pages/manager/ManagerCustomerChat";
+import ManagerProjects from "./pages/manager/ManagerProjects";
 import SignupUsers from "./pages/manager/SignupUsers";
 
 const queryClient = new QueryClient();
@@ -56,14 +64,23 @@ function AppContent() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/get-started" element={<GetStarted />} />
-          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/dashboard" element={<UserDashboardLayout />}>
+            <Route index element={<DashboardOverview />} />
+            <Route path="audit" element={<DashboardAudit />} />
+            <Route path="chat" element={<DashboardChat />} />
+            <Route path="marketplace" element={<DashboardMarketplace />} />
+            <Route path="projects" element={<DashboardProjects />} />
+            <Route path="resources" element={<DashboardResources />} />
+          </Route>
           <Route path="/manager" element={<ManagerLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="analysed-stores" element={<AnalysedStores />} />
             <Route path="services" element={<Services />} />
             <Route path="orders" element={<Orders />} />
             <Route path="payments" element={<Payments />} />
+            <Route path="customer-chat" element={<ManagerCustomerChat />} />
             <Route path="messages" element={<Messages />} />
+            <Route path="projects" element={<ManagerProjects />} />
             <Route path="signups" element={<SignupUsers />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

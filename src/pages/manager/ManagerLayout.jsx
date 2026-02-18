@@ -8,6 +8,8 @@ import {
   ShoppingCart,
   CreditCard,
   Mail,
+  MessageCircle,
+  FolderKanban,
   UserPlus,
   LogOut,
   Bell,
@@ -98,7 +100,9 @@ const nav = [
   { to: "/manager/services", end: false, label: "Data", icon: Database },
   { to: "/manager/orders", end: false, label: "Orders", icon: ShoppingCart },
   { to: "/manager/payments", end: false, label: "Payments", icon: CreditCard },
+  { to: "/manager/customer-chat", end: false, label: "Customer Chat", icon: MessageCircle },
   { to: "/manager/messages", end: false, label: "Messages", icon: Mail },
+  { to: "/manager/projects", end: false, label: "Projects", icon: FolderKanban },
 ];
 
 function getLastReadAt() {
