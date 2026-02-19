@@ -10,6 +10,7 @@ import {
   getSenderEmails,
   createSenderEmail,
   deleteSenderEmail,
+  getResendDomains,
 } from "@/lib/managerApi";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -112,6 +113,7 @@ export default function Messages() {
   const [newSenderEmail, setNewSenderEmail] = useState("");
   const [newSenderDisplayName, setNewSenderDisplayName] = useState("");
   const [addingSender, setAddingSender] = useState(false);
+  const [resendDomains, setResendDomains] = useState([]);
   const [bodyText, setBodyText] = useState("");
   const [bodyHtml, setBodyHtml] = useState("");
   const [sending, setSending] = useState(false);
@@ -224,6 +226,14 @@ export default function Messages() {
   useEffect(() => {
     if (composeOpen || domainsViewOpen) loadSenderEmails();
   }, [composeOpen, domainsViewOpen]);
+
+  useEffect(() => {
+    if (domainsViewOpen) {
+      getResendDomains()
+        .then(setResendDomains)
+        .catch(() => setResendDomains([]));
+    }
+  }, [domainsViewOpen]);
 
   useEffect(() => {
     const loadEmails = () => {
@@ -673,12 +683,43 @@ export default function Messages() {
       {domainsViewOpen && (
         <div className="manager-glass-panel p-6 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-black">Sender Emails</h2>
+            <h2 className="text-lg font-semibold text-black">Sender Setup</h2>
             <Button variant="outline" onClick={() => setDomainsViewOpen(false)}>Back</Button>
           </div>
           <p className="text-sm text-black/60">
-            Add sender addresses from your verified domain (e.g. support@elursh.com). Manage domains in the <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer" className="underline">Resend dashboard</a>.
+            Add sender addresses <strong>only</strong> from domains verified in Resend (SPF + DKIM). Unverified senders go to spam.
           </p>
+
+          {/* Resend domains – deliverability foundation */}
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4">
+            <h3 className="text-sm font-medium text-emerald-900 mb-2">Verified domains in Resend</h3>
+            <p className="text-xs text-emerald-800/90 mb-3">Only sender addresses from these domains will deliver to inbox. Add & verify at{" "}
+              <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer" className="underline font-medium">resend.com/domains</a>.
+            </p>
+            {resendDomains.length === 0 ? (
+              <p className="text-xs text-emerald-800/80">No domains found. Add and verify your domain in Resend (add the SPF and DKIM DNS records they provide).</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {resendDomains.map((d) => (
+                  <span
+                    key={d.id}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium",
+                      d.status === "verified" || d.status === "partially_verified"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-amber-200 text-amber-900"
+                    )}
+                  >
+                    {d.name}
+                    <span className="opacity-90">
+                      {d.status === "verified" ? "✓" : d.status === "partially_verified" ? "partial" : d.status || "pending"}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div>
             <h3 className="text-sm font-medium text-black mb-2">Sender emails</h3>
             <p className="text-xs text-black/60 mb-3">Use these when composing. Must be from a verified domain.</p>
@@ -700,9 +741,22 @@ export default function Messages() {
                 disabled={!newSenderEmail.trim() || addingSender}
                 onClick={async () => {
                   if (!newSenderEmail.trim()) return;
+                  const email = newSenderEmail.trim();
+                  const domain = email.split("@")[1]?.toLowerCase();
+                  const verifiedDomains = resendDomains
+                    .filter((d) => d.status === "verified" || d.status === "partially_verified")
+                    .map((d) => (d.name || "").toLowerCase());
+                  if (domain && verifiedDomains.length > 0 && !verifiedDomains.includes(domain)) {
+                    toast({
+                      title: "Domain not verified",
+                      description: `"${domain}" is not verified in Resend. Add and verify it at resend.com/domains first. Verified: ${verifiedDomains.join(", ") || "none"}`,
+                      variant: "destructive",
+                    });
+                    return;
+                  }
                   setAddingSender(true);
                   try {
-                    await createSenderEmail({ email: newSenderEmail.trim(), display_name: newSenderDisplayName.trim() || null });
+                    await createSenderEmail({ email, display_name: newSenderDisplayName.trim() || null });
                     toast({ title: "Sender added" });
                     setNewSenderEmail("");
                     setNewSenderDisplayName("");

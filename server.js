@@ -1764,6 +1764,25 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
     }
     const fromInput = (b.from_email || b.from || "").trim();
     const from = fromInput || process.env.RESEND_FROM || "onboarding@resend.dev";
+    // Validate sender domain is verified in Resend (required for deliverability)
+    const extractDomain = (addr) => {
+      const email = addr.includes("<") ? ((addr.match(/<([^>]+)>/)?.[1] || addr).trim() : addr.trim();
+      const part = (email || "").trim().split("@")[1];
+      return part ? part.toLowerCase() : "";
+    };
+    const fromDomain = extractDomain(from);
+    if (fromDomain && fromDomain !== "resend.dev") {
+      const domainsRes = await fetch("https://api.resend.com/domains", { headers: { Authorization: `Bearer ${resendKey}` } });
+      const domainsJson = await domainsRes.json().catch(() => ({}));
+      const domains = domainsJson.data || [];
+      const verified = domains.filter((d) => (d.status === "verified" || d.status === "partially_verified") && (d.name || "").toLowerCase() === fromDomain);
+      const verifiedNames = domains.filter((d) => d.status === "verified" || d.status === "partially_verified").map((d) => d.name);
+      if (verified.length === 0) {
+        return res.status(400).json({
+          error: `Sender domain "${fromDomain}" is not verified in Resend. Add and verify your domain at https://resend.com/domains (SPF + DKIM). Verified domains: ${verifiedNames.length ? verifiedNames.join(", ") : "none"}`,
+        });
+      }
+    }
     // Insert email record first to get ID for tracking
     const insertResult = await query(
       "INSERT INTO emails_sent (to_email, subject, body_text, body_html) VALUES ($1,$2,$3,$4) RETURNING id",
