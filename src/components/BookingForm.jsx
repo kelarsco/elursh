@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ArrowRight, CalendarDays } from "lucide-react";
+import { createSession, updateSession } from "@/lib/onboardingApi";
 
 const timeSlots = [
   "9:00 AM EST",
@@ -28,16 +29,38 @@ const timeSlots = [
 const BookingForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const formData = new FormData(e.target);
+    const bookingData = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      business_name: formData.get('store-url'),
+      store_url: formData.get('store-url'),
+      preferred_time: formData.get('time'),
+      preferred_date: formData.get('date'),
+      message: "Store audit booking request",
+      submitted_at: new Date().toISOString(),
+      status: 'pending'
+    };
+
+    try {
+      // Create a new session for booking
+      const sessionId = await createSession();
+      
+      // Update the session with booking data
+      await updateSession(sessionId, bookingData);
+      
       toast.success("Your audit request has been submitted! We'll be in touch within 24 hours.");
       e.target.reset();
-    }, 1500);
+    } catch (error) {
+      console.error("Failed to submit booking:", error);
+      toast.error("Failed to submit booking. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -58,11 +81,11 @@ const BookingForm = () => {
         <FadeIn delay={0.2}>
           <form onSubmit={handleSubmit} className="mt-12 max-w-xl mx-auto bg-background rounded-2xl p-8 sm:p-10 border border-border shadow-lg space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name" className="font-display font-medium">Full Name</Label>
+              <Label htmlFor="name" className="font-display font-medium">name</Label>
               <Input
                 id="name"
                 name="name"
-                placeholder="John Smith"
+                placeholder="name"
                 required
                 maxLength={100}
                 className="h-12"
@@ -70,12 +93,12 @@ const BookingForm = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="font-display font-medium">Email Address</Label>
+              <Label htmlFor="email" className="font-display font-medium">email</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="john@yourstore.com"
+                placeholder="email"
                 required
                 maxLength={255}
                 className="h-12"

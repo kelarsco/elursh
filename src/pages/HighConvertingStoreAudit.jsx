@@ -4,7 +4,6 @@ import ChecklistSection from "@/components/ChecklistSection";
 import BeforeAfterCarousel from "@/components/BeforeAfterCarousel";
 import ComparisonSection from "@/components/ComparisonSection";
 import AuditAccordion from "@/components/AuditAccordion";
-import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import ProblemSection from "@/components/ProblemSection";
 import ExpertSection from "@/components/ExpertSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -22,7 +21,6 @@ const HighConvertingStoreAudit = () => {
       <BeforeAfterCarousel />
       <ComparisonSection />
       <AuditAccordion />
-      <BeforeAfterSlider />
       <ProblemSection />
       <ExpertSection />
       <TestimonialsSection />

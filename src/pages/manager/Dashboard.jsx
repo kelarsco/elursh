@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { getAnalysedStores, getOrders, getPayments, getContacts } from "@/lib/managerApi";
-import { ShoppingBag, ShoppingCart, CreditCard, MessageSquare, ArrowUpRight, Calendar as CalendarIcon, ChevronDown, User } from "react-feather";
+import { getAnalysedStores, getOrders, getPayments, getContacts, getOnboardingSessions } from "@/lib/managerApi";
+import { ShoppingBag, ShoppingCart, CreditCard, MessageSquare, ArrowUpRight, Calendar as CalendarIcon, ChevronDown, User, Calendar as CalendarFeather } from "react-feather";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -63,11 +63,12 @@ const PROGRESS_COLORS = {
   orders: "bg-blue-500",
   payments: "bg-violet-500",
   messages: "bg-rose-500",
+  bookings: "bg-amber-500",
 };
 
 export default function Dashboard() {
   const location = useLocation();
-  const [data, setData] = useState({ stores: [], orders: [], payments: [], contacts: [] });
+  const [data, setData] = useState({ stores: [], orders: [], payments: [], contacts: [], bookings: [] });
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [dateFrom, setDateFrom] = useState("");
@@ -85,18 +86,20 @@ export default function Dashboard() {
   const loadData = () => {
     setFetchError(false);
     setLoading(true);
-    Promise.allSettled([getAnalysedStores(), getOrders(), getPayments(), getContacts()])
-      .then(([storesRes, ordersRes, paymentsRes, contactsRes]) => {
+    Promise.allSettled([getAnalysedStores(), getOrders(), getPayments(), getContacts(), getOnboardingSessions()])
+      .then(([storesRes, ordersRes, paymentsRes, contactsRes, bookingsRes]) => {
         const stores = storesRes.status === "fulfilled" && Array.isArray(storesRes.value) ? storesRes.value : [];
         const orders = ordersRes.status === "fulfilled" && Array.isArray(ordersRes.value) ? ordersRes.value : [];
         const payments = paymentsRes.status === "fulfilled" && Array.isArray(paymentsRes.value) ? paymentsRes.value : [];
         const contacts = contactsRes.status === "fulfilled" && Array.isArray(contactsRes.value) ? contactsRes.value : [];
-        setData({ stores, orders, payments, contacts });
+        const bookings = bookingsRes.status === "fulfilled" && Array.isArray(bookingsRes.value) ? bookingsRes.value : [];
+        setData({ stores, orders, payments, contacts, bookings });
         const allFailed =
           storesRes.status === "rejected" &&
           ordersRes.status === "rejected" &&
           paymentsRes.status === "rejected" &&
-          contactsRes.status === "rejected";
+          contactsRes.status === "rejected" &&
+          bookingsRes.status === "rejected";
         setFetchError(allFailed);
       })
       .catch(() => setFetchError(true))
@@ -153,7 +156,7 @@ export default function Dashboard() {
       ? pendingContacts.filter((c) => inRange(parseDateOnly(c.created_at), from, to)).length
       : pendingContacts.length;
 
-    return { stores: countStores, orders: countOrders, payments: countPayments, revenue: totalRevenue, currentMonthRevenue, messages: countMessages };
+    return { stores: countStores, orders: countOrders, payments: countPayments, revenue: totalRevenue, currentMonthRevenue, messages: countMessages, bookings: data.bookings.length };
   }, [data, dateFrom, dateTo]);
 
   const cards = [
@@ -161,6 +164,7 @@ export default function Dashboard() {
     { id: "orders", title: "PENDING ORDERS", subtitle: "Awaiting fulfillment", value: counts.orders, to: "/manager/orders", icon: ShoppingCart, progressPercent: Math.min(100, (counts.orders || 0) * 7) },
     { id: "payments", title: "TOTAL PAYMENTS", subtitle: "Current month revenue", value: counts.payments, revenue: counts.currentMonthRevenue ?? counts.revenue, to: "/manager/payments", icon: CreditCard, progressPercent: Math.min(100, ((counts.currentMonthRevenue ?? counts.revenue) || 0) / 200) },
     { id: "messages", title: "PENDING MESSAGES", subtitle: "Customer inquiries", value: counts.messages, to: "/manager/messages", icon: MessageSquare, progressPercent: Math.min(100, (counts.messages || 0) * 12.5) },
+    { id: "bookings", title: "BOOKINGS", subtitle: "Audit session requests", value: counts.bookings || 0, to: "/manager/bookings", icon: CalendarFeather, progressPercent: Math.min(100, ((counts.bookings || 0) || 0) * 10) },
   ];
 
   const recentActivity = useMemo(() => {
@@ -271,7 +275,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {cards.map(({ id, title, subtitle, value, revenue, to, icon: Icon, progressPercent }) => (
           <Link key={to} to={to} className="block group">
             <div className="manager-glass-panel p-6 h-full flex flex-col transition-all hover:shadow-lg hover:border-white/70">

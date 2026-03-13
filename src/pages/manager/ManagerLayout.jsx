@@ -23,6 +23,7 @@ import {
   Smartphone,
   MonitorOff,
   FileText,
+  Calendar,
 } from "lucide-react";
 import notify1Url from "@/assets/notify1.wav";
 import notify2Url from "@/assets/notify2.wav";
@@ -97,6 +98,7 @@ function playNotificationSound() {
 const nav = [
   { to: "/manager", end: true, label: "Dashboard", icon: LayoutDashboard },
   { to: "/manager/signups", end: false, label: "Signups", icon: UserPlus },
+  { to: "/manager/bookings", end: false, label: "Bookings", icon: Calendar },
   { to: "/manager/analysed-stores", end: false, label: "Analytics", icon: BarChart3 },
   { to: "/manager/services", end: false, label: "Data", icon: Database },
   { to: "/manager/orders", end: false, label: "Orders", icon: ShoppingCart },

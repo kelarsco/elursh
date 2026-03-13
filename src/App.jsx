@@ -43,6 +43,7 @@ import EmailTemplates from "./pages/manager/EmailTemplates";
 import ManagerCustomerChat from "./pages/manager/ManagerCustomerChat";
 import ManagerProjects from "./pages/manager/ManagerProjects";
 import SignupUsers from "./pages/manager/SignupUsers";
+import Bookings from "./pages/manager/Bookings";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +99,7 @@ function AppContent() {
             <Route path="email-templates" element={<EmailTemplates />} />
             <Route path="projects" element={<ManagerProjects />} />
             <Route path="signups" element={<SignupUsers />} />
+            <Route path="bookings" element={<Bookings />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
