@@ -1,6 +1,7 @@
 import HighConvertingAuditHero from "@/components/HighConvertingAuditHero";
 import VideoSection from "@/components/VideoSection";
 import ChecklistSection from "@/components/ChecklistSection";
+import BeforeAfterCarousel from "@/components/BeforeAfterCarousel";
 import ComparisonSection from "@/components/ComparisonSection";
 import AuditAccordion from "@/components/AuditAccordion";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
@@ -18,6 +19,7 @@ const HighConvertingStoreAudit = () => {
       <HighConvertingAuditHero />
       <VideoSection />
       <ChecklistSection />
+      <BeforeAfterCarousel />
       <ComparisonSection />
       <AuditAccordion />
       <BeforeAfterSlider />
