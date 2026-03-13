@@ -1,4 +1,4 @@
-import HeroSection from "@/components/HeroSection";
+import HighConvertingAuditHero from "@/components/HighConvertingAuditHero";
 import VideoSection from "@/components/VideoSection";
 import ChecklistSection from "@/components/ChecklistSection";
 import ComparisonSection from "@/components/ComparisonSection";
@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 const HighConvertingStoreAudit = () => {
   return (
     <main className="overflow-hidden">
-      <HeroSection />
+      <HighConvertingAuditHero />
       <VideoSection />
       <ChecklistSection />
       <ComparisonSection />
