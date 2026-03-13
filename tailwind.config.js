@@ -17,6 +17,8 @@ export default {
         serif: ["Playfair Display", "Georgia", "serif"],
         inter: ["Inter", "system-ui", "sans-serif"],
         space: ["Space Grotesk", "system-ui", "sans-serif"],
+        heading: ["Poppins", "system-ui", "sans-serif"],
+        poppins: ["Poppins", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

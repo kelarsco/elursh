@@ -76,7 +76,7 @@ const HighConvertingStoreAudit = () => {
       {/* Section 1: Curiosity Driven Headline */}
       <section className="bg-gradient-to-br from-gray-900 to-gray-700 text-white py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 font-heading">
             <span className="text-yellow-400 font-bold text-5xl md:text-7xl">7</span> Hidden Problems Quietly Killing Your Ecommerce Store Sales
             <br /><span className="text-yellow-400 text-2xl md:text-3xl">(#4 Is the One Most Store Owners Never Notice)</span>
           </h1>
@@ -95,7 +95,7 @@ const HighConvertingStoreAudit = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl font-bold mb-6">There's a System Behind Successful Stores</h2>
+              <h2 className="text-4xl font-bold mb-6 font-heading">There's a System Behind Successful Stores</h2>
               <p className="text-xl mb-6 text-gray-600">
                 High-converting ecommerce stores don't happen by accident. They follow a proven structure that builds trust, 
                 guides visitors to purchase, and maximizes every marketing dollar.
@@ -124,7 +124,7 @@ const HighConvertingStoreAudit = () => {
             </div>
             <div className="bg-white p-8 rounded-2xl shadow-lg text-center">
               <Target className="text-blue-600 mb-4 mx-auto" size={80} />
-              <h3 className="text-2xl font-semibold mb-2">Store Structure Blueprint</h3>
+              <h3 className="text-2xl font-semibold mb-2 font-heading">Store Structure Blueprint</h3>
               <p className="text-gray-600">Professional audit reveals the exact framework your store needs</p>
             </div>
           </div>
@@ -134,7 +134,7 @@ const HighConvertingStoreAudit = () => {
       {/* Section 3: This Is For You */}
       <section className="bg-gray-900 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-8">This Is For You If...</h2>
+          <h2 className="text-4xl font-bold mb-8 font-heading">This Is For You If...</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="text-left space-y-4">
               <div className="flex items-center text-lg">
@@ -175,7 +175,7 @@ const HighConvertingStoreAudit = () => {
       <section className="bg-gray-50 py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">The Difference Is Clear</h2>
+            <h2 className="text-4xl font-bold mb-4 font-heading">The Difference Is Clear</h2>
             <p className="text-xl text-gray-600">See how a professional store audit transforms your business</p>
           </div>
           <div className="grid md:grid-cols-2 gap-8">
@@ -246,7 +246,7 @@ const HighConvertingStoreAudit = () => {
       {/* Section 5: What You Get */}
       <section className="bg-gray-900 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12">What You Get From Your Free Store Audit</h2>
+          <h2 className="text-4xl font-bold text-center mb-12 font-heading">What You Get From Your Free Store Audit</h2>
           <Accordion type="single" collapsible className="space-y-4">
             <AccordionItem value="structure" className="border-gray-700">
               <AccordionTrigger className="text-left">
@@ -328,13 +328,13 @@ const HighConvertingStoreAudit = () => {
       <section className="bg-gray-50 py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">See The Transformation</h2>
+            <h2 className="text-4xl font-bold mb-4 font-heading">See The Transformation</h2>
             <p className="text-xl text-gray-600">Real results from stores that implemented our audit recommendations</p>
           </div>
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-12 text-white text-center shadow-2xl">
             <div className="h-64 flex items-center justify-center">
               <div>
-                <h3 className="text-3xl font-bold mb-4">{slides[currentSlide].title}</h3>
+                <h3 className="text-3xl font-bold mb-4 font-heading">{slides[currentSlide].title}</h3>
                 <p className="text-xl">{slides[currentSlide].description}</p>
               </div>
             </div>
@@ -353,7 +353,7 @@ const HighConvertingStoreAudit = () => {
       {/* Section 7: The Real Problem */}
       <section className="bg-gray-900 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6">The Real Problem Most Store Owners Face</h2>
+          <h2 className="text-4xl font-bold mb-6 font-heading">The Real Problem Most Store Owners Face</h2>
           <p className="text-xl mb-12 text-gray-300">
             Most ecommerce stores fail not because of bad products, but because they were never structured to convert.
           </p>
@@ -407,7 +407,7 @@ const HighConvertingStoreAudit = () => {
               </div>
             </div>
             <div>
-              <h2 className="text-4xl font-bold mb-6">Meet Your Store Audit Expert</h2>
+              <h2 className="text-4xl font-bold mb-6 font-heading">Meet Your Store Audit Expert</h2>
               <p className="text-xl mb-6 text-gray-600">
                 With over 8 years of experience optimizing ecommerce stores, I've helped hundreds of store owners 
                 transform their struggling businesses into profitable brands.
@@ -440,7 +440,7 @@ const HighConvertingStoreAudit = () => {
       <section className="bg-gray-900 text-white py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Success Stories From Store Owners Like You</h2>
+            <h2 className="text-4xl font-bold mb-4 font-heading">Success Stories From Store Owners Like You</h2>
             <p className="text-xl text-gray-300">Real results from real businesses</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -515,7 +515,7 @@ const HighConvertingStoreAudit = () => {
       <section className="bg-gray-50 py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">How Your Free Store Audit Works</h2>
+            <h2 className="text-4xl font-bold mb-4 font-heading">How Your Free Store Audit Works</h2>
             <p className="text-xl text-gray-600">Simple, transparent process with clear deliverables</p>
           </div>
           <div className="grid md:grid-cols-4 gap-8">
@@ -523,28 +523,28 @@ const HighConvertingStoreAudit = () => {
               <div className="bg-blue-600 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
                 1
               </div>
-              <h4 className="text-xl font-semibold mb-2">Store Analysis</h4>
+              <h4 className="text-xl font-semibold mb-2 font-heading">Store Analysis</h4>
               <p className="text-gray-600">We analyze your store structure, design, and conversion elements</p>
             </div>
             <div className="text-center">
               <div className="bg-blue-600 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
                 2
               </div>
-              <h4 className="text-xl font-semibold mb-2">Issue Identification</h4>
+              <h4 className="text-xl font-semibold mb-2 font-heading">Issue Identification</h4>
               <p className="text-gray-600">We identify specific conversion problems and revenue blockers</p>
             </div>
             <div className="text-center">
               <div className="bg-blue-600 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
                 3
               </div>
-              <h4 className="text-xl font-semibold mb-2">Audit Report</h4>
+              <h4 className="text-xl font-semibold mb-2 font-heading">Audit Report</h4>
               <p className="text-gray-600">You receive a detailed report with actionable recommendations</p>
             </div>
             <div className="text-center">
               <div className="bg-blue-600 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
                 4
               </div>
-              <h4 className="text-xl font-semibold mb-2">Implementation Plan</h4>
+              <h4 className="text-xl font-semibold mb-2 font-heading">Implementation Plan</h4>
               <p className="text-gray-600">We provide a clear roadmap to transform your store</p>
             </div>
           </div>
@@ -554,7 +554,7 @@ const HighConvertingStoreAudit = () => {
       {/* Section 11: Final Conversion */}
       <section className="bg-gray-900 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6">Your Store Is Just a Few Adjustments Away</h2>
+          <h2 className="text-4xl font-bold mb-6 font-heading">Your Store Is Just a Few Adjustments Away</h2>
           <p className="text-xl mb-12 text-gray-300">
             Many stores are just a few structural improvements away from becoming trustworthy brands. 
             With the right adjustments, you can achieve consistent revenue within 3 to 6 months.
@@ -584,7 +584,7 @@ const HighConvertingStoreAudit = () => {
         <div className="max-w-2xl mx-auto">
           <Card className="shadow-xl">
             <CardHeader className="text-center">
-              <CardTitle className="text-3xl font-bold">Request Your Free Store Audit</CardTitle>
+              <CardTitle className="text-3xl font-bold font-heading">Request Your Free Store Audit</CardTitle>
               <p className="text-gray-600 mt-2">
                 Fill out the form below and we'll contact you within 24 hours to schedule your free audit session.
               </p>
