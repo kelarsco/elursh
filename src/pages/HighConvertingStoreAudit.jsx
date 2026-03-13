@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowUp, ArrowDown, XCircle, Star, User, Shield, Target, Home, TrendingUp, Layers, DollarSign, Store, UserCheck, Lock, AlertTriangle } from "lucide-react";
+import { CheckCircle, ArrowUp, ArrowDown, XCircle, Star, User, Shield, Target, Home, TrendingUp, Layers, DollarSign, Store, UserTie, Lock, AlertTriangle } from "lucide-react";
+import expertProfile from "@/assets/expert-profile.jpg";
 
 const HighConvertingStoreAudit = () => {
   const [formData, setFormData] = useState({
@@ -402,8 +403,12 @@ const HighConvertingStoreAudit = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="text-center">
-              <div className="bg-blue-600 text-white rounded-full p-8 inline-block mb-4">
-                <UserCheck size={80} />
+              <div className="rounded-full overflow-hidden inline-block mb-4 shadow-lg">
+                <img 
+                  src={expertProfile} 
+                  alt="Store Audit Expert" 
+                  className="w-32 h-32 object-cover"
+                />
               </div>
             </div>
             <div>
