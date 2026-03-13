@@ -351,7 +351,7 @@ async function sendVerificationCodeEmail(email, code) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${resendKey}`,
+      Authorization: `Bearer ${(resendKey || "").trim()}`,
     },
     body: JSON.stringify({
       from: from.includes("<") ? from : `Elursh <${from}>`,
@@ -412,7 +412,7 @@ async function sendFixItManualEmail(email, storeUrl) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${resendKey}`,
+        Authorization: `Bearer ${(resendKey || "").trim()}`,
       },
       body: JSON.stringify({
         from: from.includes("<") ? from : `Elursh <${from}>`,
@@ -1772,7 +1772,7 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
     };
     const fromDomain = extractDomain(from);
     if (fromDomain && fromDomain !== "resend.dev") {
-      const domainsRes = await fetch("https://api.resend.com/domains", { headers: { Authorization: `Bearer ${resendKey}` } });
+      const domainsRes = await fetch("https://api.resend.com/domains", { headers: { Authorization: `Bearer ${(resendKey || "").trim()}` } });
       const domainsJson = await domainsRes.json().catch(() => ({}));
       const domains = domainsJson.data || [];
       const verified = domains.filter((d) => (d.status === "verified" || d.status === "partially_verified") && (d.name || "").toLowerCase() === fromDomain);
@@ -1919,7 +1919,7 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${resendKey}`,
+        Authorization: `Bearer ${(resendKey || "").trim()}`,
       },
       body: JSON.stringify({
         from: from.includes("<") ? from : `Elursh <${from}>`,
@@ -1938,7 +1938,11 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
     res.json({ sent: true, to, id: emailId });
   } catch (e) {
     logDbErr("send-email", e);
-    res.status(500).json({ error: e.message });
+    let msg = e.message;
+    if (/api key|invalid.*key|unauthorized/i.test(msg)) {
+      msg = "Resend API key is invalid or missing. Set RESEND_API_KEY in .env (no quotes, no extra spaces), then restart the server.";
+    }
+    res.status(500).json({ error: msg });
   }
 });
 
@@ -2317,7 +2321,7 @@ app.get("/api/manager/resend-domains", requireManager, async (req, res) => {
   try {
     const key = process.env.RESEND_API_KEY;
     if (!key?.trim()) return res.json({ data: [], message: "RESEND_API_KEY not set" });
-    const r = await fetch("https://api.resend.com/domains", { headers: { Authorization: `Bearer ${key}` } });
+    const r = await fetch("https://api.resend.com/domains", { headers: { Authorization: `Bearer ${(key || "").trim()}` } });
     const json = await r.json().catch(() => ({}));
     res.json(json.data || []);
   } catch (e) {
@@ -2334,7 +2338,7 @@ app.post("/api/manager/resend-domains", requireManager, async (req, res) => {
     if (!name) return res.status(400).json({ error: "Domain name required" });
     const r = await fetch("https://api.resend.com/domains", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${(key || "").trim()}` },
       body: JSON.stringify({ name }),
     });
     const json = await r.json().catch(() => ({}));

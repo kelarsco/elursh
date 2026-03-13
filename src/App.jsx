@@ -30,6 +30,7 @@ import DashboardSalesHack from "./pages/dashboard/DashboardSalesHack";
 import DashboardChecklist from "./pages/dashboard/DashboardChecklist";
 import DashboardSupport from "./pages/dashboard/DashboardSupport";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
+import HighConvertingStoreAudit from "./pages/HighConvertingStoreAudit";
 import NotFound from "./pages/NotFound";
 import ManagerLayout from "./pages/manager/ManagerLayout";
 import Dashboard from "./pages/manager/Dashboard";
@@ -71,6 +72,7 @@ function AppContent() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/get-started" element={<GetStarted />} />
+          <Route path="/high-converting-store-audit" element={<HighConvertingStoreAudit />} />
           <Route path="/dashboard" element={<UserDashboardLayout />}>
             <Route index element={<DashboardOverview />} />
             <Route path="activity" element={<DashboardActivity />} />
