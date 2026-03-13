@@ -19,6 +19,8 @@ export default {
         space: ["Space Grotesk", "system-ui", "sans-serif"],
         heading: ["Poppins", "system-ui", "sans-serif"],
         poppins: ["Poppins", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "sans-serif"],
+        body: ["var(--font-body)", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -26,6 +28,17 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        dark: {
+          DEFAULT: "hsl(var(--dark-bg))",
+          fg: "hsl(var(--dark-fg))",
+        },
+        soft: "hsl(var(--soft-bg))",
+        emerald: {
+          DEFAULT: "hsl(var(--emerald))",
+          glow: "hsl(var(--emerald-glow))",
+        },
+        "danger-soft": "hsl(var(--danger-soft))",
+        "success-soft": "hsl(var(--success-soft))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

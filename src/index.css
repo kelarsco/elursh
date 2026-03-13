@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Poppins:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -59,6 +59,17 @@ body {
     --dark-muted: 0 0% 15%;
     --light-gray: 0 0% 96%;
     --medium-gray: 0 0% 75%;
+    
+    /* Store Audit Pro Design Tokens */
+    --dark-bg: 217 55% 11%;
+    --dark-fg: 210 33% 98%;
+    --soft-bg: 210 33% 98%;
+    --emerald: 160 84% 39%;
+    --emerald-glow: 160 84% 45%;
+    --danger-soft: 0 70% 95%;
+    --success-soft: 160 60% 95%;
+    --font-display: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
     
     /* Sidebar */
     --sidebar-background: 0 0% 98%;
@@ -140,6 +151,23 @@ body {
   
   .container-custom {
     @apply max-w-[1400px] mx-auto px-6 md:px-10 lg:px-16;
+  }
+
+  /* Store Audit Pro Classes */
+  .section-dark {
+    @apply bg-dark text-dark-fg;
+  }
+
+  .section-light {
+    @apply bg-background text-foreground;
+  }
+
+  .section-soft {
+    @apply bg-soft text-foreground;
+  }
+
+  .container-section {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
   .cta-button {
