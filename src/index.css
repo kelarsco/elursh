@@ -155,7 +155,7 @@ body {
 
   /* Store Audit Pro Classes */
   .section-dark {
-    @apply bg-dark text-dark-fg;
+    @apply bg-dark text-white;
   }
 
   .section-light {

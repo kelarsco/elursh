@@ -33,7 +33,7 @@ const HeroSection = () => {
 
         <FadeIn delay={0.2}>
           <p className="mt-4 text-center font-display font-medium text-emerald text-lg sm:text-xl">
-            (#4 Is One Most Store Owners Never Notice)
+            (#4 Is the One Most Store Owners Never Notice)
           </p>
         </FadeIn>
 

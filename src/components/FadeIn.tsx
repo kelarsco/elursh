@@ -1,6 +1,13 @@
 import { motion } from "framer-motion";
+import { ReactNode } from "react";
 
-export const FadeIn = ({ children, delay = 0, className }) => (
+interface FadeInProps {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}
+
+export const FadeIn = ({ children, delay = 0, className }: FadeInProps) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
