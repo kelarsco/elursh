@@ -1,5 +1,5 @@
 import { FadeIn } from "@/components/FadeIn";
-import expertPhoto from "@/assets/expert-photo.jpg";
+import expertPhoto from "@/assets/about_me.png";
 
 const ExpertSection = () => {
   return (
@@ -14,7 +14,7 @@ const ExpertSection = () => {
                 className="rounded-2xl shadow-xl w-full max-w-sm mx-auto"
                 loading="lazy"
               />
-              <div className="absolute -bottom-4 -right-4 bg-emerald text-primary-foreground px-5 py-3 rounded-xl font-display font-bold shadow-lg">
+              <div className="absolute -top-4 -right-4 bg-emerald text-primary-foreground px-5 py-3 rounded-xl font-display font-bold shadow-lg">
                 200+ Stores Audited
               </div>
             </div>

@@ -35,17 +35,17 @@ const TestimonialsSection = () => {
         <div className="mt-12 grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {testimonials.map((t, i) => (
             <FadeIn key={i} delay={i * 0.1}>
-              <div className="bg-background rounded-xl p-7 border border-border shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+              <div className="bg-background rounded-xl p-8 border border-border shadow-sm hover:shadow-xl transition-all duration-300 hover:border-emerald/20 hover:-translate-y-1 h-full flex flex-col group">
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="h-4 w-4 fill-emerald text-emerald" />
+                    <Star key={j} className="h-5 w-5 fill-yellow-400 text-yellow-400 drop-shadow-sm" />
                   ))}
                 </div>
-                <p className="text-foreground font-body leading-relaxed flex-1">
+                <p className="text-foreground font-body leading-relaxed flex-1 text-lg group-hover:text-emerald/90 transition-colors">
                   "{t.quote}"
                 </p>
                 <div className="mt-6 pt-4 border-t border-border">
-                  <p className="font-display font-semibold text-foreground">{t.name}</p>
+                  <p className="font-display font-bold text-foreground text-lg">{t.name}</p>
                   <p className="text-muted-foreground text-sm font-body">{t.business}</p>
                 </div>
               </div>

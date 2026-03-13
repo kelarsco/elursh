@@ -1766,7 +1766,7 @@ app.post("/api/manager/send-email", requireManager, requireDb, async (req, res) 
     const from = fromInput || process.env.RESEND_FROM || "onboarding@resend.dev";
     // Validate sender domain is verified in Resend (required for deliverability)
     const extractDomain = (addr) => {
-      const email = addr.includes("<") ? ((addr.match(/<([^>]+)>/)?.[1] || addr).trim() : addr.trim();
+      const email = addr.includes("<") ? ((addr.match(/<([^>]+)>/)?.[1] || addr).trim()) : addr.trim();
       const part = (email || "").trim().split("@")[1];
       return part ? part.toLowerCase() : "";
     };
