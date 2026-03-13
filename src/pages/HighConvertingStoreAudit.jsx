@@ -8,8 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowUp, ArrowDown, XCircle, Star, User, Shield, Target, Home, TrendingUp, Layers, DollarSign, Store, UserTie, Lock, AlertTriangle } from "lucide-react";
-import expertProfile from "@/assets/expert-profile.jpg";
+import { CheckCircle, ArrowUp, ArrowDown, XCircle, Star, User, Shield, Target, Home, TrendingUp, Layers, DollarSign, Store, UserCheck, Lock, AlertTriangle } from "lucide-react";
+import expertProfile from "@/assets/about_me.png";
 
 const HighConvertingStoreAudit = () => {
   const [formData, setFormData] = useState({
@@ -407,7 +407,7 @@ const HighConvertingStoreAudit = () => {
                 <img 
                   src={expertProfile} 
                   alt="Store Audit Expert" 
-                  className="w-32 h-32 object-cover"
+                  className="w-96 h-96 object-cover"
                 />
               </div>
             </div>
