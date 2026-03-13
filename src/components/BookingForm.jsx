@@ -28,7 +28,7 @@ const timeSlots = [
 const BookingForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -36,7 +36,7 @@ const BookingForm = () => {
     setTimeout(() => {
       setIsSubmitting(false);
       toast.success("Your audit request has been submitted! We'll be in touch within 24 hours.");
-      (e.target as HTMLFormElement).reset();
+      e.target.reset();
     }, 1500);
   };
 

@@ -5,10 +5,10 @@ import afterImg from "@/assets/after-store.jpg";
 
 const BeforeAfterSlider = () => {
   const [sliderPos, setSliderPos] = useState(50);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef(null);
   const isDragging = useRef(false);
 
-  const updatePosition = useCallback((clientX: number) => {
+  const updatePosition = useCallback((clientX) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
@@ -17,10 +17,10 @@ const BeforeAfterSlider = () => {
 
   const handleMouseDown = () => { isDragging.current = true; };
   const handleMouseUp = () => { isDragging.current = false; };
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e) => {
     if (isDragging.current) updatePosition(e.clientX);
   };
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = (e) => {
     updatePosition(e.touches[0].clientX);
   };
 
